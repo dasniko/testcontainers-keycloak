@@ -1,6 +1,5 @@
 package dasniko.testcontainers.keycloak;
 
-import lombok.Setter;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -22,7 +21,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_AUTH_PATH = "/auth";
 
-    @Setter
     private String importFile;
 
     public KeycloakContainer() {
