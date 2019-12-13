@@ -1,15 +1,17 @@
 package dasniko.testcontainers.keycloak;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.keycloak.representations.info.ServerInfoRepresentation;
 
+import static dasniko.testcontainers.keycloak.KeycloakContainer.KEYCLOAK_VERSION;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
-@Slf4j
 public class KeycloakContainerTest {
 
     @Test
@@ -31,4 +33,16 @@ public class KeycloakContainerTest {
             given().when().get(accountService).then().statusCode(200);
         }
     }
+
+    @Test
+    public void shouldReturnServerInfo() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+            keycloak.start();
+
+            ServerInfoRepresentation serverInfo = keycloak.getKeycloakAdminClient().serverInfo().getInfo();
+            assertThat(serverInfo, notNullValue());
+            assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(KEYCLOAK_VERSION));
+        }
+    }
+
 }

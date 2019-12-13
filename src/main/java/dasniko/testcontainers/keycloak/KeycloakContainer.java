@@ -1,5 +1,7 @@
 package dasniko.testcontainers.keycloak;
 
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -13,7 +15,7 @@ import java.time.Duration;
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "8.0.1";
+    protected static final String KEYCLOAK_VERSION = "8.0.1";
 
     private static final int KEYCLOAK_PORT = 8080;
 
@@ -22,6 +24,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_AUTH_PATH = "/auth";
 
     private String importFile;
+
+    private Keycloak keycloakAdminClient;
 
     public KeycloakContainer() {
         this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
@@ -56,6 +60,16 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         }
     }
 
+    @Override
+    public void stop() {
+        if (keycloakAdminClient != null) {
+            keycloakAdminClient.close();
+            keycloakAdminClient = null;
+        }
+
+        super.stop();
+    }
+
     public KeycloakContainer withRealmImportFile(String importFile) {
         this.importFile = importFile;
         return self();
@@ -63,5 +77,19 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public String getAuthServerUrl() {
         return String.format("http://%s:%s%s", getContainerIpAddress(), getFirstMappedPort(), KEYCLOAK_AUTH_PATH);
+    }
+
+    public Keycloak getKeycloakAdminClient() {
+        if (keycloakAdminClient == null) {
+            keycloakAdminClient = KeycloakBuilder.builder()
+                .realm("master")
+                .serverUrl(getAuthServerUrl())
+                .clientId("admin-cli")
+                .username(KEYCLOAK_ADMIN_USER)
+                .password(KEYCLOAK_ADMIN_PASSWORD)
+                .build();
+        }
+
+        return keycloakAdminClient;
     }
 }
