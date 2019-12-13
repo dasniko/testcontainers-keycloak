@@ -3,7 +3,6 @@ package dasniko.testcontainers.keycloak;
 import org.junit.Test;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 
-import static dasniko.testcontainers.keycloak.KeycloakContainer.KEYCLOAK_VERSION;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -41,7 +40,7 @@ public class KeycloakContainerTest {
 
             ServerInfoRepresentation serverInfo = keycloak.getKeycloakAdminClient().serverInfo().getInfo();
             assertThat(serverInfo, notNullValue());
-            assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(KEYCLOAK_VERSION));
+            assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
         }
     }
 

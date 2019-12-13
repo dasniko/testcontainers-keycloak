@@ -15,7 +15,7 @@ import java.time.Duration;
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    protected static final String KEYCLOAK_VERSION = "8.0.1";
+    private static final String KEYCLOAK_VERSION = "8.0.1";
 
     private static final int KEYCLOAK_PORT = 8080;
 
@@ -77,6 +77,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public String getAuthServerUrl() {
         return String.format("http://%s:%s%s", getContainerIpAddress(), getFirstMappedPort(), KEYCLOAK_AUTH_PATH);
+    }
+
+    public String getKeycloakVersion() {
+        return KEYCLOAK_VERSION;
     }
 
     public Keycloak getKeycloakAdminClient() {
