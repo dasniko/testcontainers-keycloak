@@ -8,6 +8,12 @@
     <artifactId>testcontainers-keycloak</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <scm>
+        <connection>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</connection>
+        <url>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</url>
+        <developerConnection>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</developerConnection>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
