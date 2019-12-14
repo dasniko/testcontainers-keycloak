@@ -40,17 +40,7 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
 
-            Keycloak keycloakAdminClient = KeycloakBuilder.builder()
-                .serverUrl(keycloak.getAuthServerUrl())
-                .realm("master")
-                .clientId("admin-cli")
-                .username(keycloak.getAdminUsername())
-                .password(keycloak.getAdminPassword())
-                .build();
-
-            ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
-            assertThat(serverInfo, notNullValue());
-            assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
+            checkKeycloakContainerInternals(keycloak, keycloak.getAdminUsername(), keycloak.getAdminPassword());
         }
     }
 
@@ -64,18 +54,22 @@ public class KeycloakContainerTest {
             .withAdminPassword(password)) {
             keycloak.start();
 
-            Keycloak keycloakAdminClient = KeycloakBuilder.builder()
-                .serverUrl(keycloak.getAuthServerUrl())
-                .realm("master")
-                .clientId("admin-cli")
-                .username(username)
-                .password(password)
-                .build();
-
-            ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
-            assertThat(serverInfo, notNullValue());
-            assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
+            checkKeycloakContainerInternals(keycloak, username, password);
         }
+    }
+
+    private void checkKeycloakContainerInternals(KeycloakContainer keycloak, String username, String password) {
+        Keycloak keycloakAdminClient = KeycloakBuilder.builder()
+            .serverUrl(keycloak.getAuthServerUrl())
+            .realm("master")
+            .clientId("admin-cli")
+            .username(username)
+            .password(password)
+            .build();
+
+        ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
+        assertThat(serverInfo, notNullValue());
+        assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
     }
 
 }
