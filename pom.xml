@@ -4,13 +4,13 @@
 
     <groupId>dasniko</groupId>
     <artifactId>testcontainers-keycloak</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</connection>
         <url>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</url>
         <developerConnection>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</developerConnection>
-      <tag>1.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
