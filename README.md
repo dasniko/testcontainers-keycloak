@@ -30,14 +30,33 @@ private KeycloakContainer keycloak = new KeycloakContainer()
     .withImportFile("test-realm.json");
 ```
 
-Obtain the Auth-URL from the Keycloak container:
+Use different admin credentials than the defaut internal (`admin`/`admin`) ones:
+
+```java
+@Container
+private KeycloakContainer keycloak = new KeycloakContainer()
+    .withAdminUsername("myKeycloakAdminUser")
+    .withAdminPassword("tops3cr3t");
+```
+
+You can obtain several properties form the Keycloak container:
 
 ```java
 String authServerUrl = keycloak.getAuthServerUrl();
+String adminUsername = keycloak.getAdminUsername();
+String adminPassword = keycloak.getAdminPassword();
 ```
 
-Get a `org.keycloak.admin.client.Keycloak` (Keycloak admin client) object from the container, connected to the running instance, ready to be used for further configuration:
+with these properties, you can create a `org.keycloak.admin.client.Keycloak` (Keycloak admin client, 3rd party dependency from Keycloak project) object to connect to the container and do optional further configuration:
 
 ```java
-Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
+Keycloak keycloakAdminClient = KeycloakBuilder.builder()
+    .serverUrl(keycloak.getAuthServerUrl())
+    .realm("master")
+    .clientId("admin-cli")
+    .username(keycloak.getAdminUsername())
+    .password(keycloak.getAdminPassword())
+    .build();
 ```
+
+See also [`KeycloakContainerTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerTest.java) class.

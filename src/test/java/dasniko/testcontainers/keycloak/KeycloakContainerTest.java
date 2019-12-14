@@ -1,6 +1,8 @@
 package dasniko.testcontainers.keycloak;
 
 import org.junit.Test;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 
 import static io.restassured.RestAssured.given;
@@ -38,7 +40,39 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
 
-            ServerInfoRepresentation serverInfo = keycloak.getKeycloakAdminClient().serverInfo().getInfo();
+            Keycloak keycloakAdminClient = KeycloakBuilder.builder()
+                .serverUrl(keycloak.getAuthServerUrl())
+                .realm("master")
+                .clientId("admin-cli")
+                .username(keycloak.getAdminUsername())
+                .password(keycloak.getAdminPassword())
+                .build();
+
+            ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
+            assertThat(serverInfo, notNullValue());
+            assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
+        }
+    }
+
+    @Test
+    public void shouldUseDifferentAdminCredentials() {
+        String username = "foo";
+        String password = "bar";
+
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .withAdminUsername(username)
+            .withAdminPassword(password)) {
+            keycloak.start();
+
+            Keycloak keycloakAdminClient = KeycloakBuilder.builder()
+                .serverUrl(keycloak.getAuthServerUrl())
+                .realm("master")
+                .clientId("admin-cli")
+                .username(username)
+                .password(password)
+                .build();
+
+            ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
             assertThat(serverInfo, notNullValue());
             assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
         }

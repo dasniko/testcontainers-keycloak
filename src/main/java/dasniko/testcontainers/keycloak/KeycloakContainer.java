@@ -1,7 +1,5 @@
 package dasniko.testcontainers.keycloak;
 
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -23,9 +21,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_AUTH_PATH = "/auth";
 
-    private String importFile;
+    private String adminUsername = KEYCLOAK_ADMIN_USER;
+    private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
-    private Keycloak keycloakAdminClient;
+    private String importFile;
 
     public KeycloakContainer() {
         this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
@@ -50,8 +49,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     protected void configure() {
         withCommand("-c standalone.xml"); // don't start infinispan cluster
 
-        withEnv("KEYCLOAK_USER", KEYCLOAK_ADMIN_USER);
-        withEnv("KEYCLOAK_PASSWORD", KEYCLOAK_ADMIN_PASSWORD);
+        withEnv("KEYCLOAK_USER", adminUsername);
+        withEnv("KEYCLOAK_PASSWORD", adminPassword);
 
         if (importFile != null) {
             String importFileInContainer = "/tmp/" + importFile;
@@ -60,18 +59,18 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         }
     }
 
-    @Override
-    public void stop() {
-        if (keycloakAdminClient != null) {
-            keycloakAdminClient.close();
-            keycloakAdminClient = null;
-        }
-
-        super.stop();
-    }
-
     public KeycloakContainer withRealmImportFile(String importFile) {
         this.importFile = importFile;
+        return self();
+    }
+
+    public KeycloakContainer withAdminUsername(String adminUsername) {
+        this.adminUsername = adminUsername;
+        return self();
+    }
+
+    public KeycloakContainer withAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
         return self();
     }
 
@@ -79,21 +78,16 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return String.format("http://%s:%s%s", getContainerIpAddress(), getFirstMappedPort(), KEYCLOAK_AUTH_PATH);
     }
 
-    public String getKeycloakVersion() {
+    public String getAdminUsername() {
+        return adminUsername;
+    }
+
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
+    protected String getKeycloakVersion() {
         return KEYCLOAK_VERSION;
     }
 
-    public Keycloak getKeycloakAdminClient() {
-        if (keycloakAdminClient == null) {
-            keycloakAdminClient = KeycloakBuilder.builder()
-                .realm("master")
-                .serverUrl(getAuthServerUrl())
-                .clientId("admin-cli")
-                .username(KEYCLOAK_ADMIN_USER)
-                .password(KEYCLOAK_ADMIN_PASSWORD)
-                .build();
-        }
-
-        return keycloakAdminClient;
-    }
 }
