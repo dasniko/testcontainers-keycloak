@@ -60,3 +60,9 @@ Keycloak keycloakAdminClient = KeycloakBuilder.builder()
 ```
 
 See also [`KeycloakContainerTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerTest.java) class.
+
+## Integrate it into your project
+
+Currently, you can build and install the `testcontainers-keycloak` on your own with Maven and put it as a dependency to your project.
+
+Alternatively, you can get it via [JitPack](https://jitpack.io/#dasniko/testcontainers-keycloak).
