@@ -6,7 +6,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.MountableFile;
 
 import java.time.Duration;
-import java.util.stream.Stream;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -16,8 +15,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
     private static final String KEYCLOAK_VERSION = "8.0.1";
 
-    private static final int KEYCLOAK_PORT_HTTP = 8080;
-    private static final int KEYCLOAK_PORT_HTTPS = 8443;
+    static final int KEYCLOAK_PORT_HTTP = 8080;
+    static final int KEYCLOAK_PORT_HTTPS = 8443;
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
@@ -25,9 +24,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
-    private boolean useHttps = false;
 
     private String importFile;
+    private String tlsCertFilename;
+    private String tlsKeyFilename;
+    private boolean useTls = false;
 
     public KeycloakContainer() {
         this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
@@ -40,9 +41,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public KeycloakContainer(String dockerImageName) {
         super(dockerImageName);
-        addExposedPort(KEYCLOAK_PORT_HTTP);
+        withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
         setWaitStrategy(Wait
             .forHttp(KEYCLOAK_AUTH_PATH)
+            .forPort(KEYCLOAK_PORT_HTTP)
             .withStartupTimeout(Duration.ofMinutes(2))
         );
         withLogConsumer(new Slf4jLogConsumer(logger()));
@@ -55,10 +57,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         withEnv("KEYCLOAK_USER", adminUsername);
         withEnv("KEYCLOAK_PASSWORD", adminPassword);
 
-        Stream.of("crt", "key").forEach(e -> {
-            String sslFileInContainer = "/etc/x509/https/tls." + e;
-            withCopyFileToContainer(MountableFile.forClasspathResource("tls." + e), sslFileInContainer);
-        });
+        if (useTls && isNotBlank(tlsCertFilename) && isNotBlank(tlsKeyFilename)) {
+            String certFileInContainer = "/etc/x509/https/tls.crt";
+            String keyFileInContainer = "/etc/x509/https/tls.key";
+            withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertFilename), certFileInContainer);
+            withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeyFilename), keyFileInContainer);
+        }
 
         if (importFile != null) {
             String importFileInContainer = "/tmp/" + importFile;
@@ -82,14 +86,21 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
-    public KeycloakContainer withHttps(boolean useHttps) {
-        this.useHttps = useHttps;
+    public KeycloakContainer useTls() {
+        // tls.crt and tls.key are provided with this testcontainer
+        return useTls("tls.crt", "tls.key");
+    }
+
+    public KeycloakContainer useTls(String tlsCertFilename, String tlsKeyFilename) {
+        this.tlsCertFilename = tlsCertFilename;
+        this.tlsKeyFilename = tlsKeyFilename;
+        this.useTls = true;
         return self();
     }
 
     public String getAuthServerUrl() {
-        return String.format("http%s://%s:%s%s", useHttps ? "s" : "", getContainerIpAddress(),
-            useHttps ? getMappedPort(KEYCLOAK_PORT_HTTPS) : getMappedPort(KEYCLOAK_PORT_HTTP), KEYCLOAK_AUTH_PATH);
+        return String.format("http%s://%s:%s%s", useTls ? "s" : "", getContainerIpAddress(),
+            useTls ? getMappedPort(KEYCLOAK_PORT_HTTPS) : getMappedPort(KEYCLOAK_PORT_HTTP), KEYCLOAK_AUTH_PATH);
     }
 
     public String getAdminUsername() {
@@ -102,6 +113,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     protected String getKeycloakVersion() {
         return KEYCLOAK_VERSION;
+    }
+
+    private boolean isNotBlank(String s) {
+        return s != null && !s.trim().isEmpty();
     }
 
 }
