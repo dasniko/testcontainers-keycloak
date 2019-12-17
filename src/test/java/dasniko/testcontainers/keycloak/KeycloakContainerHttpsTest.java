@@ -25,10 +25,9 @@ public class KeycloakContainerHttpsTest {
             keycloak.start();
 
             RestAssured.useRelaxedHTTPSValidation();
-            Integer portHttps = keycloak.getMappedPort(KeycloakContainer.KEYCLOAK_PORT_HTTPS);
 
             given()
-                .when().get("https://localhost:" + portHttps + "/auth")
+                .when().get("https://localhost:" + keycloak.getHttpsPort() + "/auth")
                 .then().statusCode(200);
         }
     }

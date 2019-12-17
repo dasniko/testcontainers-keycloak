@@ -15,8 +15,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
     private static final String KEYCLOAK_VERSION = "8.0.1";
 
-    static final int KEYCLOAK_PORT_HTTP = 8080;
-    static final int KEYCLOAK_PORT_HTTPS = 8443;
+    private static final int KEYCLOAK_PORT_HTTP = 8080;
+    private static final int KEYCLOAK_PORT_HTTPS = 8443;
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
@@ -109,6 +109,14 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public String getAdminPassword() {
         return adminPassword;
+    }
+
+    public int getHttpPort() {
+        return getMappedPort(KEYCLOAK_PORT_HTTP);
+    }
+
+    public int getHttpsPort() {
+        return getMappedPort(KEYCLOAK_PORT_HTTPS);
     }
 
     protected String getKeycloakVersion() {
