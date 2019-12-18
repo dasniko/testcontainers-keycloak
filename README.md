@@ -1,14 +1,12 @@
 # Keycloak Testcontainer
 
-![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak) ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak)
-
 A [Testcontainer](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
 
-_(Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspiration)_
+![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak)
+![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak)
+![](https://img.shields.io/badge/Keycloak-8.0.1-blue)
 
-Currently used: ![](https://img.shields.io/badge/Keycloak-8.0.1-blue)
-
-## Setup
+## How to use
 
 Simply spin up a default Keycloak instance:
 
@@ -81,7 +79,7 @@ See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithDefaultTlsSupport`]
 
 ### Built-in TLS Cert and Key
 
-This Keycloak Testcontainer comes with built-in TLS certificate, key and KeyStore files, located in the `resources` folder.
+This Keycloak Testcontainer comes with built-in TLS certificate (`tls.crt`), key (`tls.key`) and Java KeyStore (`tls.jks`) files, located in the `resources` folder.
 You can use this configuration by only configuring your testcontainer like this:
 
 ```java
@@ -89,6 +87,7 @@ You can use this configuration by only configuring your testcontainer like this:
 private KeycloakContainer keycloak = new KeycloakContainer().useTls();
 ```
 
+The password for the provided Java KeyStore file is `changeit`.
 See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithProvidedTlsCertAndKey`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerHttpsTest.java#L36).
 
 The method `getAuthServerUrl()` will then return the HTTPS url.
@@ -107,20 +106,28 @@ See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsCertAndKey
 
 The method `getAuthServerUrl()` will also return the HTTPS url.
 
-## Use it in your project
+## Setup
 
-The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak):
+The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak).
+Simply put the dependency coordinates to your `pom.xml` (or something similar, if you use e.g. Gradle or something else):
 
 ```xml
 <dependency>
   <groupId>com.github.dasniko</groupId>
   <artifactId>testcontainers-keycloak</artifactId>
   <version>1.2.0</version>
+  <scope>test</scope>
 </dependency>
 ```
 
-Alternatively, you can of course build it on your own or get the package via [JitPack](https://jitpack.io/#dasniko/testcontainers-keycloak).
-:-)
+## Credits
+
+Many thanks to the creators and maintainers of [Testcontainers](https://www.testcontainers.org/).
+You do an awesome job!
+
+Same goes to the whole [Keycloak](https://www.keycloak.org/) team!
+
+Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspiration for this project.
 
 ## License
 
