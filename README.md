@@ -1,5 +1,7 @@
 # Keycloak Testcontainer
 
+![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak) ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak)
+
 A [Testcontainer](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
 
 _(Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspiration)_
@@ -107,28 +109,23 @@ The method `getAuthServerUrl()` will also return the HTTPS url.
 
 ## Use it in your project
 
-Currently, you can build and install the `testcontainers-keycloak` on your own with Maven and put it as a dependency to your project:
-
-    $ mvn install
-
-Add the dpendency in your `pom.xml`:
+The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak):
 
 ```xml
 <dependency>
   <groupId>com.github.dasniko</groupId>
   <artifactId>testcontainers-keycloak</artifactId>
-  <version>1.1</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
-Alternatively, you can get the package via [JitPack](https://jitpack.io/#dasniko/testcontainers-keycloak).
-You only have to add the following repository in addition to the above mentioned dependency:
+Alternatively, you can of course build it on your own or get the package via [JitPack](https://jitpack.io/#dasniko/testcontainers-keycloak).
+:-)
 
-```xml
-<repositories>
-  <repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-  </repository>
-</repositories>
-```
+## License
+
+MIT License
+
+Copyright (c) 2019 Niko Köbler
+
+See [LICENSE](LICENSE) file for details.
