@@ -1,7 +1,6 @@
 package dasniko.testcontainers.keycloak;
 
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.MountableFile;
 
@@ -47,7 +46,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             .forPort(KEYCLOAK_PORT_HTTP)
             .withStartupTimeout(Duration.ofMinutes(2))
         );
-        withLogConsumer(new Slf4jLogConsumer(logger()));
+//        withLogConsumer(new Slf4jLogConsumer(logger()));
     }
 
     @Override
