@@ -52,7 +52,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     @Override
     protected void configure() {
-        withCommand("-c standalone.xml"); // don't start infinispan cluster
+        withCommand(
+            "-c standalone.xml", // don't start infinispan cluster
+            "-Dkeycloak.profile.feature.upload_scripts=enabled" // enable script uploads
+        );
 
         withEnv("KEYCLOAK_USER", adminUsername);
         withEnv("KEYCLOAK_PASSWORD", adminPassword);
