@@ -4,9 +4,12 @@ A [Testcontainer](https://www.testcontainers.org/) implementation for [Keycloak]
 
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak)
-![](https://img.shields.io/badge/Keycloak-8.0.1-blue)
+![](https://img.shields.io/badge/Keycloak-9.0.2-blue)
 
 ## How to use
+
+_The `@Container` annotation used here in the readme is from the JUnit 5 support of Testcontainers.
+Please refer to the Testcontainers documentation for more information._
 
 Simply spin up a default Keycloak instance:
 
@@ -115,10 +118,20 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
 <dependency>
   <groupId>com.github.dasniko</groupId>
   <artifactId>testcontainers-keycloak</artifactId>
-  <version>1.2.0</version>
+  <version>VERSION</version>
   <scope>test</scope>
 </dependency>
 ```
+
+## Testcontainers & Keycloak version compatiblity
+
+|Testcontainer-keycloak |Testcontainers |Keycloak
+|---|---|---
+|1.2.0 |1.12.3 |8.0.1
+|1.3.0 |1.12.3 |8.0.1
+|1.3.1 |1.13.0 |9.0.2
+
+_There might also be other possible version configurations which will work._
 
 ## Credits
 
