@@ -30,7 +30,7 @@ Power up a Keycloak instance with an existing realm JSON config file (from class
 ```java
 @Container
 private KeycloakContainer keycloak = new KeycloakContainer()
-    .withImportFile("test-realm.json");
+    .withRealmImportFile("test-realm.json");
 ```
 
 Use different admin credentials than the defaut internal (`admin`/`admin`) ones:
