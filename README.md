@@ -1,10 +1,10 @@
 # Keycloak Testcontainer
 
-A [Testcontainer](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
+A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
 
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak)
-![](https://img.shields.io/badge/Keycloak-9.0.2-blue)
+![](https://img.shields.io/badge/Keycloak-10.0.2-blue)
 
 ## How to use
 
@@ -125,11 +125,12 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
 
 ## Testcontainers & Keycloak version compatiblity
 
-|Testcontainer-keycloak |Testcontainers |Keycloak
+|Testcontainers-Keycloak |Testcontainers |Keycloak
 |---|---|---
 |1.2.0 |1.12.3 |8.0.1
 |1.3.0 |1.12.3 |8.0.1
 |1.3.1 |1.13.0 |9.0.2
+|1.3.2 |1.13.0 |10.0.2
 
 _There might also be other possible version configurations which will work._
 
@@ -146,6 +147,6 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 MIT License
 
-Copyright (c) 2019 Niko Köbler
+Copyright (c) 2019-2020 Niko Köbler
 
 See [LICENSE](LICENSE) file for details.
