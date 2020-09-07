@@ -4,7 +4,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak)
-![](https://img.shields.io/badge/Keycloak-10.0.2-blue)
+![](https://img.shields.io/badge/Keycloak-11.0.2-blue)
 
 ## How to use
 
@@ -22,7 +22,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:7.0.0");
+private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:11.0.2");
 ```
 
 Power up a Keycloak instance with an existing realm JSON config file (from classpath):
@@ -131,6 +131,7 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
 |1.3.0 |1.12.3 |8.0.1
 |1.3.1 |1.13.0 |9.0.2
 |1.3.3 |1.13.0 |10.0.2
+|1.4.0 |1.13.0 |11.0.2
 
 _There might also be other possible version configurations which will work._
 
