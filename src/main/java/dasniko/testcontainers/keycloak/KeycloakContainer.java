@@ -53,6 +53,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     protected void configure() {
         withCommand(
             "-c standalone.xml", // don't start infinispan cluster
+            "-b 0.0.0.0", // ensure proper binding
             "-Dkeycloak.profile.feature.upload_scripts=enabled" // enable script uploads
         );
 
