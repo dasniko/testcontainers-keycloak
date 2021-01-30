@@ -124,6 +124,31 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
 </dependency>
 ```
 
+## Usage in your application framework tests
+
+> This info is not specific to the Keycloak Testcontainer, but using Testcontainers generally.
+
+I mention it here, as I see people asking again and again on how to use it in their test setup, when they think they need to specify a fixed port in their properties or YAML files...  
+You don't have to!  
+But you have to read the Testcontainers docs and the docs of your application framework on testing resources!!
+
+### Spring (Boot)
+
+Dynamic context configuration with context initializers is your friend.
+In particular, look for `@ContextConfiguration` and `ApplicationContextInitializer<ConfigurableApplicationContext>`:
+* https://docs.spring.io/spring-framework/docs/current/reference/html/testing.html#spring-testing-annotation-contextconfiguration
+* https://docs.spring.io/spring-framework/docs/current/reference/html/testing.html#testcontext-ctx-management-initializers
+
+### Quarkus
+
+Read the docs about the Quarkus Test Resources and use `@QuarkusTestResource` with `QuarkusTestResourceLifecycleManager`
+* https://quarkus.io/guides/getting-started-testing#quarkus-test-resource
+
+### Others
+
+Consult the docs of your application framework testing capabilities on how to dynamically configure your stack for testing!
+
+
 ## Testcontainers & Keycloak version compatiblity
 
 |Testcontainers-Keycloak |Testcontainers |Keycloak
