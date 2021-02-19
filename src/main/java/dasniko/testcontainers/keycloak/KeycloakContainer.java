@@ -1,9 +1,15 @@
 package dasniko.testcontainers.keycloak;
 
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.MountableFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.Duration;
 
 /**
@@ -21,6 +27,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_AUTH_PATH = "/auth";
 
+    private static final String DEFAULT_EXTENSION_NAME = "extensions.jar";
+
+    private static final String DEFAULT_DEPLOYMENT_LOCATION = "/opt/jboss/keycloak/standalone/deployments";
+
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
@@ -28,6 +38,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String tlsCertFilename;
     private String tlsKeyFilename;
     private boolean useTls = false;
+
+    private String extensionClassLocation;
+    private String extensionDeploymentsLocation = DEFAULT_DEPLOYMENT_LOCATION;
+    private String extensionName = DEFAULT_EXTENSION_NAME;
 
     public KeycloakContainer() {
         this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
@@ -72,6 +86,28 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
             withEnv("KEYCLOAK_IMPORT", importFileInContainer);
         }
+
+        if (extensionClassLocation != null) {
+            createDynamicExtensionDeploymentFor(extensionDeploymentsLocation, extensionName, extensionClassLocation);
+        }
+    }
+
+    public void createDynamicExtensionDeploymentFor(String deploymentLocation, String extensionName, String extensionClassFolder) {
+
+        String explodedFolderExtensionsJar = deploymentLocation + "/" + extensionName;
+        String classesLocation = MountableFile.forClasspathResource(".").getResolvedPath() + "../" + extensionClassFolder;
+        addFileSystemBind(classesLocation, explodedFolderExtensionsJar, BindMode.READ_WRITE, SelinuxContext.SINGLE);
+
+        String deploymentTriggerContainerFile = explodedFolderExtensionsJar + ".dodeploy";
+        try {
+            // Refactor once test-containers support mointing a string as file
+            File deploymentTriggerFile = File.createTempFile("kc-tc-deploy", null);
+            deploymentTriggerFile.deleteOnExit();
+            Files.write(deploymentTriggerFile.toPath(), "true".getBytes(StandardCharsets.UTF_8));
+            withFileSystemBind(deploymentTriggerFile.getAbsolutePath(), deploymentTriggerContainerFile, BindMode.READ_ONLY);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create extensions deployment trigger file", e);
+        }
     }
 
     public KeycloakContainer withRealmImportFile(String importFile) {
@@ -86,6 +122,21 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
+        return self();
+    }
+
+    public KeycloakContainer withExtensionClassesFrom(String classesLocation) {
+        this.extensionClassLocation = classesLocation;
+        return self();
+    }
+
+    public KeycloakContainer withExtensionDeploymentName(String extensionName) {
+        this.extensionName = extensionName;
+        return self();
+    }
+
+    public KeycloakContainer withExtensionDeploymentsLocation(String extensionDeploymentsLocation) {
+        this.extensionDeploymentsLocation = extensionDeploymentsLocation;
         return self();
     }
 
