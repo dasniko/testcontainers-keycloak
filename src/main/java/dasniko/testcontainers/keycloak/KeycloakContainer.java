@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Duration;
+import java.util.Objects;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -29,7 +30,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String DEFAULT_EXTENSION_NAME = "extensions.jar";
 
-    private static final String DEFAULT_DEPLOYMENT_LOCATION = "/opt/jboss/keycloak/standalone/deployments";
+    // for Keycloak-X this will be /opt/jboss/keycloak/providers
+    private static final String DEFAULT_KEYCLOAK_DEPLOYMENTS_LOCATION = "/opt/jboss/keycloak/standalone/deployments";
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
@@ -40,8 +42,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private boolean useTls = false;
 
     private String extensionClassLocation;
-    private String extensionDeploymentsLocation = DEFAULT_DEPLOYMENT_LOCATION;
-    private String extensionName = DEFAULT_EXTENSION_NAME;
 
     public KeycloakContainer() {
         this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
@@ -88,19 +88,53 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         }
 
         if (extensionClassLocation != null) {
-            createDynamicExtensionDeploymentFor(extensionDeploymentsLocation, extensionName, extensionClassLocation);
+            createKeycloakExtensionDeployment(extensionClassLocation);
         }
     }
 
-    public void createDynamicExtensionDeploymentFor(String deploymentLocation, String extensionName, String extensionClassFolder) {
+    /**
+     * Maps the provided {@code extensionClassFolder} as an exploded extension.jar to the Keycloak deployments folder.
+     *
+     * @param extensionClassFolder a path relative to the current classpath root.
+     */
+    public void createKeycloakExtensionDeployment(String extensionClassFolder) {
+        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_DEPLOYMENTS_LOCATION, DEFAULT_EXTENSION_NAME, extensionClassFolder);
+    }
 
-        String explodedFolderExtensionsJar = deploymentLocation + "/" + extensionName;
-        String classesLocation = MountableFile.forClasspathResource(".").getResolvedPath() + "../" + extensionClassFolder;
+    /**
+     * Maps the provided {@code extensionClassFolder} as an exploded extension.jar to the {@code deploymentLocation}.
+     *
+     * @param deploymentLocation the target deployments location of the Keycloak server.
+     * @param extensionName the name suffix of the created extension.
+     * @param extensionClassFolder  a path relative to the current classpath root.
+     */
+    protected void createKeycloakExtensionDeployment(String deploymentLocation, String extensionName, String extensionClassFolder) {
+
+        Objects.requireNonNull(deploymentLocation, "deploymentLocation");
+        Objects.requireNonNull(extensionName, "extensionName");
+        Objects.requireNonNull(extensionClassFolder, "extensionClassFolder");
+
+        String classesLocation = resolveExtensionClassLocation(extensionClassFolder);
+
+        if (!new File(classesLocation).exists()) {
+            return;
+        }
+
+        String uniqueExtensionNameForExtensionClassFolder = extensionClassFolder.hashCode() + "-" + extensionName;
+        String explodedFolderExtensionsJar = deploymentLocation + "/" + uniqueExtensionNameForExtensionClassFolder;
         addFileSystemBind(classesLocation, explodedFolderExtensionsJar, BindMode.READ_WRITE, SelinuxContext.SINGLE);
+
+        boolean wildflyDeployment = deploymentLocation.contains("/standalone/deployments");
+        if (wildflyDeployment) {
+            createDeploymentTriggerFileForWildfly(explodedFolderExtensionsJar);
+        }
+    }
+
+    private void createDeploymentTriggerFileForWildfly(String explodedFolderExtensionsJar) {
 
         String deploymentTriggerContainerFile = explodedFolderExtensionsJar + ".dodeploy";
         try {
-            // Refactor once test-containers support mointing a string as file
+            // Refactor once test-containers support mounting a string as file
             File deploymentTriggerFile = File.createTempFile("kc-tc-deploy", null);
             deploymentTriggerFile.deleteOnExit();
             Files.write(deploymentTriggerFile.toPath(), "true".getBytes(StandardCharsets.UTF_8));
@@ -108,6 +142,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         } catch (IOException e) {
             throw new RuntimeException("Could not create extensions deployment trigger file", e);
         }
+    }
+
+    protected String resolveExtensionClassLocation(String extensionClassFolder) {
+        String moduleFolder = MountableFile.forClasspathResource(".").getResolvedPath() + "/../../";
+        return moduleFolder + extensionClassFolder;
     }
 
     public KeycloakContainer withRealmImportFile(String importFile) {
@@ -125,18 +164,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
+    /**
+     * Exposes the given classes location as an exploded extension.jar.
+     * @param classesLocation a classes location relative to the current classpath root.
+     */
     public KeycloakContainer withExtensionClassesFrom(String classesLocation) {
         this.extensionClassLocation = classesLocation;
-        return self();
-    }
-
-    public KeycloakContainer withExtensionDeploymentName(String extensionName) {
-        this.extensionName = extensionName;
-        return self();
-    }
-
-    public KeycloakContainer withExtensionDeploymentsLocation(String extensionDeploymentsLocation) {
-        this.extensionDeploymentsLocation = extensionDeploymentsLocation;
         return self();
     }
 

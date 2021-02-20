@@ -110,18 +110,19 @@ See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsCertAndKey
 
 The method `getAuthServerUrl()` will also return the HTTPS url.
 
-### Test Custom Extensions
+### Testing Custom Extensions
 
-To ease extension testing, you can tell the Keycloak Testcontainer to detect extensions from your classpath.
+To ease extension testing, you can tell the Keycloak Testcontainer to detect extensions in a given classpath folder.
+This allows to test extensions directly in the same module without a packaging step.
 
 If you have your Keycloak extension code in the `src/main/java` folder, then the resulting classes will be generated to the `target/classes` folder.
-To test your extensions you just need to tell `KeycloakContainer` to consider extensions from the `classes` folder.
+To test your extensions you just need to tell `KeycloakContainer` to consider extensions from the `target/classes` folder.
 
 Keycloak Testcontainer will then dynamically generate an exploded "jar file" with the extension code that is then picked up by Keycloak.
 
 ```java
 private KeycloakContainer keycloak = new KeycloakContainer()
-    .withExtensionClassesFrom("classes");
+    .withExtensionClassesFrom("target/classes");
 ```
 
 ## Setup

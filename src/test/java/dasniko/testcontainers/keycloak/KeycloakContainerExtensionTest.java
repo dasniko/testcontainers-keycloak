@@ -24,6 +24,14 @@ public class KeycloakContainerExtensionTest {
     public static final String MASTER = "master";
     public static final String ADMIN_CLI = "admin-cli";
 
+    @Test
+    public void shouldStartKeycloakWithNonExistingExtensionClassFolder() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .withExtensionClassesFrom("target/does_not_exist")) {
+            keycloak.start();
+        }
+    }
+
     /**
      * Deploys the Keycloak extensions from the test-classes folder into the create Keycloak container.
      *
@@ -33,8 +41,8 @@ public class KeycloakContainerExtensionTest {
     public void shouldDeployExtension() throws Exception {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .withRealmImportFile("test-realm.json")
-            .withExtensionClassesFrom("test-classes") // this would normally be just "classes"
-        ) {
+            // this would normally be just "target/classes"
+            .withExtensionClassesFrom("target/test-classes")) {
             keycloak.start();
 
             Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), MASTER,
