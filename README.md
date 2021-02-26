@@ -174,8 +174,11 @@ Consult the docs of your application framework testing capabilities on how to dy
 |1.3.3 |1.13.0 |10.0.2
 |1.4.0 |1.13.0 |11.0.2
 |1.5.0 |1.15.1 |12.0.1
+|1.6.0 |1.15.1 |12.0.1
 
 _There might also be other possible version configurations which will work._
+
+See also the [Releases](https://github.com/dasniko/testcontainers-keycloak/releases) page for version and feature update notes.
 
 ## Credits
 
