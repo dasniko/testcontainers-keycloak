@@ -110,7 +110,7 @@ See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsCertAndKey
 
 The method `getAuthServerUrl()` will also return the HTTPS url.
 
-### Testing Custom Extensions
+## Testing Custom Extensions
 
 To ease extension testing, you can tell the Keycloak Testcontainer to detect extensions in a given classpath folder.
 This allows to test extensions directly in the same module without a packaging step.
