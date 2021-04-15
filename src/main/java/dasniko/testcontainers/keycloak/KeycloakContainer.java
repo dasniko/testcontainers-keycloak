@@ -19,7 +19,7 @@ import java.util.Objects;
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "12.0.1";
+    private static final String KEYCLOAK_VERSION = "12.0.4";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -126,19 +126,24 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         boolean wildflyDeployment = deploymentLocation.contains("/standalone/deployments");
         if (wildflyDeployment) {
-            createDeploymentTriggerFileForWildfly(explodedFolderExtensionsJar);
+            createDeploymentTriggerFileForWildfly(deploymentLocation, uniqueExtensionNameForExtensionClassFolder);
         }
     }
 
-    private void createDeploymentTriggerFileForWildfly(String explodedFolderExtensionsJar) {
-
-        String deploymentTriggerContainerFile = explodedFolderExtensionsJar + ".dodeploy";
+    private void createDeploymentTriggerFileForWildfly(String deploymentLocation, String uniqueExtensionNameForExtensionClassFolder) {
+        
+        String deploymentTriggerFileName = uniqueExtensionNameForExtensionClassFolder + ".dodeploy";
         try {
+            File tmpdir = Files.createTempDirectory("kc-tc-deploy").toFile();
+
             // Refactor once test-containers support mounting a string as file
-            File deploymentTriggerFile = File.createTempFile("kc-tc-deploy", null);
+            File deploymentTriggerFile = Files.createFile(tmpdir.toPath().resolve(deploymentTriggerFileName)).toFile();
+            // make the file writeable by anyone, so that the non-root jboss user can remove it
+            deploymentTriggerFile.setWritable(true, false);
             deploymentTriggerFile.deleteOnExit();
             Files.write(deploymentTriggerFile.toPath(), "true".getBytes(StandardCharsets.UTF_8));
-            withFileSystemBind(deploymentTriggerFile.getAbsolutePath(), deploymentTriggerContainerFile, BindMode.READ_ONLY);
+
+            withFileSystemBind(tmpdir.getAbsolutePath(), deploymentLocation, BindMode.READ_WRITE);
         } catch (IOException e) {
             throw new RuntimeException("Could not create extensions deployment trigger file", e);
         }
