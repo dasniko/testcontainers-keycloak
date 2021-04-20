@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -19,7 +21,7 @@ import java.util.Objects;
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "12.0.4";
+    private static final String KEYCLOAK_VERSION = "12.0.1";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -126,24 +128,22 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         boolean wildflyDeployment = deploymentLocation.contains("/standalone/deployments");
         if (wildflyDeployment) {
-            createDeploymentTriggerFileForWildfly(deploymentLocation, uniqueExtensionNameForExtensionClassFolder);
+            createDeploymentTriggerFileForWildfly(extensionClassFolder, uniqueExtensionNameForExtensionClassFolder);
         }
     }
 
-    private void createDeploymentTriggerFileForWildfly(String deploymentLocation, String uniqueExtensionNameForExtensionClassFolder) {
-        
-        String deploymentTriggerFileName = uniqueExtensionNameForExtensionClassFolder + ".dodeploy";
-        try {
-            File tmpdir = Files.createTempDirectory("kc-tc-deploy").toFile();
+    private void createDeploymentTriggerFileForWildfly(String extensionClassFolder, String uniqueExtensionNameForExtensionClassFolder) {
 
+        String deploymentTriggerFileName = uniqueExtensionNameForExtensionClassFolder + ".dodeploy";
+        Path deploymentTriggerFilePath = Paths.get(extensionClassFolder).resolve(deploymentTriggerFileName);
+        try {
             // Refactor once test-containers support mounting a string as file
-            File deploymentTriggerFile = Files.createFile(tmpdir.toPath().resolve(deploymentTriggerFileName)).toFile();
+            // see https://github.com/testcontainers/testcontainers-java/issues/3814
+            File deploymentTriggerFile = Files.createFile(deploymentTriggerFilePath).toFile();
             // make the file writeable by anyone, so that the non-root jboss user can remove it
             deploymentTriggerFile.setWritable(true, false);
             deploymentTriggerFile.deleteOnExit();
             Files.write(deploymentTriggerFile.toPath(), "true".getBytes(StandardCharsets.UTF_8));
-
-            withFileSystemBind(tmpdir.getAbsolutePath(), deploymentLocation, BindMode.READ_WRITE);
         } catch (IOException e) {
             throw new RuntimeException("Could not create extensions deployment trigger file", e);
         }
