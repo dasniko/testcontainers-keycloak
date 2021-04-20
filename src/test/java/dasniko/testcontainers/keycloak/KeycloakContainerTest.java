@@ -15,6 +15,11 @@ import static org.junit.Assert.assertThat;
  */
 public class KeycloakContainerTest {
 
+    public static final String MASTER = "master";
+    public static final String ADMIN_CLI = "admin-cli";
+
+    public static final String TEST_REALM_JSON = "test-realm.json";
+
     @Test
     public void shouldStartKeycloak() {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
@@ -24,7 +29,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldImportRealm() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile("test-realm.json")) {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
 
             String accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/test")
@@ -61,8 +66,8 @@ public class KeycloakContainerTest {
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak, String username, String password) {
         Keycloak keycloakAdminClient = KeycloakBuilder.builder()
             .serverUrl(keycloak.getAuthServerUrl())
-            .realm("master")
-            .clientId("admin-cli")
+            .realm(MASTER)
+            .clientId(ADMIN_CLI)
             .username(username)
             .password(password)
             .build();

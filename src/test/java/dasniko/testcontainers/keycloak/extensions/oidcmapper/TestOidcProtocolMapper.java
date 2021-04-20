@@ -1,5 +1,6 @@
 package dasniko.testcontainers.keycloak.extensions.oidcmapper;
 
+import org.jboss.logging.Logger;
 import org.keycloak.models.ClientSessionContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestOidcProtocolMapper extends AbstractOIDCProtocolMapper implements OIDCAccessTokenMapper, OIDCIDTokenMapper, UserInfoTokenMapper {
+
+    private static final Logger LOG = Logger.getLogger(TestOidcProtocolMapper.class);
 
     public static final String ID = "test-protocol-mapper";
 
@@ -53,6 +56,8 @@ public class TestOidcProtocolMapper extends AbstractOIDCProtocolMapper implement
 
     @Override
     protected void setClaim(IDToken token, ProtocolMapperModel mappingModel, UserSessionModel userSession, KeycloakSession keycloakSession, ClientSessionContext clientSessionCtx) {
-        token.getOtherClaims().put(CUSTOM_CLAIM_NAME, "testdata:" + System.currentTimeMillis());
+        String claimValue = "testdata:" + System.currentTimeMillis();
+        LOG.infof("custom claim value: %s", claimValue);
+        token.getOtherClaims().put(CUSTOM_CLAIM_NAME, claimValue);
     }
 }

@@ -15,14 +15,15 @@ import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import java.util.HashMap;
 import java.util.Map;
 
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
+
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public class KeycloakContainerExtensionTest {
-
-    public static final String MASTER = "master";
-    public static final String ADMIN_CLI = "admin-cli";
 
     @Test
     public void shouldStartKeycloakWithNonExistingExtensionClassFolder() {
@@ -40,7 +41,7 @@ public class KeycloakContainerExtensionTest {
     @Test
     public void shouldDeployExtension() throws Exception {
         try (KeycloakContainer keycloak = new KeycloakContainer()
-            .withRealmImportFile("test-realm.json")
+            .withRealmImportFile(TEST_REALM_JSON)
             // this would normally be just "target/classes"
             .withExtensionClassesFrom("target/test-classes")) {
             keycloak.start();
@@ -63,7 +64,7 @@ public class KeycloakContainerExtensionTest {
             // check for the custom claim
             AccessToken accessToken = verifier.getToken();
             String customClaimValue = (String)accessToken.getOtherClaims().get(TestOidcProtocolMapper.CUSTOM_CLAIM_NAME);
-            System.out.printf("Custom Claim name %s=%s", TestOidcProtocolMapper.CUSTOM_CLAIM_NAME, customClaimValue);
+            System.out.printf("Custom Claim name %s=%s%n", TestOidcProtocolMapper.CUSTOM_CLAIM_NAME, customClaimValue);
             assertThat(customClaimValue, notNullValue());
             assertThat(customClaimValue, startsWith("testdata:"));
         }
@@ -75,7 +76,7 @@ public class KeycloakContainerExtensionTest {
      * @param realm
      * @param client
      */
-    private static void configureCustomOidcProtocolMapper(RealmResource realm, ClientRepresentation client) {
+    static void configureCustomOidcProtocolMapper(RealmResource realm, ClientRepresentation client) {
 
         ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
         mapper.setProtocol(OIDCLoginProtocol.LOGIN_PROTOCOL);
