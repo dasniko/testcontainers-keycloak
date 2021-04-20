@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -128,22 +126,19 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         boolean wildflyDeployment = deploymentLocation.contains("/standalone/deployments");
         if (wildflyDeployment) {
-            createDeploymentTriggerFileForWildfly(extensionClassFolder, uniqueExtensionNameForExtensionClassFolder);
+            createDeploymentTriggerFileForWildfly(explodedFolderExtensionsJar);
         }
     }
 
-    private void createDeploymentTriggerFileForWildfly(String extensionClassFolder, String uniqueExtensionNameForExtensionClassFolder) {
+    private void createDeploymentTriggerFileForWildfly(String explodedFolderExtensionsJar) {
 
-        String deploymentTriggerFileName = uniqueExtensionNameForExtensionClassFolder + ".dodeploy";
-        Path deploymentTriggerFilePath = Paths.get(extensionClassFolder).resolve(deploymentTriggerFileName);
+        String deploymentTriggerContainerFile = explodedFolderExtensionsJar + ".dodeploy";
         try {
             // Refactor once test-containers support mounting a string as file
-            // see https://github.com/testcontainers/testcontainers-java/issues/3814
-            File deploymentTriggerFile = Files.createFile(deploymentTriggerFilePath).toFile();
-            // make the file writeable by anyone, so that the non-root jboss user can remove it
-            deploymentTriggerFile.setWritable(true, false);
+            File deploymentTriggerFile = File.createTempFile("kc-tc-deploy", null);
             deploymentTriggerFile.deleteOnExit();
             Files.write(deploymentTriggerFile.toPath(), "true".getBytes(StandardCharsets.UTF_8));
+            withCopyFileToContainer(MountableFile.forHostPath(deploymentTriggerFile.getAbsolutePath()), deploymentTriggerContainerFile);
         } catch (IOException e) {
             throw new RuntimeException("Could not create extensions deployment trigger file", e);
         }
