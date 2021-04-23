@@ -5,7 +5,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-12.0.1-blue)
+![](https://img.shields.io/badge/Keycloak-12.0.4-blue)
 
 ## How to use
 
@@ -23,7 +23,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:12.0.1");
+private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:12.0.4");
 ```
 
 Power up a Keycloak instance with an existing realm JSON config file (from classpath):
@@ -175,6 +175,7 @@ Consult the docs of your application framework testing capabilities on how to dy
 |1.4.0 |1.13.0 |11.0.2
 |1.5.0 |1.15.1 |12.0.1
 |1.6.0 |1.15.1 |12.0.1
+|1.6.1 |1.15.1 |12.0.4
 
 _There might also be other possible version configurations which will work._
 
