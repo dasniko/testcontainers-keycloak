@@ -1,17 +1,21 @@
 package dasniko.testcontainers.keycloak;
 
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
+import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -42,6 +46,9 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private boolean useTls = false;
 
     private String extensionClassLocation;
+
+    private static final Transferable WILDFLY_DEPLOYMENT_TRIGGER_FILE_CONTENT = Transferable.of("true".getBytes(StandardCharsets.UTF_8));
+    private final Set<String> wildflyDeploymentTriggerFiles = new HashSet<>();
 
     public KeycloakContainer() {
         this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
@@ -104,9 +111,9 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     /**
      * Maps the provided {@code extensionClassFolder} as an exploded extension.jar to the {@code deploymentLocation}.
      *
-     * @param deploymentLocation the target deployments location of the Keycloak server.
-     * @param extensionName the name suffix of the created extension.
-     * @param extensionClassFolder  a path relative to the current classpath root.
+     * @param deploymentLocation   the target deployments location of the Keycloak server.
+     * @param extensionName        the name suffix of the created extension.
+     * @param extensionClassFolder a path relative to the current classpath root.
      */
     protected void createKeycloakExtensionDeployment(String deploymentLocation, String extensionName, String extensionClassFolder) {
 
@@ -120,28 +127,62 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             return;
         }
 
-        String uniqueExtensionNameForExtensionClassFolder = extensionClassFolder.hashCode() + "-" + extensionName;
-        String explodedFolderExtensionsJar = deploymentLocation + "/" + uniqueExtensionNameForExtensionClassFolder;
+        String explodedFolderName = extensionClassFolder.hashCode() + "-" + extensionName;
+        String explodedFolderExtensionsJar = deploymentLocation + "/" + explodedFolderName;
         addFileSystemBind(classesLocation, explodedFolderExtensionsJar, BindMode.READ_WRITE, SelinuxContext.SINGLE);
 
         boolean wildflyDeployment = deploymentLocation.contains("/standalone/deployments");
         if (wildflyDeployment) {
-            createDeploymentTriggerFileForWildfly(explodedFolderExtensionsJar);
+            registerWildflyDeploymentTriggerFile(deploymentLocation, explodedFolderName);
+
+            // wait for extension deployment
+            setWaitStrategy(createCombinedWaitAllStrategy(Wait.forLogMessage(".* Deployed \"" + explodedFolderName + "\" .*", 1)));
         }
     }
 
-    private void createDeploymentTriggerFileForWildfly(String explodedFolderExtensionsJar) {
-
-        String deploymentTriggerContainerFile = explodedFolderExtensionsJar + ".dodeploy";
-        try {
-            // Refactor once test-containers support mounting a string as file
-            File deploymentTriggerFile = File.createTempFile("kc-tc-deploy", null);
-            deploymentTriggerFile.deleteOnExit();
-            Files.write(deploymentTriggerFile.toPath(), "true".getBytes(StandardCharsets.UTF_8));
-            withFileSystemBind(deploymentTriggerFile.getAbsolutePath(), deploymentTriggerContainerFile, BindMode.READ_ONLY);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not create extensions deployment trigger file", e);
+    /**
+     * Creates a {@link WaitAllStrategy} based on the current {@link #getWaitStrategy()} if present followed by the given {@link WaitStrategy}.
+     * @param waitStrategy
+     * @return
+     */
+    private WaitAllStrategy createCombinedWaitAllStrategy(WaitStrategy waitStrategy) {
+        WaitAllStrategy waitAll = new WaitAllStrategy();
+        WaitStrategy currentWaitStrategy = getWaitStrategy();
+        if (currentWaitStrategy != null) {
+            waitAll.withStrategy(currentWaitStrategy);
         }
+        waitAll.withStrategy(waitStrategy);
+        return waitAll;
+    }
+
+    /**
+     * Registers a {@code extensions.jar.dodeploy} file to be created at container startup.
+     *
+     * @param deploymentLocation
+     * @param extensionArtifact
+     */
+    private void registerWildflyDeploymentTriggerFile(String deploymentLocation, String extensionArtifact) {
+        String triggerFileName = extensionArtifact + ".dodeploy";
+        wildflyDeploymentTriggerFiles.add(deploymentLocation + "/" + triggerFileName);
+    }
+
+    @Override
+    protected void containerIsStarting(InspectContainerResponse containerInfo) {
+        createWildflyDeploymentTriggerFiles();
+    }
+
+    @Override
+    protected void containerIsStopping(InspectContainerResponse containerInfo) {
+        wildflyDeploymentTriggerFiles.clear();
+    }
+
+    /**
+     * Creates a new Wildfly {@code extensions.jar.dodeploy} deployment trigger file to ensure the exploded extension
+     * folder is deployed on container startup.
+     */
+    private void createWildflyDeploymentTriggerFiles() {
+        wildflyDeploymentTriggerFiles.forEach(deploymentTriggerFile ->
+            copyFileToContainer(WILDFLY_DEPLOYMENT_TRIGGER_FILE_CONTENT, deploymentTriggerFile));
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
@@ -166,6 +207,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     /**
      * Exposes the given classes location as an exploded extension.jar.
+     *
      * @param classesLocation a classes location relative to the current classpath root.
      */
     public KeycloakContainer withExtensionClassesFrom(String classesLocation) {
@@ -213,5 +255,4 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private boolean isNotBlank(String s) {
         return s != null && !s.trim().isEmpty();
     }
-
 }
