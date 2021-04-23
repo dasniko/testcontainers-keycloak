@@ -32,6 +32,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_AUTH_PATH = "/auth";
 
+    private static final String DB_VENDOR = "h2";
+
     private static final String DEFAULT_EXTENSION_NAME = "extensions.jar";
 
     // for Keycloak-X this will be /opt/jboss/keycloak/providers
@@ -40,6 +42,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
+    private String dbVendor = DB_VENDOR;
     private String importFile;
     private String tlsCertFilename;
     private String tlsKeyFilename;
@@ -80,6 +83,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         withEnv("KEYCLOAK_USER", adminUsername);
         withEnv("KEYCLOAK_PASSWORD", adminPassword);
+
+        withEnv("DB_VENDOR", dbVendor);
 
         if (useTls && isNotBlank(tlsCertFilename) && isNotBlank(tlsKeyFilename)) {
             String certFileInContainer = "/etc/x509/https/tls.crt";
@@ -202,6 +207,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
+        return self();
+    }
+
+    public KeycloakContainer withDbVendor(String dbVendor) {
+        this.dbVendor = dbVendor;
         return self();
     }
 
