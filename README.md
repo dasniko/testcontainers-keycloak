@@ -5,7 +5,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-12.0.4-blue)
+![](https://img.shields.io/badge/Keycloak-13.0.0-blue)
 
 ## How to use
 
@@ -23,7 +23,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:12.0.4");
+private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:13.0.0");
 ```
 
 Power up a Keycloak instance with an existing realm JSON config file (from classpath):
@@ -125,6 +125,8 @@ private KeycloakContainer keycloak = new KeycloakContainer()
     .withExtensionClassesFrom("target/classes");
 ```
 
+See also [`KeycloakContainerExtensionTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) class.
+
 ## Setup
 
 The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak).
@@ -179,6 +181,7 @@ Consult the docs of your application framework testing capabilities on how to dy
 |1.5.0 |1.15.1 |12.0.1
 |1.6.0 |1.15.1 |12.0.1
 |1.6.1 |1.15.1 |12.0.4
+|1.7.0 |1.15.3 |13.0.0
 
 _There might also be other possible version configurations which will work._
 
@@ -197,6 +200,6 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 MIT License
 
-Copyright (c) 2019-2020 Niko Köbler
+Copyright (c) 2019-2021 Niko Köbler
 
 See [LICENSE](LICENSE) file for details.
