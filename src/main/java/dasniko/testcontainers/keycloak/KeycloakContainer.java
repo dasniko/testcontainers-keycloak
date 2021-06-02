@@ -27,6 +27,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
+    private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
@@ -48,6 +49,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String tlsKeyFilename;
     private boolean useTls = false;
 
+    private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
+
     private String extensionClassLocation;
 
     private static final Transferable WILDFLY_DEPLOYMENT_TRIGGER_FILE_CONTENT = Transferable.of("true".getBytes(StandardCharsets.UTF_8));
@@ -65,11 +68,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public KeycloakContainer(String dockerImageName) {
         super(dockerImageName);
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
-        setWaitStrategy(Wait
-            .forHttp(KEYCLOAK_AUTH_PATH)
-            .forPort(KEYCLOAK_PORT_HTTP)
-            .withStartupTimeout(Duration.ofMinutes(2))
-        );
 //        withLogConsumer(new Slf4jLogConsumer(logger()));
     }
 
@@ -79,6 +77,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             "-c standalone.xml", // don't start infinispan cluster
             "-b 0.0.0.0", // ensure proper binding
             "-Dkeycloak.profile.feature.upload_scripts=enabled" // enable script uploads
+        );
+
+        setWaitStrategy(Wait
+            .forHttp(KEYCLOAK_AUTH_PATH)
+            .forPort(KEYCLOAK_PORT_HTTP)
+            .withStartupTimeout(startupTimeout)
         );
 
         withEnv("KEYCLOAK_USER", adminUsername);
@@ -152,6 +156,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     private WaitAllStrategy createCombinedWaitAllStrategy(WaitStrategy waitStrategy) {
         WaitAllStrategy waitAll = new WaitAllStrategy();
+        // startup timeout needs to be configured before calling .withStrategy(..) due to implementation in testcontainers.
+        waitAll.withStartupTimeout(startupTimeout);
         WaitStrategy currentWaitStrategy = getWaitStrategy();
         if (currentWaitStrategy != null) {
             waitAll.withStrategy(currentWaitStrategy);
@@ -230,6 +236,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return useTls("tls.crt", "tls.key");
     }
 
+    public KeycloakContainer withStartupTimeout(Duration startupTimeout) {
+        this.startupTimeout = startupTimeout;
+        return self();
+    }
+
     public KeycloakContainer useTls(String tlsCertFilename, String tlsKeyFilename) {
         this.tlsCertFilename = tlsCertFilename;
         this.tlsKeyFilename = tlsKeyFilename;
@@ -256,6 +267,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public int getHttpsPort() {
         return getMappedPort(KEYCLOAK_PORT_HTTPS);
+    }
+
+    public Duration getStartupTimeout() {
+        return startupTimeout;
     }
 
     protected String getKeycloakVersion() {

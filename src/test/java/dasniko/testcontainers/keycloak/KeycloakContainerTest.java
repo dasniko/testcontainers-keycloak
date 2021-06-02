@@ -8,11 +8,14 @@ import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
+import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -28,6 +31,21 @@ public class KeycloakContainerTest {
     public void shouldStartKeycloak() {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
+        }
+    }
+
+    @Test
+    public void shouldConsiderConfiguredStartupTimeout() {
+        Instant start = Instant.now();
+        try {
+            Duration duration = Duration.ofSeconds(5);
+            try (KeycloakContainer keycloak = new KeycloakContainer().withStartupTimeout(duration)) {
+                keycloak.start();
+            }
+        } catch(ContainerLaunchException ex) {
+            Duration observedDuration = Duration.between(start, Instant.now());
+            assertTrue("Startup time should consider configured limit",
+                observedDuration.toMillis()/1000 > 5 && observedDuration.toMillis()/1000 < 15);
         }
     }
 
