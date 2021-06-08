@@ -1,9 +1,9 @@
 package dasniko.testcontainers.keycloak;
 
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -14,9 +14,9 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 
 /**
  * Tests reusable containers support for {@link KeycloakContainer}.
@@ -30,7 +30,7 @@ public class KeycloakContainerExtensionReuseTest {
         // this enables KeycloakContainer reuse across tests
         .withReuse(true);
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeAll() {
         KEYCLOAK.start();
 
@@ -43,7 +43,7 @@ public class KeycloakContainerExtensionReuseTest {
         KeycloakContainerExtensionTest.configureCustomOidcProtocolMapper(realm, client);
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterAll() {
         KEYCLOAK.stop();
     }

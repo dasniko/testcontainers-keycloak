@@ -2,19 +2,19 @@ package dasniko.testcontainers.keycloak;
 
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
 public class KeycloakContainerHttpsTest {
 
-    @Before
+    @BeforeEach
     public void setup() {
         RestAssured.reset();
     }

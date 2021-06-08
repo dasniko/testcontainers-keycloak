@@ -1,6 +1,6 @@
 package dasniko.testcontainers.keycloak;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.info.ServerInfoRepresentation;
@@ -10,10 +10,11 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -42,8 +43,8 @@ public class KeycloakContainerTest {
             }
         } catch(ContainerLaunchException ex) {
             Duration observedDuration = Duration.between(start, Instant.now());
-            assertTrue("Startup time should consider configured limit",
-                observedDuration.toMillis()/1000 >= 5 && observedDuration.toMillis()/1000 < 15);
+            assertTrue(observedDuration.toMillis()/1000 >= 5 && observedDuration.toMillis()/1000 < 15,
+                "Startup time should consider configured limit");
         }
     }
 
@@ -103,13 +104,15 @@ public class KeycloakContainerTest {
         }
     }
 
-    @Test(expected = ContainerLaunchException.class)
+    @Test
     public void shouldFailToStartKeycloakWithNonExistentDbOnNetwork() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
-            .withDbVendor("oracle")
-            .withStartupTimeout(Duration.ofSeconds(30))) {
-            keycloak.start();
-        }
+        assertThrows(ContainerLaunchException.class, () -> {
+            try (KeycloakContainer keycloak = new KeycloakContainer()
+                .withDbVendor("oracle")
+                .withStartupTimeout(Duration.ofSeconds(30))) {
+                keycloak.start();
+            }
+        });
     }
 
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak, String username, String password) {

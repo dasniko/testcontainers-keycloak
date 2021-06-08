@@ -3,7 +3,7 @@ package dasniko.testcontainers.keycloak;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -23,10 +23,9 @@ import java.util.function.Function;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 
 public class KeycloakContainerExtensionTest {
 
@@ -40,8 +39,6 @@ public class KeycloakContainerExtensionTest {
 
     /**
      * Deploys the Keycloak extensions from the test-classes folder into the create Keycloak container.
-     *
-     * @throws Exception
      */
     @Test
     public void shouldDeployExtension() throws Exception {
@@ -130,9 +127,6 @@ public class KeycloakContainerExtensionTest {
 
     /**
      * Configures the {@link TestOidcProtocolMapper} to the given client in the given realm.
-     *
-     * @param realm
-     * @param client
      */
     static void configureCustomOidcProtocolMapper(RealmResource realm, ClientRepresentation client) {
 
