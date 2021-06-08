@@ -5,7 +5,6 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 import org.testcontainers.containers.ContainerLaunchException;
-import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -13,7 +12,6 @@ import java.time.Instant;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -87,9 +85,9 @@ public class KeycloakContainerTest {
 
     @Test(expected = ContainerLaunchException.class)
     public void shouldFailToStartKeycloakWithNonExistentDbOnNetwork() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
-            keycloak.withDbVendor("oracle")
-                .waitingFor(Wait.forHttp("/auth").forPort(8080).withStartupTimeout(Duration.ofSeconds(30)));
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .withDbVendor("oracle")
+            .withStartupTimeout(Duration.ofSeconds(30))) {
             keycloak.start();
         }
     }
