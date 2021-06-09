@@ -3,6 +3,7 @@ package dasniko.testcontainers.keycloak;
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -12,6 +13,7 @@ import static org.hamcrest.Matchers.startsWith;
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
+@Disabled
 public class KeycloakContainerHttpsTest {
 
     @BeforeEach

@@ -1,5 +1,6 @@
 package dasniko.testcontainers.keycloak;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -34,20 +35,22 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldConsiderConfiguredStartupTimeout() {
+        final int MAX_TIMEOUT = 5;
         Instant start = Instant.now();
         try {
-            Duration duration = Duration.ofSeconds(5);
+            Duration duration = Duration.ofSeconds(MAX_TIMEOUT);
             try (KeycloakContainer keycloak = new KeycloakContainer().withStartupTimeout(duration)) {
                 keycloak.start();
             }
         } catch(ContainerLaunchException ex) {
             Duration observedDuration = Duration.between(start, Instant.now());
-            assertTrue(observedDuration.toMillis()/1000 >= 5 && observedDuration.toMillis()/1000 < 15,
-                "Startup time should consider configured limit");
+            assertTrue(observedDuration.toMillis()/1000 >= MAX_TIMEOUT && observedDuration.toMillis()/1000 < 15,
+                "Startup time should consider configured limit of " + MAX_TIMEOUT + " seconds.");
         }
     }
 
     @Test
+    @Disabled
     public void shouldImportRealm() {
         try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
