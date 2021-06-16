@@ -72,21 +72,9 @@ See also [`KeycloakContainerTest`](./src/test/java/dasniko/testcontainers/keyclo
 
 ## TLS (SSL) Usage
 
-You have several options to use HTTPS/TLS secured communication with your Keycloak Testcontainer.
+You have two options to use HTTPS/TLS secured communication with your Keycloak Testcontainer.
 
-### Default Support
-
-Plain Keycloak comes with a default Java KeyStore (JKS) with an auto-generated, self-signed certificate on first use.
-You can use this TLS secured connection, although your testcontainer doesn't know of anything TLS-related and returns the HTTP-only url with `getAuthServerUrl()`.
-In this case, you have to build the auth-server-url on your own, e.g. like this:
-
-```java
-String authServerUrl = "https://localhost:" + keycloak.getHttpsPort() + "/auth";
-```
-
-See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithDefaultTlsSupport`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerHttpsTest.java#L23).
-
-### Built-in TLS Cert and Key
+### Built-in TLS Keystore
 
 This Keycloak Testcontainer comes with built-in TLS certificate (`tls.crt`), key (`tls.key`) and Java KeyStore (`tls.jks`) files, located in the `resources` folder.
 You can use this configuration by only configuring your testcontainer like this:
@@ -97,21 +85,21 @@ private KeycloakContainer keycloak = new KeycloakContainer().useTls();
 ```
 
 The password for the provided Java KeyStore file is `changeit`.
-See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithProvidedTlsCertAndKey`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerHttpsTest.java#L36).
+See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithProvidedTlsKeystore`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerHttpsTest.java#L38).
 
 The method `getAuthServerUrl()` will then return the HTTPS url.
 
-### Custom TLS Cert and Key
+### Custom TLS Keystore
 
-Of course you can also provide your own certificate and key file for usage in this Testcontainer:
+Of course you can also provide your own keystore file for usage in this Testcontainer:
 
 ```java
 @Container
 private KeycloakContainer keycloak = new KeycloakContainer()
-    .useTls("your_custom.crt", "your_custom.key");
+    .useTls("your_custom.jks", "password_for_your_custom_keystore");
 ```
 
-See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsCertAndKey`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerHttpsTest.java#L44).
+See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsKeystore`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerHttpsTest.java#L46).
 
 The method `getAuthServerUrl()` will also return the HTTPS url.
 

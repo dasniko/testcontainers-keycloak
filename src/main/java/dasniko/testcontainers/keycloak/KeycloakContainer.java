@@ -47,9 +47,9 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
-    private final Set<String> importFiles;
-    private String tlsCertFilename;
-    private String tlsKeyFilename;
+    private String importFile;
+    private String tlsKeystoreFilename;
+    private String tlsKeystorePassword;
     private boolean useTls = false;
 
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
@@ -94,11 +94,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         withEnv("KEYCLOAK_ADMIN", adminUsername);
         withEnv("KEYCLOAK_ADMIN_PASSWORD", adminPassword);
 
-        if (useTls && isNotBlank(tlsCertFilename) && isNotBlank(tlsKeyFilename)) {
-            String certFileInContainer = "/etc/x509/https/tls.crt";
-            String keyFileInContainer = "/etc/x509/https/tls.key";
-            withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertFilename), certFileInContainer);
-            withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeyFilename), keyFileInContainer);
+        if (useTls && isNotBlank(tlsKeystoreFilename)) {
+            String keystoreFileInContainer = "/opt/jboss/keycloak/conf/server.keystore";
+            withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeystoreFilename), keystoreFileInContainer);
+            withEnv("KC_HTTPS_CERTIFICATE_KEY_STORE_PASSWORD", tlsKeystorePassword);
         }
 
         List<String> filesInContainer = new ArrayList<>();
@@ -248,29 +247,19 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
-    /**
-     * Exposes the given classes location as an exploded providers.jar.
-     *
-     * @param classesLocation a classes location relative to the current classpath root.
-     */
-    public KeycloakContainer withProviderClassesFrom(String classesLocation) {
-        this.providerClassLocation = classesLocation;
-        return self();
-    }
-
-    public KeycloakContainer useTls() {
-        // tls.crt and tls.key are provided with this testcontainer
-        return useTls("tls.crt", "tls.key");
-    }
-
     public KeycloakContainer withStartupTimeout(Duration startupTimeout) {
         this.startupTimeout = startupTimeout;
         return self();
     }
 
-    public KeycloakContainer useTls(String tlsCertFilename, String tlsKeyFilename) {
-        this.tlsCertFilename = tlsCertFilename;
-        this.tlsKeyFilename = tlsKeyFilename;
+    public KeycloakContainer useTls() {
+        // server.keystore is provided with this testcontainer
+        return useTls("tls.jks", "changeit");
+    }
+
+    public KeycloakContainer useTls(String tlsKeystoreFilename, String tlsKeystorePassword) {
+        this.tlsKeystoreFilename = tlsKeystoreFilename;
+        this.tlsKeystorePassword = tlsKeystorePassword;
         this.useTls = true;
         return self();
     }

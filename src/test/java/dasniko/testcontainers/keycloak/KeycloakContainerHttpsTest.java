@@ -3,7 +3,6 @@ package dasniko.testcontainers.keycloak;
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -13,7 +12,6 @@ import static org.hamcrest.Matchers.startsWith;
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
-@Disabled
 public class KeycloakContainerHttpsTest {
 
     @BeforeEach
@@ -22,20 +20,22 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
-    public void shouldStartKeycloakWithDefaultTlsSupport() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+    public void shouldStartKeycloakWithTlsSupport() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTls()) {
             keycloak.start();
 
             RestAssured.useRelaxedHTTPSValidation();
 
+            assertThat(keycloak.getAuthServerUrl(), startsWith("https://"));
+
             given()
-                .when().get("https://localhost:" + keycloak.getHttpsPort() + "/auth")
+                .when().get(keycloak.getAuthServerUrl())
                 .then().statusCode(200);
         }
     }
 
     @Test
-    public void shouldStartKeycloakWithProvidedTlsCertAndKey() {
+    public void shouldStartKeycloakWithProvidedTlsKeystore() {
         try (KeycloakContainer keycloak = new KeycloakContainer().useTls()) {
             keycloak.start();
             checkTls(keycloak, "tls.jks", "changeit");
@@ -43,8 +43,8 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
-    public void shouldStartKeycloakWithCustomTlsCertAndKey() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().useTls("keycloak.crt", "keycloak.key")) {
+    public void shouldStartKeycloakWithCustomTlsKeystore() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTls("keycloak.jks", "keycloak")) {
             keycloak.start();
             checkTls(keycloak,"keycloak.jks", "keycloak");
         }
