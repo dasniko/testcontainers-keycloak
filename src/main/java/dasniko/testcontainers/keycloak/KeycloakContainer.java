@@ -37,8 +37,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_AUTH_PATH = "/";
 
-    private static final String DB_VENDOR = "h2-file";
-
     private static final String DEFAULT_EXTENSION_NAME = "extensions.jar";
     private static final String DEFAULT_PROVIDERS_NAME = "providers.jar";
 
@@ -84,9 +82,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     @Override
     protected void configure() {
         withCommand(
-            "--auto-config",
-            "--profile=dev", // start the server w/o https in dev mode, local caching only
-            "--db=" + dbVendor
+            "start-dev" // start the server w/o https in dev mode, local caching only
         );
 
         setWaitStrategy(Wait
