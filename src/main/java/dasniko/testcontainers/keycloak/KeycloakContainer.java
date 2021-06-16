@@ -216,6 +216,13 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
+    /**
+     * @deprecated This method will be removed in next major version of this project,
+     * as it doesn't make much sense in testing environment to use some other stateful system,
+     * as tests should be independend from other environment.
+     * Also, this option was never officially documented and only here for internal meanings.
+     */
+    @Deprecated
     public KeycloakContainer withDbVendor(String dbVendor) {
         this.dbVendor = dbVendor;
         return self();
