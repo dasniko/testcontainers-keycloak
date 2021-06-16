@@ -4,9 +4,11 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
@@ -14,10 +16,8 @@ import org.testcontainers.utility.MountableFile;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -47,7 +47,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
-    private String importFile;
+    private final String dockerImageName;
+    private final Set<String> importFiles;
     private String tlsKeystoreFilename;
     private String tlsKeystorePassword;
     private boolean useTls = false;
@@ -74,9 +75,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public KeycloakContainer(String dockerImageName) {
         super(DockerImageName.parse(dockerImageName));
+        this.dockerImageName = dockerImageName;
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
         importFiles = new HashSet<>();
-//        withLogConsumer(new Slf4jLogConsumer(logger()));
+        withLogConsumer(new Slf4jLogConsumer(logger()));
     }
 
     @Override
@@ -100,15 +102,18 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             withEnv("KC_HTTPS_CERTIFICATE_KEY_STORE_PASSWORD", tlsKeystorePassword);
         }
 
-        List<String> filesInContainer = new ArrayList<>();
-        for (String importFile : importFiles) {
-            String importFileInContainer = "/tmp/" + importFile;
-            filesInContainer.add(importFileInContainer);
-            withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
-        }
-
         if (!importFiles.isEmpty()) {
-            withEnv("KEYCLOAK_IMPORT", String.join(",", filesInContainer));
+            String importDir = "/tmp/import";
+            ImageFromDockerfile newBaseImage = new ImageFromDockerfile();
+            setImage(newBaseImage.withDockerfileFromBuilder(builder -> {
+                builder.from(dockerImageName);
+                for (String importFile : importFiles) {
+                    String importFileInContainer = importDir + "/" + importFile;
+                    newBaseImage.withFileFromClasspath(importFile, importFile);
+                    builder.copy(importFile, importFileInContainer);
+                }
+                builder.run("/opt/jboss/keycloak/bin/kc.sh import --dir=" + importDir + " --profile=dev || true").build();
+            }));
         }
 
         if (extensionClassLocation != null) {

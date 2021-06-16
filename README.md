@@ -13,12 +13,16 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 _The `@Container` annotation used here in the readme is from the JUnit 5 support of Testcontainers.
 Please refer to the Testcontainers documentation for more information._
 
+### Default
+
 Simply spin up a default Keycloak instance:
 
 ```java
 @Container
 private KeycloakContainer keycloak = new KeycloakContainer();
 ```
+
+### Custom image
 
 Use another Keycloak Docker image/version than used in this Testcontainer:
 
@@ -39,6 +43,12 @@ or
     .withRealmImportFiles("test-realm-1.json", "test-realm-2.json");
 ```
 
+_NOTE: Importing a realm dynamically on the fly, needs to create an extra temporary Docker image with the imported realm upfront.
+This will take some extra time.
+While testcontainers-keycloak supports this feature, it is recommended to use a custom pre-built image within your tests to get a better performance from starting the testcontainer instance._
+
+### Initial admin user credentials
+
 Use different admin credentials than the defaut internal (`admin`/`admin`) ones:
 
 ```java
@@ -47,6 +57,8 @@ private KeycloakContainer keycloak = new KeycloakContainer()
     .withAdminUsername("myKeycloakAdminUser")
     .withAdminPassword("tops3cr3t");
 ```
+
+### Getting information from the testcontainer
 
 You can obtain several properties form the Keycloak container:
 
