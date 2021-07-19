@@ -1,5 +1,7 @@
 package dasniko.testcontainers.keycloak;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
 import org.junit.Test;
 import org.keycloak.TokenVerifier;
@@ -12,13 +14,15 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
-
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
@@ -67,6 +71,35 @@ public class KeycloakContainerExtensionTest {
             System.out.printf("Custom Claim name %s=%s%n", TestOidcProtocolMapper.CUSTOM_CLAIM_NAME, customClaimValue);
             assertThat(customClaimValue, notNullValue());
             assertThat(customClaimValue, startsWith("testdata:"));
+        }
+    }
+
+    @Test
+    public void shouldDeployExtensionAndCallCustomEndpoint() throws Exception {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            // this would normally be just "target/classes"
+            .withExtensionClassesFrom("target/test-classes")) {
+            keycloak.start();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String uri = keycloak.getAuthServerUrl() + "/realms/master/test-resource/hello";
+
+            // test the "public" endpoint
+            Map<String, String> result = objectMapper.readValue(new URL(uri), new TypeReference<Map<String, String>>() {});
+            assertThat(result.get("hello"), is("master"));
+
+            // and now the secured endpoint, first we need a valid token
+            Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), MASTER,
+                keycloak.getAdminUsername(), keycloak.getAdminPassword(), ADMIN_CLI);
+            AccessTokenResponse accessTokenResponse = keycloakClient.tokenManager().getAccessToken();
+
+            URL url = new URL(keycloak.getAuthServerUrl() + "/realms/master/test-resource/hello-auth");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Authorization", "Bearer " + accessTokenResponse.getToken());
+
+            Map<String, String> authResult = objectMapper.readValue(conn.getInputStream(), new TypeReference<Map<String, String>>() {});
+            assertThat(authResult.get("hello"), is("admin"));
         }
     }
 
