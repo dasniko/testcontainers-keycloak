@@ -13,9 +13,7 @@ import org.testcontainers.utility.MountableFile;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -44,7 +42,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
     private String dbVendor = DB_VENDOR;
-    private String importFile;
+    private Set<String> importFiles;
     private String tlsCertFilename;
     private String tlsKeyFilename;
     private boolean useTls = false;
@@ -68,6 +66,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public KeycloakContainer(String dockerImageName) {
         super(dockerImageName);
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
+        importFiles = new HashSet<>();
 //        withLogConsumer(new Slf4jLogConsumer(logger()));
     }
 
@@ -97,10 +96,15 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeyFilename), keyFileInContainer);
         }
 
-        if (importFile != null) {
+        List<String> filesInContainer = new ArrayList<>();
+        for (String importFile : importFiles) {
             String importFileInContainer = "/tmp/" + importFile;
+            filesInContainer.add(importFileInContainer);
             withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
-            withEnv("KEYCLOAK_IMPORT", importFileInContainer);
+        }
+
+        if (!importFiles.isEmpty()) {
+            withEnv("KEYCLOAK_IMPORT", String.join(",", filesInContainer));
         }
 
         if (extensionClassLocation != null) {
@@ -202,7 +206,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     public KeycloakContainer withRealmImportFile(String importFile) {
-        this.importFile = importFile;
+        this.importFiles.add(importFile);
         return self();
     }
 

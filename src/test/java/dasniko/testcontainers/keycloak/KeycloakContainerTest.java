@@ -61,6 +61,27 @@ public class KeycloakContainerTest {
     }
 
     @Test
+    public void shouldImportMultipleRealms() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().
+            withRealmImportFile(TEST_REALM_JSON).
+            withRealmImportFile("another-realm.json")) {
+            keycloak.start();
+
+            String accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/test")
+                .then().statusCode(200).body("realm", equalTo("test"))
+                .extract().path("account-service");
+
+            given().when().get(accountService).then().statusCode(200);
+
+            accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/another")
+                .then().statusCode(200).body("realm", equalTo("another"))
+                .extract().path("account-service");
+
+            given().when().get(accountService).then().statusCode(200);
+        }
+    }
+
+    @Test
     public void shouldReturnServerInfo() {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();

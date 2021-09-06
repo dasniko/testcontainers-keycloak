@@ -27,7 +27,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:13.0.1");
 ```
 
-Power up a Keycloak instance with an existing realm JSON config file (from classpath):
+Power up a Keycloak instance with an existing realm JSON config files (from classpath):
 
 ```java
 @Container
