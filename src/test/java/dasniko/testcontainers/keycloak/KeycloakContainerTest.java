@@ -63,8 +63,7 @@ public class KeycloakContainerTest {
     @Test
     public void shouldImportMultipleRealms() {
         try (KeycloakContainer keycloak = new KeycloakContainer().
-            withRealmImportFile(TEST_REALM_JSON).
-            withRealmImportFile("another-realm.json")) {
+            withRealmImportFiles(TEST_REALM_JSON, "another-realm.json")) {
             keycloak.start();
 
             String accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/test")

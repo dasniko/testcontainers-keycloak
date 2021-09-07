@@ -13,7 +13,12 @@ import org.testcontainers.utility.MountableFile;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -207,6 +212,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withRealmImportFile(String importFile) {
         this.importFiles.add(importFile);
+        return self();
+    }
+
+    public KeycloakContainer withRealmImportFiles(String... files) {
+        Arrays.stream(files).forEach(this::withRealmImportFile);
         return self();
     }
 
