@@ -26,7 +26,7 @@ import java.util.Set;
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "13.0.1";
+    private static final String KEYCLOAK_VERSION = "15.0.2";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
