@@ -8,6 +8,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
@@ -68,10 +69,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     /**
      * Create a KeycloakContainer by passing the full docker image name
      *
-     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:8.0.1
+     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:15.0.2
      */
     public KeycloakContainer(String dockerImageName) {
-        super(dockerImageName);
+        super(DockerImageName.parse(dockerImageName));
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
         importFiles = new HashSet<>();
 //        withLogConsumer(new Slf4jLogConsumer(logger()));
