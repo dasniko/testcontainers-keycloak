@@ -13,7 +13,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -102,17 +101,6 @@ public class KeycloakContainerTest {
 
             checkKeycloakContainerInternals(keycloak, username, password);
         }
-    }
-
-    @Test
-    public void shouldFailToStartKeycloakWithNonExistentDbOnNetwork() {
-        assertThrows(ContainerLaunchException.class, () -> {
-            try (KeycloakContainer keycloak = new KeycloakContainer()
-                .withDbVendor("oracle")
-                .withStartupTimeout(Duration.ofSeconds(30))) {
-                keycloak.start();
-            }
-        });
     }
 
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak, String username, String password) {

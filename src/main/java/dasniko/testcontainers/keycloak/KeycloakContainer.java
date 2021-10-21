@@ -48,8 +48,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
-    private String dbVendor = DB_VENDOR;
-    private Set<String> importFiles;
+    private final Set<String> importFiles;
     private String tlsCertFilename;
     private String tlsKeyFilename;
     private boolean useTls = false;
@@ -95,7 +94,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         withEnv("KEYCLOAK_USER", adminUsername);
         withEnv("KEYCLOAK_PASSWORD", adminPassword);
 
-        withEnv("DB_VENDOR", dbVendor);
+        withEnv("DB_VENDOR", DB_VENDOR);
 
         if (useTls && isNotBlank(tlsCertFilename) && isNotBlank(tlsKeyFilename)) {
             String certFileInContainer = "/etc/x509/https/tls.crt";
@@ -238,18 +237,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
-        return self();
-    }
-
-    /**
-     * @deprecated This method will be removed in next major version of this project,
-     * as it doesn't make much sense in testing environment to use some other stateful system,
-     * as tests should be independend from other environment.
-     * Also, this option was never officially documented and only here for internal meanings.
-     */
-    @Deprecated
-    public KeycloakContainer withDbVendor(String dbVendor) {
-        this.dbVendor = dbVendor;
         return self();
     }
 
