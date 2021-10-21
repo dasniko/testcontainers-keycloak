@@ -107,7 +107,7 @@ public class KeycloakContainerExtensionTest {
             String uri = keycloak.getAuthServerUrl() + "/realms/master/test-resource/hello";
 
             // test the "public" endpoint
-            Map<String, String> result = objectMapper.readValue(new URL(uri), new TypeReference<Map<String, String>>() {});
+            Map<String, String> result = objectMapper.readValue(new URL(uri), new TypeReference<>() {});
             assertThat(result.get("hello"), is("master"));
 
             // and now the secured endpoint, first we need a valid token
@@ -120,7 +120,7 @@ public class KeycloakContainerExtensionTest {
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Authorization", "Bearer " + accessTokenResponse.getToken());
 
-            Map<String, String> authResult = objectMapper.readValue(conn.getInputStream(), new TypeReference<Map<String, String>>() {});
+            Map<String, String> authResult = objectMapper.readValue(conn.getInputStream(), new TypeReference<>() {});
             assertThat(authResult.get("hello"), is("admin"));
         }
     }

@@ -176,8 +176,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     /**
      * Creates a {@link WaitAllStrategy} based on the current {@link #getWaitStrategy()} if present followed by the given {@link WaitStrategy}.
-     * @param waitStrategy
-     * @return
      */
     private WaitAllStrategy createCombinedWaitAllStrategy(WaitStrategy waitStrategy) {
         WaitAllStrategy waitAll = new WaitAllStrategy();
@@ -193,9 +191,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     /**
      * Registers a {@code extensions.jar.dodeploy} file to be created at container startup.
-     *
-     * @param deploymentLocation
-     * @param extensionArtifact
      */
     private void registerWildflyDeploymentTriggerFile(String deploymentLocation, String extensionArtifact) {
         String triggerFileName = extensionArtifact + ".dodeploy";

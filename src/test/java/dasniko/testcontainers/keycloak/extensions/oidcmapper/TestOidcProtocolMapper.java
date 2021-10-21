@@ -22,7 +22,7 @@ public class TestOidcProtocolMapper extends AbstractOIDCProtocolMapper implement
 
     public static final String ID = "test-protocol-mapper";
 
-    private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
+    private static final List<ProviderConfigProperty> configProperties = new ArrayList<>();
     public static final String CUSTOM_CLAIM_NAME = "testdata";
 
     static {
