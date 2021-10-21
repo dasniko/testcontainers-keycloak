@@ -39,9 +39,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String DB_VENDOR = "h2";
 
     private static final String DEFAULT_EXTENSION_NAME = "extensions.jar";
+    private static final String DEFAULT_PROVIDERS_NAME = "providers.jar";
 
     // for Keycloak-X this will be /opt/jboss/keycloak/providers
     private static final String DEFAULT_KEYCLOAK_DEPLOYMENTS_LOCATION = "/opt/jboss/keycloak/standalone/deployments";
+    private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/jboss/keycloak/providers";
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
@@ -55,6 +57,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
     private String extensionClassLocation;
+    private String providerClassLocation;
 
     private static final Transferable WILDFLY_DEPLOYMENT_TRIGGER_FILE_CONTENT = Transferable.of("true".getBytes(StandardCharsets.UTF_8));
     private final Set<String> wildflyDeploymentTriggerFiles = new HashSet<>();
@@ -115,6 +118,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         if (extensionClassLocation != null) {
             createKeycloakExtensionDeployment(extensionClassLocation);
         }
+
+        if (providerClassLocation != null) {
+            createKeycloakExtensionProvider(providerClassLocation);
+        }
     }
 
     /**
@@ -124,6 +131,15 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public void createKeycloakExtensionDeployment(String extensionClassFolder) {
         createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_DEPLOYMENTS_LOCATION, DEFAULT_EXTENSION_NAME, extensionClassFolder);
+    }
+
+    /**
+     * Maps the provided {@code extensionClassFolder} as an exploded providers.jar to the Keycloak providers folder.
+     *
+     * @param extensionClassFolder a path relative to the current classpath root.
+     */
+    public void createKeycloakExtensionProvider(String extensionClassFolder) {
+        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_EXTENSION_NAME, extensionClassFolder);
     }
 
     /**
@@ -249,6 +265,16 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public KeycloakContainer withExtensionClassesFrom(String classesLocation) {
         this.extensionClassLocation = classesLocation;
+        return self();
+    }
+
+    /**
+     * Exposes the given classes location as an exploded providers.jar.
+     *
+     * @param classesLocation a classes location relative to the current classpath root.
+     */
+    public KeycloakContainer withProviderClassesFrom(String classesLocation) {
+        this.providerClassLocation = classesLocation;
         return self();
     }
 
