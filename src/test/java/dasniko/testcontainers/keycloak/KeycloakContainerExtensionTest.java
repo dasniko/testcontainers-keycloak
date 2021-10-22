@@ -18,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
@@ -44,10 +45,21 @@ public class KeycloakContainerExtensionTest {
      */
     @Test
     public void shouldDeployExtension() throws Exception {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
-            .withRealmImportFile(TEST_REALM_JSON)
+        shouldDeploy(kc ->
             // this would normally be just "target/classes"
-            .withExtensionClassesFrom("target/test-classes")) {
+            kc.withExtensionClassesFrom("target/test-classes"));
+    }
+
+    @Test
+    public void shouldDeployProvider() throws Exception {
+        shouldDeploy(kc ->
+            // this would normally be just "target/classes"
+            kc.withProviderClassesFrom("target/test-classes"));
+    }
+
+    private void shouldDeploy(Function<KeycloakContainer, KeycloakContainer> configurator) throws Exception {
+        try (KeycloakContainer keycloak = configurator.apply(new KeycloakContainer())
+            .withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
 
             Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), MASTER,
@@ -76,9 +88,22 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldDeployExtensionAndCallCustomEndpoint() throws Exception {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        shouldDeployAndCallCustomEndpoint(kc ->
+                // this would normally be just "target/classes"
+                kc.withExtensionClassesFrom("target/test-classes")
+            );
+    }
+
+    @Test
+    public void shouldDeployProviderAndCallCustomEndpoint() throws Exception {
+        shouldDeployAndCallCustomEndpoint(kc ->
             // this would normally be just "target/classes"
-            .withExtensionClassesFrom("target/test-classes")) {
+            kc.withExtensionClassesFrom("target/test-classes")
+        );
+    }
+
+    private void shouldDeployAndCallCustomEndpoint(Function<KeycloakContainer, KeycloakContainer> configurator) throws Exception {
+        try (KeycloakContainer keycloak = configurator.apply(new KeycloakContainer())) {
             keycloak.start();
 
             ObjectMapper objectMapper = new ObjectMapper();

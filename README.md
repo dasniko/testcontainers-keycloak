@@ -130,6 +130,13 @@ private KeycloakContainer keycloak = new KeycloakContainer()
     .withExtensionClassesFrom("target/classes");
 ```
 
+You may also deploy your extension as a provider module.
+
+```java
+private KeycloakContainer keycloak = new KeycloakContainer()
+    .withProviderClassesFrom("target/classes");
+```
+
 See also [`KeycloakContainerExtensionTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) class.
 
 ## Setup
