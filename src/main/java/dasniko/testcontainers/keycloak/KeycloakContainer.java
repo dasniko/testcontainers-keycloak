@@ -22,8 +22,10 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -83,11 +85,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     @Override
     protected void configure() {
-        withCommand(
-//            "start-dev", // start the server w/o https in dev mode, local caching only
-            "--auto-config",
-            "--profile=dev" // start the server w/o https in dev mode, local caching only
-        );
+        List<String> commandParts = new ArrayList<>();
+        commandParts.add("--profile=dev"); // start the server w/o https in dev mode, local caching only
 
         setWaitStrategy(Wait
             .forHttp(KEYCLOAK_AUTH_PATH)
@@ -106,7 +105,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
+            commandParts.add("--auto-config"); // we currently only need the auto-config option, if we deploy custom extensions
         }
+
+        withCommand(commandParts.toArray(new String[0]));
     }
 
     @Override
