@@ -1,15 +1,18 @@
 package dasniko.testcontainers.keycloak;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.RealmRepresentation;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
@@ -29,6 +32,9 @@ import java.util.Set;
  */
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
+    public static final String MASTER_REALM = "master";
+    public static final String ADMIN_CLI_CLIENT = "admin-cli";
+
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak-x";
     private static final String KEYCLOAK_VERSION = "15.0.2";
 
@@ -47,7 +53,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
-    private final String dockerImageName;
     private final Set<String> importFiles;
     private String tlsKeystoreFilename;
     private String tlsKeystorePassword;
@@ -71,7 +76,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public KeycloakContainer(String dockerImageName) {
         super(DockerImageName.parse(dockerImageName));
-        this.dockerImageName = dockerImageName;
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
         importFiles = new HashSet<>();
         withLogConsumer(new Slf4jLogConsumer(logger()));
@@ -100,22 +104,30 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             withEnv("KC_HTTPS_CERTIFICATE_KEY_STORE_PASSWORD", tlsKeystorePassword);
         }
 
-        if (!importFiles.isEmpty()) {
-            String importDir = "/tmp/import";
-            ImageFromDockerfile newBaseImage = new ImageFromDockerfile();
-            setImage(newBaseImage.withDockerfileFromBuilder(builder -> {
-                builder.from(dockerImageName);
-                for (String importFile : importFiles) {
-                    String importFileInContainer = importDir + "/" + importFile;
-                    newBaseImage.withFileFromClasspath(importFile, importFile);
-                    builder.copy(importFile, importFileInContainer);
-                }
-                builder.run("/opt/jboss/keycloak/bin/kc.sh import --dir=" + importDir + " --profile=dev || true").build();
-            }));
-        }
-
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
+        }
+    }
+
+    @Override
+    protected void containerIsStarted(InspectContainerResponse containerInfo) {
+        if (!importFiles.isEmpty()) {
+            logger().info("Connect to Keycloak container to import given realm files.");
+            Keycloak kcAdmin =
+                Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
+            try {
+                for (String importFile : importFiles) {
+                    logger().info("Importing realm from file {}", importFile);
+                    kcAdmin.realms().create(
+                        new ObjectMapper().readValue(
+                            Thread.currentThread().getContextClassLoader().getResource(importFile),
+                            RealmRepresentation.class
+                        )
+                    );
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 

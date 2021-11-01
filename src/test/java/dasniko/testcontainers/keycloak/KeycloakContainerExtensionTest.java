@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
-import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -53,11 +51,11 @@ public class KeycloakContainerExtensionTest {
             .withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
 
-            Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), MASTER,
-                keycloak.getAdminUsername(), keycloak.getAdminPassword(), ADMIN_CLI);
+            Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), KeycloakContainer.MASTER_REALM,
+                keycloak.getAdminUsername(), keycloak.getAdminPassword(), KeycloakContainer.ADMIN_CLI_CLIENT);
 
-            RealmResource realm = keycloakClient.realm(MASTER);
-            ClientRepresentation client = realm.clients().findByClientId(ADMIN_CLI).get(0);
+            RealmResource realm = keycloakClient.realm(KeycloakContainer.MASTER_REALM);
+            ClientRepresentation client = realm.clients().findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
 
             configureCustomOidcProtocolMapper(realm, client);
 
@@ -97,8 +95,8 @@ public class KeycloakContainerExtensionTest {
             assertThat(result.get("hello"), is("master"));
 
             // and now the secured endpoint, first we need a valid token
-            Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), MASTER,
-                keycloak.getAdminUsername(), keycloak.getAdminPassword(), ADMIN_CLI);
+            Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), KeycloakContainer.MASTER_REALM,
+                keycloak.getAdminUsername(), keycloak.getAdminPassword(), KeycloakContainer.ADMIN_CLI_CLIENT);
             AccessTokenResponse accessTokenResponse = keycloakClient.tokenManager().getAccessToken();
 
             URL url = new URL(keycloak.getAuthServerUrl() + "realms/master/test-resource/hello-auth");

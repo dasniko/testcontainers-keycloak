@@ -20,9 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class KeycloakContainerTest {
 
-    public static final String MASTER = "master";
-    public static final String ADMIN_CLI = "admin-cli";
-
     public static final String TEST_REALM_JSON = "test-realm.json";
 
     @Test
@@ -107,8 +104,8 @@ public class KeycloakContainerTest {
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak, String username, String password) {
         Keycloak keycloakAdminClient = KeycloakBuilder.builder()
             .serverUrl(keycloak.getAuthServerUrl())
-            .realm(MASTER)
-            .clientId(ADMIN_CLI)
+            .realm(KeycloakContainer.MASTER_REALM)
+            .clientId(KeycloakContainer.ADMIN_CLI_CLIENT)
             .username(username)
             .password(password)
             .build();
