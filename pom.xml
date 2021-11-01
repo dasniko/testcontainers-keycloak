@@ -50,11 +50,12 @@
     </distributionManagement>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <keycloak.version>15.0.2</keycloak.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shrinkwrap.verion>1.2.6</shrinkwrap.verion>
         <testcontainers.version>1.16.2</testcontainers.version>
-        <keycloak.version>15.0.2</keycloak.version>
     </properties>
 
     <dependencies>
@@ -68,6 +69,17 @@
                     <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.shrinkwrap</groupId>
+            <artifactId>shrinkwrap-api</artifactId>
+            <version>${shrinkwrap.verion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap</groupId>
+            <artifactId>shrinkwrap-impl-base</artifactId>
+            <version>${shrinkwrap.verion}</version>
         </dependency>
 
         <dependency>

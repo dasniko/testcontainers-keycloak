@@ -1,5 +1,9 @@
 package dasniko.testcontainers.keycloak;
 
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.exporter.ZipExporter;
+import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
@@ -9,19 +13,16 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -141,60 +142,23 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         Objects.requireNonNull(extensionClassFolder, "extensionClassFolder");
 
         String classesLocation = resolveExtensionClassLocation(extensionClassFolder);
-        if (!new File(classesLocation).exists()) {
-            return;
-        }
-
-        String providerFileName = extensionClassFolder.hashCode() + "-" + extensionName;
-        String localProviderFilePath = "target/" + providerFileName;
-        String deployedProviderFilePath = deploymentLocation + "/" + providerFileName;
-
-        try {
-            JarOutputStream jarOut = new JarOutputStream(new FileOutputStream(localProviderFilePath));
-            jar(new File(classesLocation), jarOut, classesLocation);
-            jarOut.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        addFileSystemBind(localProviderFilePath, deployedProviderFilePath, BindMode.READ_WRITE, SelinuxContext.SINGLE);
-    }
-
-    private void jar(File source, JarOutputStream target, String rootPath) throws IOException {
-        BufferedInputStream in = null;
-        try {
-            if (source.isDirectory()) {
-                String name = source.getPath();
-                if (!name.isEmpty()) {
-                    if (!name.endsWith("/")) {
-                        name += "/";
-                    }
-                    JarEntry entry = new JarEntry(name.substring(rootPath.length()));
-                    target.putNextEntry(entry);
-                    target.closeEntry();
-                }
-                for (File nestedFile: Objects.requireNonNull(source.listFiles())) {
-                    jar(nestedFile, target, rootPath);
-                }
-                return;
-            }
-
-            JarEntry entry = new JarEntry(source.getPath().substring(rootPath.length()));
-            target.putNextEntry(entry);
-            in = new BufferedInputStream(new FileInputStream(source));
-
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = in.read(bytes)) >= 0) {
-                target.write(bytes, 0, length);
-            }
-            target.closeEntry();
-        }
-        finally {
-            if (in != null) {
-                in.close();
+        if (new File(classesLocation).exists()) {
+            final File file;
+            try {
+                file = Files.createTempFile(Path.of("target"), "keycloak", ".jar").toFile();
+                file.setReadable(true, false);
+                file.deleteOnExit();
+                ShrinkWrap.create(JavaArchive.class, extensionName)
+                    .as(ExplodedImporter.class)
+                    .importDirectory(classesLocation)
+                    .as(ZipExporter.class)
+                    .exportTo(file, true);
+                addFileSystemBind(file.getAbsolutePath(), deploymentLocation + "/" + extensionName, BindMode.READ_ONLY, SelinuxContext.SINGLE);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         }
+
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
