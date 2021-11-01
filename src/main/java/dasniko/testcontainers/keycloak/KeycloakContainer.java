@@ -1,25 +1,27 @@
 package dasniko.testcontainers.keycloak;
 
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
-import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.ImageFromDockerfile;
-import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.nio.charset.StandardCharsets;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -31,17 +33,14 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
-    private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
+    private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_AUTH_PATH = "/";
 
-    private static final String DEFAULT_EXTENSION_NAME = "extensions.jar";
     private static final String DEFAULT_PROVIDERS_NAME = "providers.jar";
 
-    // for Keycloak-X this will be /opt/jboss/keycloak/providers
-    private static final String DEFAULT_KEYCLOAK_DEPLOYMENTS_LOCATION = "/opt/jboss/keycloak/standalone/deployments";
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/jboss/keycloak/providers";
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
@@ -55,11 +54,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
-    private String extensionClassLocation;
     private String providerClassLocation;
-
-    private static final Transferable WILDFLY_DEPLOYMENT_TRIGGER_FILE_CONTENT = Transferable.of("true".getBytes(StandardCharsets.UTF_8));
-    private final Set<String> wildflyDeploymentTriggerFiles = new HashSet<>();
 
     /**
      * Create a KeycloakContainer with default image and version tag
@@ -84,7 +79,9 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     @Override
     protected void configure() {
         withCommand(
-            "start-dev" // start the server w/o https in dev mode, local caching only
+//            "start-dev", // start the server w/o https in dev mode, local caching only
+            "--auto-config",
+            "--profile=dev" // start the server w/o https in dev mode, local caching only
         );
 
         setWaitStrategy(Wait
@@ -116,22 +113,9 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             }));
         }
 
-        if (extensionClassLocation != null) {
-            createKeycloakExtensionDeployment(extensionClassLocation);
-        }
-
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
         }
-    }
-
-    /**
-     * Maps the provided {@code extensionClassFolder} as an exploded extension.jar to the Keycloak deployments folder.
-     *
-     * @param extensionClassFolder a path relative to the current classpath root.
-     */
-    public void createKeycloakExtensionDeployment(String extensionClassFolder) {
-        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_DEPLOYMENTS_LOCATION, DEFAULT_EXTENSION_NAME, extensionClassFolder);
     }
 
     /**
@@ -140,7 +124,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      * @param extensionClassFolder a path relative to the current classpath root.
      */
     public void createKeycloakExtensionProvider(String extensionClassFolder) {
-        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_EXTENSION_NAME, extensionClassFolder);
+        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_PROVIDERS_NAME, extensionClassFolder);
     }
 
     /**
@@ -157,64 +141,60 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         Objects.requireNonNull(extensionClassFolder, "extensionClassFolder");
 
         String classesLocation = resolveExtensionClassLocation(extensionClassFolder);
-
         if (!new File(classesLocation).exists()) {
             return;
         }
 
-        String explodedFolderName = extensionClassFolder.hashCode() + "-" + extensionName;
-        String explodedFolderExtensionsJar = deploymentLocation + "/" + explodedFolderName;
-        addFileSystemBind(classesLocation, explodedFolderExtensionsJar, BindMode.READ_WRITE, SelinuxContext.SINGLE);
+        String providerFileName = extensionClassFolder.hashCode() + "-" + extensionName;
+        String localProviderFilePath = "target/" + providerFileName;
+        String deployedProviderFilePath = deploymentLocation + "/" + providerFileName;
 
-        boolean wildflyDeployment = deploymentLocation.contains("/standalone/deployments");
-        if (wildflyDeployment) {
-            registerWildflyDeploymentTriggerFile(deploymentLocation, explodedFolderName);
-
-            // wait for extension deployment
-            setWaitStrategy(createCombinedWaitAllStrategy(Wait.forLogMessage(".* Deployed \"" + explodedFolderName + "\" .*", 1)));
+        try {
+            JarOutputStream jarOut = new JarOutputStream(new FileOutputStream(localProviderFilePath));
+            jar(new File(classesLocation), jarOut, classesLocation);
+            jarOut.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
+
+        addFileSystemBind(localProviderFilePath, deployedProviderFilePath, BindMode.READ_WRITE, SelinuxContext.SINGLE);
     }
 
-    /**
-     * Creates a {@link WaitAllStrategy} based on the current {@link #getWaitStrategy()} if present followed by the given {@link WaitStrategy}.
-     */
-    private WaitAllStrategy createCombinedWaitAllStrategy(WaitStrategy waitStrategy) {
-        WaitAllStrategy waitAll = new WaitAllStrategy();
-        // startup timeout needs to be configured before calling .withStrategy(..) due to implementation in testcontainers.
-        waitAll.withStartupTimeout(startupTimeout);
-        WaitStrategy currentWaitStrategy = getWaitStrategy();
-        if (currentWaitStrategy != null) {
-            waitAll.withStrategy(currentWaitStrategy);
+    private void jar(File source, JarOutputStream target, String rootPath) throws IOException {
+        BufferedInputStream in = null;
+        try {
+            if (source.isDirectory()) {
+                String name = source.getPath();
+                if (!name.isEmpty()) {
+                    if (!name.endsWith("/")) {
+                        name += "/";
+                    }
+                    JarEntry entry = new JarEntry(name.substring(rootPath.length()));
+                    target.putNextEntry(entry);
+                    target.closeEntry();
+                }
+                for (File nestedFile: Objects.requireNonNull(source.listFiles())) {
+                    jar(nestedFile, target, rootPath);
+                }
+                return;
+            }
+
+            JarEntry entry = new JarEntry(source.getPath().substring(rootPath.length()));
+            target.putNextEntry(entry);
+            in = new BufferedInputStream(new FileInputStream(source));
+
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = in.read(bytes)) >= 0) {
+                target.write(bytes, 0, length);
+            }
+            target.closeEntry();
         }
-        waitAll.withStrategy(waitStrategy);
-        return waitAll;
-    }
-
-    /**
-     * Registers a {@code extensions.jar.dodeploy} file to be created at container startup.
-     */
-    private void registerWildflyDeploymentTriggerFile(String deploymentLocation, String extensionArtifact) {
-        String triggerFileName = extensionArtifact + ".dodeploy";
-        wildflyDeploymentTriggerFiles.add(deploymentLocation + "/" + triggerFileName);
-    }
-
-    @Override
-    protected void containerIsStarting(InspectContainerResponse containerInfo) {
-        createWildflyDeploymentTriggerFiles();
-    }
-
-    @Override
-    protected void containerIsStopping(InspectContainerResponse containerInfo) {
-        wildflyDeploymentTriggerFiles.clear();
-    }
-
-    /**
-     * Creates a new Wildfly {@code extensions.jar.dodeploy} deployment trigger file to ensure the exploded extension
-     * folder is deployed on container startup.
-     */
-    private void createWildflyDeploymentTriggerFiles() {
-        wildflyDeploymentTriggerFiles.forEach(deploymentTriggerFile ->
-            copyFileToContainer(WILDFLY_DEPLOYMENT_TRIGGER_FILE_CONTENT, deploymentTriggerFile));
+        finally {
+            if (in != null) {
+                in.close();
+            }
+        }
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
@@ -239,16 +219,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
-        return self();
-    }
-
-    /**
-     * Exposes the given classes location as an exploded extension.jar.
-     *
-     * @param classesLocation a classes location relative to the current classpath root.
-     */
-    public KeycloakContainer withExtensionClassesFrom(String classesLocation) {
-        this.extensionClassLocation = classesLocation;
         return self();
     }
 

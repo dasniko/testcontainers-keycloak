@@ -3,7 +3,6 @@ package dasniko.testcontainers.keycloak;
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
@@ -22,13 +21,12 @@ import static org.hamcrest.Matchers.startsWith;
 /**
  * Tests reusable containers support for {@link KeycloakContainer}.
  */
-@Disabled
 public class KeycloakContainerExtensionReuseTest {
 
     public static final KeycloakContainer KEYCLOAK = new KeycloakContainer()
         .withRealmImportFile(TEST_REALM_JSON)
         // this would normally be just "target/classes"
-        .withExtensionClassesFrom("target/test-classes")
+        .withProviderClassesFrom("target/test-classes")
         // this enables KeycloakContainer reuse across tests
         .withReuse(true);
 

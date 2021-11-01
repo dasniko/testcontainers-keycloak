@@ -3,7 +3,6 @@ package dasniko.testcontainers.keycloak;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
@@ -29,27 +28,19 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
-@Disabled
 public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldStartKeycloakWithNonExistingExtensionClassFolder() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
-            .withExtensionClassesFrom("target/does_not_exist")) {
+            .withProviderClassesFrom("target/does_not_exist")) {
             keycloak.start();
         }
     }
 
     /**
-     * Deploys the Keycloak extensions from the test-classes folder into the create Keycloak container.
+     * Deploys the Keycloak extensions from the test-classes folder into the created Keycloak container.
      */
-    @Test
-    public void shouldDeployExtension() throws Exception {
-        shouldDeploy(kc ->
-            // this would normally be just "target/classes"
-            kc.withExtensionClassesFrom("target/test-classes"));
-    }
-
     @Test
     public void shouldDeployProvider() throws Exception {
         shouldDeploy(kc ->
@@ -87,18 +78,10 @@ public class KeycloakContainerExtensionTest {
     }
 
     @Test
-    public void shouldDeployExtensionAndCallCustomEndpoint() throws Exception {
-        shouldDeployAndCallCustomEndpoint(kc ->
-                // this would normally be just "target/classes"
-                kc.withExtensionClassesFrom("target/test-classes")
-            );
-    }
-
-    @Test
     public void shouldDeployProviderAndCallCustomEndpoint() throws Exception {
         shouldDeployAndCallCustomEndpoint(kc ->
             // this would normally be just "target/classes"
-            kc.withExtensionClassesFrom("target/test-classes")
+            kc.withProviderClassesFrom("target/test-classes")
         );
     }
 
@@ -107,7 +90,7 @@ public class KeycloakContainerExtensionTest {
             keycloak.start();
 
             ObjectMapper objectMapper = new ObjectMapper();
-            String uri = keycloak.getAuthServerUrl() + "/realms/master/test-resource/hello";
+            String uri = keycloak.getAuthServerUrl() + "realms/master/test-resource/hello";
 
             // test the "public" endpoint
             Map<String, String> result = objectMapper.readValue(new URL(uri), new TypeReference<>() {});
@@ -118,7 +101,7 @@ public class KeycloakContainerExtensionTest {
                 keycloak.getAdminUsername(), keycloak.getAdminPassword(), ADMIN_CLI);
             AccessTokenResponse accessTokenResponse = keycloakClient.tokenManager().getAccessToken();
 
-            URL url = new URL(keycloak.getAuthServerUrl() + "/realms/master/test-resource/hello-auth");
+            URL url = new URL(keycloak.getAuthServerUrl() + "realms/master/test-resource/hello-auth");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Authorization", "Bearer " + accessTokenResponse.getToken());

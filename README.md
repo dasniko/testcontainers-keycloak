@@ -28,7 +28,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer("jboss/keycloak:15.0.2");
+private KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:16.0.0");
 ```
 
 Power up a Keycloak instance with one ore more existing realm JSON config files (from classpath):
@@ -123,14 +123,7 @@ This allows to test extensions directly in the same module without a packaging s
 If you have your Keycloak extension code in the `src/main/java` folder, then the resulting classes will be generated to the `target/classes` folder.
 To test your extensions you just need to tell `KeycloakContainer` to consider extensions from the `target/classes` folder.
 
-Keycloak Testcontainer will then dynamically generate an exploded "jar file" with the extension code that is then picked up by Keycloak.
-
-```java
-private KeycloakContainer keycloak = new KeycloakContainer()
-    .withExtensionClassesFrom("target/classes");
-```
-
-You may also deploy your extension as a provider module.
+Keycloak Testcontainer will then dynamically generate a packaged jar file with the extension code that is then picked up by Keycloak.
 
 ```java
 private KeycloakContainer keycloak = new KeycloakContainer()
@@ -181,7 +174,7 @@ Consult the docs of your application framework testing capabilities on how to dy
 [![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "")
 
 
-## Testcontainers & Keycloak version compatiblity
+## Testcontainers & Keycloak-X version compatiblity
 
 |Testcontainers-Keycloak |Testcontainers |Keycloak
 |---|---|---
