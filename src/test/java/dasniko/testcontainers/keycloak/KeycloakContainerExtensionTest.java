@@ -24,6 +24,7 @@ import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
