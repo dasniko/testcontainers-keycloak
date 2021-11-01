@@ -252,6 +252,16 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
+    /**
+     * Exposes the given classes location as an exploded providers.jar.
+     *
+     * @param classesLocation a classes location relative to the current classpath root.
+     */
+    public KeycloakContainer withProviderClassesFrom(String classesLocation) {
+        this.providerClassLocation = classesLocation;
+        return self();
+    }
+
     public KeycloakContainer withStartupTimeout(Duration startupTimeout) {
         this.startupTimeout = startupTimeout;
         return self();
