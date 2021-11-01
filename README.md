@@ -8,6 +8,17 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
 ![](https://img.shields.io/badge/Keycloak-15.0.2-blue)
 
+## Keycloak-X compatibility --- IMPORTANT!!!
+
+> As of October 28th 2021, the Keycloak project [announced](https://www.keycloak.org/2021/10/keycloak-x-update) the roadmap for the new Quarkus-based Keycloak-X distribution.
+I'm working currently already on a Keycloak-X Testcontainers version, which will be also version 2.x of this library.
+It is planned to provide the version 2.x with Keycloak-X support with the first supported release of Keycloak-X, which will be Keycloak 17.
+At the same time, version 2.x of this project, will NO MORE support "legacy" Keyclaok (the Wildfly-based distribution).
+
+> Nevertheless, the current 1.x branch will live and be maintained until the Wildfly-based legacy Keycloak distribution is dropped (approx mid 2022).
+From Keycloak 17, the legacy Keycloak distribution will be marked _deprecated_, so I will do the same with this library version 1.x branch!
+
+
 ## How to use
 
 _The `@Container` annotation used here in the readme is from the JUnit 5 support of Testcontainers.
