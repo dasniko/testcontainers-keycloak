@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class KeycloakContainerTest {
 
-    public static final String TEST_REALM_JSON = "test-realm.json";
+    public static final String TEST_REALM_JSON = "/test-realm.json";
 
     @Test
     public void shouldStartKeycloak() {
@@ -61,7 +61,7 @@ public class KeycloakContainerTest {
     @Test
     public void shouldImportMultipleRealms() {
         try (KeycloakContainer keycloak = new KeycloakContainer().
-            withRealmImportFiles(TEST_REALM_JSON, "another-realm.json")) {
+            withRealmImportFiles(TEST_REALM_JSON, "/another-realm.json")) {
             keycloak.start();
 
             String accountService = given().when().get(keycloak.getAuthServerUrl() + "realms/test")

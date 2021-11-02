@@ -121,10 +121,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
                 for (String importFile : importFiles) {
                     logger().info("Importing realm from file {}", importFile);
                     kcAdmin.realms().create(
-                        new ObjectMapper().readValue(
-                            Thread.currentThread().getContextClassLoader().getResource(importFile),
-                            RealmRepresentation.class
-                        )
+                        new ObjectMapper().readValue(this.getClass().getResource(importFile), RealmRepresentation.class)
                     );
                 }
             } catch (IOException e) {
