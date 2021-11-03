@@ -51,8 +51,7 @@ public class KeycloakContainerExtensionTest {
             .withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
 
-            Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), KeycloakContainer.MASTER_REALM,
-                keycloak.getAdminUsername(), keycloak.getAdminPassword(), KeycloakContainer.ADMIN_CLI_CLIENT);
+            Keycloak keycloakClient = keycloak.getKeycloakAdminClient();
 
             RealmResource realm = keycloakClient.realm(KeycloakContainer.MASTER_REALM);
             ClientRepresentation client = realm.clients().findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
@@ -95,8 +94,7 @@ public class KeycloakContainerExtensionTest {
             assertThat(result.get("hello"), is("master"));
 
             // and now the secured endpoint, first we need a valid token
-            Keycloak keycloakClient = Keycloak.getInstance(keycloak.getAuthServerUrl(), KeycloakContainer.MASTER_REALM,
-                keycloak.getAdminUsername(), keycloak.getAdminPassword(), KeycloakContainer.ADMIN_CLI_CLIENT);
+            Keycloak keycloakClient = keycloak.getKeycloakAdminClient();
             AccessTokenResponse accessTokenResponse = keycloakClient.tokenManager().getAccessToken();
 
             URL url = new URL(keycloak.getAuthServerUrl() + "realms/master/test-resource/hello-auth");

@@ -2,7 +2,6 @@ package dasniko.testcontainers.keycloak;
 
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 import org.testcontainers.containers.ContainerLaunchException;
 
@@ -83,33 +82,23 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
 
-            checkKeycloakContainerInternals(keycloak, keycloak.getAdminUsername(), keycloak.getAdminPassword());
+            checkKeycloakContainerInternals(keycloak);
         }
     }
 
     @Test
     public void shouldUseDifferentAdminCredentials() {
-        String username = "foo";
-        String password = "bar";
-
         try (KeycloakContainer keycloak = new KeycloakContainer()
-            .withAdminUsername(username)
-            .withAdminPassword(password)) {
+            .withAdminUsername("foo")
+            .withAdminPassword("bar")) {
             keycloak.start();
 
-            checkKeycloakContainerInternals(keycloak, username, password);
+            checkKeycloakContainerInternals(keycloak);
         }
     }
 
-    private void checkKeycloakContainerInternals(KeycloakContainer keycloak, String username, String password) {
-        Keycloak keycloakAdminClient = KeycloakBuilder.builder()
-            .serverUrl(keycloak.getAuthServerUrl())
-            .realm(KeycloakContainer.MASTER_REALM)
-            .clientId(KeycloakContainer.ADMIN_CLI_CLIENT)
-            .username(username)
-            .password(password)
-            .build();
-
+    private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
+        Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
         assertThat(serverInfo, notNullValue());
         assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));

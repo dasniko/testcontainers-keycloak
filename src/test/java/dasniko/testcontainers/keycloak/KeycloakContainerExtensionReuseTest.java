@@ -32,8 +32,7 @@ public class KeycloakContainerExtensionReuseTest {
     public static void beforeAll() {
         KEYCLOAK.start();
 
-        Keycloak keycloakClient = Keycloak.getInstance(KEYCLOAK.getAuthServerUrl(), KeycloakContainer.MASTER_REALM,
-            KEYCLOAK.getAdminUsername(), KEYCLOAK.getAdminPassword(), KeycloakContainer.ADMIN_CLI_CLIENT);
+        Keycloak keycloakClient = KEYCLOAK.getKeycloakAdminClient();
 
         RealmResource realm = keycloakClient.realm(KeycloakContainer.MASTER_REALM);
         ClientRepresentation client = realm.clients().findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
@@ -63,8 +62,7 @@ public class KeycloakContainerExtensionReuseTest {
 
     private void simpleOidcProtocolMapperTest() throws Exception {
 
-        Keycloak keycloakClient = Keycloak.getInstance(KEYCLOAK.getAuthServerUrl(), KeycloakContainer.MASTER_REALM,
-            KEYCLOAK.getAdminUsername(), KEYCLOAK.getAdminPassword(), KeycloakContainer.ADMIN_CLI_CLIENT);
+        Keycloak keycloakClient = KEYCLOAK.getKeycloakAdminClient();
 
         keycloakClient.tokenManager().grantToken();
 

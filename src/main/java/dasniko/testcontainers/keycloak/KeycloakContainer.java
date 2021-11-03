@@ -115,8 +115,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     protected void containerIsStarted(InspectContainerResponse containerInfo) {
         if (!importFiles.isEmpty()) {
             logger().info("Connect to Keycloak container to import given realm files.");
-            Keycloak kcAdmin =
-                Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
+            Keycloak kcAdmin = getKeycloakAdminClient();
             try {
                 for (String importFile : importFiles) {
                     logger().info("Importing realm from file {}", importFile);
@@ -222,6 +221,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         this.tlsKeystorePassword = tlsKeystorePassword;
         this.useTls = true;
         return self();
+    }
+
+    public Keycloak getKeycloakAdminClient() {
+        return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
     }
 
     public String getAuthServerUrl() {

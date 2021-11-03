@@ -6,7 +6,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-15.0.2-blue)
+![](https://img.shields.io/badge/Keycloak.X-15.0.2-blue)
 
 ## How to use
 
@@ -19,7 +19,7 @@ Simply spin up a default Keycloak instance:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer();
+KeycloakContainer keycloak = new KeycloakContainer();
 ```
 
 ### Custom image
@@ -28,24 +28,20 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:16.0.0");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak-x:15.0.2");
 ```
 
-Power up a Keycloak instance with one ore more existing realm JSON config files (from classpath):
+Power up a Keycloak instance with one or more existing realm JSON config files (from classpath):
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer()
-    .withRealmImportFile("test-realm.json");
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withRealmImportFile("/test-realm.json");
 ```
 or
 ```java
-    .withRealmImportFiles("test-realm-1.json", "test-realm-2.json");
+    .withRealmImportFiles("/test-realm-1.json", "/test-realm-2.json");
 ```
-
-_NOTE: Importing a realm dynamically on the fly, needs to create an extra temporary Docker image with the imported realm upfront.
-This will take some extra time.
-While testcontainers-keycloak supports this feature, it is recommended to use a custom pre-built image within your tests to get a better performance from starting the testcontainer instance._
 
 ### Initial admin user credentials
 
@@ -53,14 +49,23 @@ Use different admin credentials than the defaut internal (`admin`/`admin`) ones:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer()
     .withAdminUsername("myKeycloakAdminUser")
     .withAdminPassword("tops3cr3t");
 ```
 
-### Getting information from the testcontainer
+### Getting an admin client and other information from the testcontainer
 
-You can obtain several properties form the Keycloak container:
+You can get an instance of `org.keycloak.admin.Keycloak` admin client directly from the container, using
+
+```java
+org.keycloak.admin.Keycloak keycloakAdmin = keycloakContainer.getKeycloakAdminClient();
+```
+The admin client is configured with current admin credentials.
+
+> The `org.keycloak:keycloak-admin-client` package is now a transitive dependency of this project, ready to be used by you in your tests, no more need to add it on your own.
+
+You can also obtain several properties from the Keycloak container:
 
 ```java
 String authServerUrl = keycloak.getAuthServerUrl();
@@ -68,7 +73,7 @@ String adminUsername = keycloak.getAdminUsername();
 String adminPassword = keycloak.getAdminPassword();
 ```
 
-with these properties, you can create a `org.keycloak.admin.client.Keycloak` (Keycloak admin client, 3rd party dependency from Keycloak project) object to connect to the container and do optional further configuration:
+with these properties, you can create e.g. a custom `org.keycloak.admin.client.Keycloak` object to connect to the container and do optional further configuration:
 
 ```java
 Keycloak keycloakAdminClient = KeycloakBuilder.builder()
@@ -79,8 +84,6 @@ Keycloak keycloakAdminClient = KeycloakBuilder.builder()
     .password(keycloak.getAdminPassword())
     .build();
 ```
-
-See also [`KeycloakContainerTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerTest.java) class.
 
 ## TLS (SSL) Usage
 
@@ -93,7 +96,7 @@ You can use this configuration by only configuring your testcontainer like this:
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer().useTls();
+KeycloakContainer keycloak = new KeycloakContainer().useTls();
 ```
 
 The password for the provided Java KeyStore file is `changeit`.
@@ -107,7 +110,7 @@ Of course you can also provide your own keystore file for usage in this Testcont
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer()
     .useTls("your_custom.jks", "password_for_your_custom_keystore");
 ```
 
@@ -126,7 +129,7 @@ To test your extensions you just need to tell `KeycloakContainer` to consider ex
 Keycloak Testcontainer will then dynamically generate a packaged jar file with the extension code that is then picked up by Keycloak.
 
 ```java
-private KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer()
     .withProviderClassesFrom("target/classes");
 ```
 
@@ -176,19 +179,11 @@ Consult the docs of your application framework testing capabilities on how to dy
 
 ## Testcontainers & Keycloak-X version compatiblity
 
-|Testcontainers-Keycloak |Testcontainers |Keycloak
+For the legacy Keycloak (before `-X`/Quarkus-based distro), see [version 1.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v1)
+
+|Testcontainers-Keycloak |Testcontainers |Keycloak-X
 |---|---|---
-|1.2.0 |1.12.3 |8.0.1
-|1.3.0 |1.12.3 |8.0.1
-|1.3.1 |1.13.0 |9.0.2
-|1.3.3 |1.13.0 |10.0.2
-|1.4.0 |1.13.0 |11.0.2
-|1.5.0 |1.15.1 |12.0.1
-|1.6.0 |1.15.1 |12.0.1
-|1.6.1 |1.15.1 |12.0.4
-|1.7.0 |1.15.3 |13.0.0
-|1.7.1 |1.15.3 |13.0.1
-|1.8.0 |1.15.3 |15.0.2
+|2.0.0-SNAPSHOT |1.16.2 |15.0.2
 
 _There might also be other possible version configurations which will work._
 
