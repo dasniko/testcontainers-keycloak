@@ -200,7 +200,7 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 ## License
 
-MIT License
+Apache License 2.0
 
 Copyright (c) 2019-2021 Niko Köbler
 
