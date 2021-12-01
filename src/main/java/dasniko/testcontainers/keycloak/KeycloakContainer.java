@@ -123,7 +123,17 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             commandParts.add("--auto-config"); // we currently only need the auto-config option, if we deploy custom extensions
         }
 
-        withCommand(commandParts.toArray(new String[0]));
+        setCommand(commandParts.toArray(new String[0]));
+    }
+
+    @Override
+    public KeycloakContainer withCommand(String cmd) {
+        throw new IllegalStateException("You are trying to set custom container commands, which is currently not supported by this Testcontainer.");
+    }
+
+    @Override
+    public KeycloakContainer withCommand(String... commandParts) {
+        throw new IllegalStateException("You are trying to set custom container commands, which is currently not supported by this Testcontainer.");
     }
 
     @Override
