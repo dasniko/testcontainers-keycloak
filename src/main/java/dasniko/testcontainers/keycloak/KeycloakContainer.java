@@ -83,7 +83,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     @Override
     protected void configure() {
-        withCommand(
+        setCommand(
             "-c standalone.xml", // don't start infinispan cluster
             "-b 0.0.0.0", // ensure proper binding
             "-Dkeycloak.profile.feature.upload_scripts=enabled" // enable script uploads
@@ -130,6 +130,18 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
         }
+    }
+
+    @Override
+    public KeycloakContainer withCommand(String cmd) {
+        logger().warn("You are trying to set custom container commands, which are currently not supported by this Testcontainer.");
+        return self();
+    }
+
+    @Override
+    public KeycloakContainer withCommand(String... commandParts) {
+        logger().warn("You are trying to set custom container commands, which are currently not supported by this Testcontainer.");
+        return self();
     }
 
     /**
