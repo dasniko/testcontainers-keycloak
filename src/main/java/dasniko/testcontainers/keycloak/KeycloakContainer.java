@@ -1,9 +1,7 @@
 package dasniko.testcontainers.keycloak;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
@@ -12,7 +10,12 @@ import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -183,7 +187,17 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         String explodedFolderName = extensionClassFolder.hashCode() + "-" + extensionName;
         String explodedFolderExtensionsJar = deploymentLocation + "/" + explodedFolderName;
-        addFileSystemBind(classesLocation, explodedFolderExtensionsJar, BindMode.READ_WRITE, SelinuxContext.SINGLE);
+
+        try (Stream<Path> extensionPathStream = Files.walk(Paths.get(extensionClassFolder))) {
+            extensionPathStream.forEach(extPath -> {
+                if (!Files.isDirectory(extPath)) {
+                    withCopyFileToContainer(MountableFile.forClasspathResource(extPath.toString().replace(extensionClassFolder, "")),
+                        explodedFolderExtensionsJar + extPath.toString().replace(extensionClassFolder, ""));
+                }
+            });
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         boolean wildflyDeployment = deploymentLocation.contains("/standalone/deployments");
         if (wildflyDeployment) {
