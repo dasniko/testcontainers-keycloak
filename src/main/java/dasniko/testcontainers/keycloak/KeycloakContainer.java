@@ -4,6 +4,7 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
@@ -49,7 +50,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
 
     private String dbVendor = DB_VENDOR;
-    private Set<String> importFiles;
+    private final Set<String> importFiles;
+    private final Set<String> startupScripts;
     private String tlsCertFilename;
     private String tlsKeyFilename;
     private boolean useTls = false;
@@ -75,7 +77,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         super(dockerImageName);
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
         importFiles = new HashSet<>();
-//        withLogConsumer(new Slf4jLogConsumer(logger()));
+        startupScripts = new HashSet<>();
+        withLogConsumer(new Slf4jLogConsumer(logger()));
     }
 
     @Override
@@ -104,15 +107,20 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeyFilename), keyFileInContainer);
         }
 
-        List<String> filesInContainer = new ArrayList<>();
+        List<String> importFilesInContainer = new ArrayList<>();
         for (String importFile : importFiles) {
             String importFileInContainer = "/tmp/" + importFile;
-            filesInContainer.add(importFileInContainer);
+            importFilesInContainer.add(importFileInContainer);
             withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
         }
 
         if (!importFiles.isEmpty()) {
-            withEnv("KEYCLOAK_IMPORT", String.join(",", filesInContainer));
+            withEnv("KEYCLOAK_IMPORT", String.join(",", importFilesInContainer));
+        }
+
+        for (String startupScript : startupScripts) {
+            String startupScriptInContainer = "/opt/jboss/startup-scripts/" + startupScript;
+            withCopyFileToContainer(MountableFile.forClasspathResource(startupScript), startupScriptInContainer);
         }
 
         if (extensionClassLocation != null) {
@@ -139,7 +147,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      * @param extensionClassFolder a path relative to the current classpath root.
      */
     public void createKeycloakExtensionProvider(String extensionClassFolder) {
-        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_EXTENSION_NAME, extensionClassFolder);
+        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_PROVIDERS_NAME, extensionClassFolder);
     }
 
     /**
@@ -233,6 +241,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withRealmImportFiles(String... files) {
         Arrays.stream(files).forEach(this::withRealmImportFile);
+        return self();
+    }
+
+    public KeycloakContainer withStartupScripts(String... startupScripts) {
+        this.startupScripts.addAll(Arrays.asList(startupScripts));
         return self();
     }
 
