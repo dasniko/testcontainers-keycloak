@@ -23,9 +23,7 @@ import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.RealmRepresentation;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
@@ -188,7 +186,9 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
                     .importDirectory(classesLocation)
                     .as(ZipExporter.class)
                     .exportTo(file, true);
-                addFileSystemBind(file.getAbsolutePath(), deploymentLocation + "/" + extensionName, BindMode.READ_ONLY, SelinuxContext.SINGLE);
+                System.out.println(file.getAbsolutePath());
+                System.out.println(extensionClassFolder);
+                withCopyFileToContainer(MountableFile.forHostPath(file.getAbsolutePath()), deploymentLocation + "/" + extensionName);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
