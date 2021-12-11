@@ -51,7 +51,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak-x";
-    private static final String KEYCLOAK_VERSION = "15.0.2";
+    private static final String KEYCLOAK_VERSION = "15.1.0";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -61,9 +61,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_AUTH_PATH = "/";
 
-    private static final String DEFAULT_PROVIDERS_NAME = "providers.jar";
+    private static final String DEFAULT_KEYCLOAK_PROVIDERS_NAME = "providers.jar";
+    private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/keycloak/providers";
 
-    private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/jboss/keycloak/providers";
+    private static final String KEYSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.keystore";
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
@@ -99,7 +100,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     @Override
     protected void configure() {
         List<String> commandParts = new ArrayList<>();
-        commandParts.add("--profile=dev"); // start the server w/o https in dev mode, local caching only
+        commandParts.add("start-dev"); // start the server wit http in dev mode, local caching only
+        commandParts.add("--features-scripts=enabled"); // enable script uploads
 
         setWaitStrategy(Wait
             .forHttp(KEYCLOAK_AUTH_PATH)
@@ -111,14 +113,13 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         withEnv("KEYCLOAK_ADMIN_PASSWORD", adminPassword);
 
         if (useTls && isNotBlank(tlsKeystoreFilename)) {
-            String keystoreFileInContainer = "/opt/jboss/keycloak/conf/server.keystore";
-            withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeystoreFilename), keystoreFileInContainer);
-            withEnv("KC_HTTPS_CERTIFICATE_KEY_STORE_PASSWORD", tlsKeystorePassword);
+            withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeystoreFilename), KEYSTORE_FILE_IN_CONTAINER);
+            commandParts.add("--https-key-store-file=" + KEYSTORE_FILE_IN_CONTAINER);
+            commandParts.add("--https-key-store-password=" + tlsKeystorePassword);
         }
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
-            commandParts.add("--auto-config"); // we currently only need the auto-config option, if we deploy custom extensions
         }
 
         setCommand(commandParts.toArray(new String[0]));
@@ -158,7 +159,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      * @param extensionClassFolder a path relative to the current classpath root.
      */
     public void createKeycloakExtensionProvider(String extensionClassFolder) {
-        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_PROVIDERS_NAME, extensionClassFolder);
+        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_KEYCLOAK_PROVIDERS_NAME, extensionClassFolder);
     }
 
     /**
