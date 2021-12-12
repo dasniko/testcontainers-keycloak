@@ -53,7 +53,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <testcontainers.version>1.15.3</testcontainers.version>
+        <testcontainers.version>1.16.2</testcontainers.version>
         <keycloak.version>15.0.2</keycloak.version>
     </properties>
 
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>

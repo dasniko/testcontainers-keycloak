@@ -207,6 +207,7 @@ Consult the docs of your application framework testing capabilities on how to dy
 |1.7.0 |1.15.3 |13.0.0
 |1.7.1 |1.15.3 |13.0.1
 |1.8.0 |1.15.3 |15.0.2
+|1.9.0 |1.16.2 |15.1.0
 
 _There might also be other possible version configurations which will work._
 

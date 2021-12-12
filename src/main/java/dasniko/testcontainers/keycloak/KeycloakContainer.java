@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "15.0.2";
+    private static final String KEYCLOAK_VERSION = "15.1.0";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -46,7 +46,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String DEFAULT_EXTENSION_NAME = "extensions.jar";
     private static final String DEFAULT_PROVIDERS_NAME = "providers.jar";
 
-    // for Keycloak-X this will be /opt/jboss/keycloak/providers
     private static final String DEFAULT_KEYCLOAK_DEPLOYMENTS_LOCATION = "/opt/jboss/keycloak/standalone/deployments";
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/jboss/keycloak/providers";
 
