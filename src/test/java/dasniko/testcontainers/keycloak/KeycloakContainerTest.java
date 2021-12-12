@@ -10,6 +10,7 @@ import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -92,6 +93,22 @@ public class KeycloakContainerTest {
             .withAdminUsername("foo")
             .withAdminPassword("bar")) {
             keycloak.start();
+
+            checkKeycloakContainerInternals(keycloak);
+        }
+    }
+
+    @Test
+    public void shouldRunOnDifferentContextPath() {
+        String contextPath = "/auth/";
+        try (KeycloakContainer keycloak = new KeycloakContainer().withContextPath(contextPath)) {
+            keycloak.start();
+
+            String authServerUrl = keycloak.getAuthServerUrl();
+            assertThat(authServerUrl, endsWith(contextPath));
+
+            given().when().get(authServerUrl + "realms/master/.well-known/openid-configuration")
+                .then().statusCode(200);
 
             checkKeycloakContainerInternals(keycloak);
         }

@@ -59,7 +59,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
-    private static final String KEYCLOAK_AUTH_PATH = "/";
+    private static final String KEYCLOAK_CONTEXT_PATH = "/";
 
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_NAME = "providers.jar";
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/keycloak/providers";
@@ -68,6 +68,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
+    private String contextPath = KEYCLOAK_CONTEXT_PATH;
 
     private final Set<String> importFiles;
     private String tlsKeystoreFilename;
@@ -103,8 +104,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         commandParts.add("start-dev"); // start the server wit http in dev mode, local caching only
         commandParts.add("--features-scripts=enabled"); // enable script uploads
 
+        if (!contextPath.equals(KEYCLOAK_CONTEXT_PATH)) {
+            commandParts.add("--http-relative-path=" + contextPath);
+        }
+
         setWaitStrategy(Wait
-            .forHttp(KEYCLOAK_AUTH_PATH)
+            .forHttp(contextPath)
             .forPort(KEYCLOAK_PORT_HTTP)
             .withStartupTimeout(startupTimeout)
         );
@@ -222,6 +227,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
+    public KeycloakContainer withContextPath(String contextPath) {
+        this.contextPath = contextPath;
+        return self();
+    }
+
     /**
      * Exposes the given classes location as an exploded providers.jar.
      *
@@ -255,7 +265,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public String getAuthServerUrl() {
         return String.format("http%s://%s:%s%s", useTls ? "s" : "", getContainerIpAddress(),
-            useTls ? getMappedPort(KEYCLOAK_PORT_HTTPS) : getMappedPort(KEYCLOAK_PORT_HTTP), KEYCLOAK_AUTH_PATH);
+            useTls ? getHttpsPort() : getHttpPort(), getContextPath());
     }
 
     public String getAdminUsername() {
@@ -272,6 +282,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public int getHttpsPort() {
         return getMappedPort(KEYCLOAK_PORT_HTTPS);
+    }
+
+    public String getContextPath() {
+        return contextPath;
     }
 
     public Duration getStartupTimeout() {
