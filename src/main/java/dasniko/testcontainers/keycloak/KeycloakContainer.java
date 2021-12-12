@@ -26,7 +26,6 @@ import org.keycloak.representations.idm.RealmRepresentation;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
@@ -75,6 +74,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String tlsKeystorePassword;
     private boolean useTls = false;
 
+    private String featureGroup = null;
+
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
     private String providerClassLocation;
@@ -92,7 +93,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak-x:15.0.2
      */
     public KeycloakContainer(String dockerImageName) {
-        super(DockerImageName.parse(dockerImageName));
+        super(dockerImageName);
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
         importFiles = new HashSet<>();
         withLogConsumer(new Slf4jLogConsumer(logger()));
@@ -100,12 +101,22 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     @Override
     protected void configure() {
+        boolean needAutoBuild = false;
         List<String> commandParts = new ArrayList<>();
-        commandParts.add("start-dev"); // start the server wit http in dev mode, local caching only
-        commandParts.add("--features-scripts=enabled"); // enable script uploads
+        commandParts.add("--profile=testcontainers");
+        commandParts.add("start");
+        commandParts.add("--http-enabled=true");
+        commandParts.add("--hostname-strict=false");
+        commandParts.add("--hostname-strict-https=false");
 
         if (!contextPath.equals(KEYCLOAK_CONTEXT_PATH)) {
             commandParts.add("--http-relative-path=" + contextPath);
+            needAutoBuild = true;
+        }
+
+        if (featureGroup != null) {
+            commandParts.add("--features=" + featureGroup);
+            needAutoBuild = true;
         }
 
         setWaitStrategy(Wait
@@ -125,6 +136,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
+            needAutoBuild = true;
+        }
+
+        if (needAutoBuild) {
+            logger().warn("You have configuration settings which require to pre-build the Keycloak image, this adds additional overhead when the server is starting!");
+            commandParts.add("--auto-build");
         }
 
         setCommand(commandParts.toArray(new String[0]));
@@ -256,6 +273,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         this.tlsKeystoreFilename = tlsKeystoreFilename;
         this.tlsKeystorePassword = tlsKeystorePassword;
         this.useTls = true;
+        return self();
+    }
+
+    public KeycloakContainer withFeaturesEnabled(String featureGroup) {
+        this.featureGroup = featureGroup;
         return self();
     }
 
