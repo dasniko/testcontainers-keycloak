@@ -15,6 +15,8 @@ I'm working currently already on a Keycloak-X Testcontainers version, which will
 It is planned to provide the version 2.x with Keycloak-X support with the first supported release of Keycloak-X, which will be Keycloak 17.
 At the same time, version 2.x of this project, will NO MORE support "legacy" Keyclaok (the Wildfly-based distribution).
 
+> A first release-candidate of the Keycloak-X based Testcontainer is available via the JitPack repository: https://jitpack.io/#dasniko/testcontainers-keycloak/keycloak-x-SNAPSHOT
+
 > Nevertheless, the current 1.x branch will live and be maintained until the Wildfly-based legacy Keycloak distribution is dropped (approx mid 2022).
 From Keycloak 17, the legacy Keycloak distribution will be marked _deprecated_, so I will do the same with this library version 1.x branch!
 
