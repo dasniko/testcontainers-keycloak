@@ -50,7 +50,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak-x";
-    private static final String KEYCLOAK_VERSION = "15.1.0";
+    private static final String KEYCLOAK_VERSION = "16.0.0";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -90,7 +90,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     /**
      * Create a KeycloakContainer by passing the full docker image name
      *
-     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak-x:15.0.2
+     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak-x:16.0.0
      */
     public KeycloakContainer(String dockerImageName) {
         super(dockerImageName);
