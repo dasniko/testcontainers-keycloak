@@ -141,6 +141,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (needAutoBuild) {
             logger().warn("You have configuration settings which require to pre-build the Keycloak image, this adds additional overhead when the server is starting!");
+            commandParts.add("--cache=local");
             commandParts.add("--auto-build");
         }
 
