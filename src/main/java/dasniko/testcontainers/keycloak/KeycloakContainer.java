@@ -1,6 +1,7 @@
 package dasniko.testcontainers.keycloak;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import org.keycloak.admin.client.Keycloak;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -29,6 +30,9 @@ import java.util.stream.Stream;
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
 public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
+
+    public static final String MASTER_REALM = "master";
+    public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
     private static final String KEYCLOAK_VERSION = "16.0.0";
@@ -331,6 +335,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         this.tlsKeyFilename = tlsKeyFilename;
         this.useTls = true;
         return self();
+    }
+
+    public Keycloak getKeycloakAdminClient() {
+        return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
     }
 
     public String getAuthServerUrl() {

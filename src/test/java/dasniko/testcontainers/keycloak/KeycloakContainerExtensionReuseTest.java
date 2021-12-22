@@ -11,8 +11,6 @@ import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 
-import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
-import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -34,11 +32,10 @@ public class KeycloakContainerExtensionReuseTest {
     public static void beforeAll() {
         KEYCLOAK.start();
 
-        Keycloak keycloakClient = Keycloak.getInstance(KEYCLOAK.getAuthServerUrl(), MASTER,
-            KEYCLOAK.getAdminUsername(), KEYCLOAK.getAdminPassword(), ADMIN_CLI);
+        Keycloak keycloakClient = KEYCLOAK.getKeycloakAdminClient();
 
-        RealmResource realm = keycloakClient.realm(MASTER);
-        ClientRepresentation client = realm.clients().findByClientId(ADMIN_CLI).get(0);
+        RealmResource realm = keycloakClient.realm(KeycloakContainer.MASTER_REALM);
+        ClientRepresentation client = realm.clients().findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
 
         KeycloakContainerExtensionTest.configureCustomOidcProtocolMapper(realm, client);
     }
@@ -65,8 +62,7 @@ public class KeycloakContainerExtensionReuseTest {
 
     private void simpleOidcProtocolMapperTest() throws Exception {
 
-        Keycloak keycloakClient = Keycloak.getInstance(KEYCLOAK.getAuthServerUrl(), MASTER,
-            KEYCLOAK.getAdminUsername(), KEYCLOAK.getAdminPassword(), ADMIN_CLI);
+        Keycloak keycloakClient = KEYCLOAK.getKeycloakAdminClient();
 
         keycloakClient.tokenManager().grantToken();
 

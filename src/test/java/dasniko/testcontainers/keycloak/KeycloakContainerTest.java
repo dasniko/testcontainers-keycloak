@@ -2,7 +2,6 @@ package dasniko.testcontainers.keycloak;
 
 import org.junit.Test;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 import org.testcontainers.containers.ContainerLaunchException;
 
@@ -19,9 +18,6 @@ import static org.junit.Assert.assertTrue;
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
 public class KeycloakContainerTest {
-
-    public static final String MASTER = "master";
-    public static final String ADMIN_CLI = "admin-cli";
 
     public static final String TEST_REALM_JSON = "test-realm.json";
 
@@ -85,7 +81,7 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
 
-            checkKeycloakContainerInternals(keycloak, keycloak.getAdminUsername(), keycloak.getAdminPassword());
+            checkKeycloakContainerInternals(keycloak);
         }
     }
 
@@ -99,7 +95,7 @@ public class KeycloakContainerTest {
             .withAdminPassword(password)) {
             keycloak.start();
 
-            checkKeycloakContainerInternals(keycloak, username, password);
+            checkKeycloakContainerInternals(keycloak);
         }
     }
 
@@ -112,15 +108,8 @@ public class KeycloakContainerTest {
         }
     }
 
-    private void checkKeycloakContainerInternals(KeycloakContainer keycloak, String username, String password) {
-        Keycloak keycloakAdminClient = KeycloakBuilder.builder()
-            .serverUrl(keycloak.getAuthServerUrl())
-            .realm(MASTER)
-            .clientId(ADMIN_CLI)
-            .username(username)
-            .password(password)
-            .build();
-
+    private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
+        Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
         assertThat(serverInfo, notNullValue());
         assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
