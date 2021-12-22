@@ -23,10 +23,10 @@ import java.util.function.Function;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.ADMIN_CLI;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.MASTER;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 
 public class KeycloakContainerExtensionTest {
 
@@ -40,8 +40,6 @@ public class KeycloakContainerExtensionTest {
 
     /**
      * Deploys the Keycloak extensions from the test-classes folder into the create Keycloak container.
-     *
-     * @throws Exception
      */
     @Test
     public void shouldDeployExtension() throws Exception {
@@ -98,7 +96,7 @@ public class KeycloakContainerExtensionTest {
     public void shouldDeployProviderAndCallCustomEndpoint() throws Exception {
         shouldDeployAndCallCustomEndpoint(kc ->
             // this would normally be just "target/classes"
-            kc.withExtensionClassesFrom("target/test-classes")
+            kc.withProviderClassesFrom("target/test-classes")
         );
     }
 
@@ -130,9 +128,6 @@ public class KeycloakContainerExtensionTest {
 
     /**
      * Configures the {@link TestOidcProtocolMapper} to the given client in the given realm.
-     *
-     * @param realm
-     * @param client
      */
     static void configureCustomOidcProtocolMapper(RealmResource realm, ClientRepresentation client) {
 
