@@ -10,7 +10,6 @@ import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.MountableFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -184,18 +183,19 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         String classesLocation = resolveExtensionClassLocation(extensionClassFolder);
 
-        if (!new File(classesLocation).exists()) {
+        Path extensionClassPath = Paths.get(classesLocation);
+        if (!Files.exists(extensionClassPath)) {
             return;
         }
 
         String explodedFolderName = extensionClassFolder.hashCode() + "-" + extensionName;
         String explodedFolderExtensionsJar = deploymentLocation + "/" + explodedFolderName;
 
-        try (Stream<Path> extensionPathStream = Files.walk(Paths.get(extensionClassFolder))) {
+        try (Stream<Path> extensionPathStream = Files.walk(extensionClassPath)) {
             extensionPathStream.forEach(extPath -> {
                 if (!Files.isDirectory(extPath)) {
-                    withCopyFileToContainer(MountableFile.forClasspathResource(extPath.toString().replace(extensionClassFolder, "")),
-                        explodedFolderExtensionsJar + extPath.toString().replace(extensionClassFolder, ""));
+                    String to = explodedFolderExtensionsJar + "/" + extensionClassPath.relativize(extPath.toAbsolutePath());
+                    withCopyFileToContainer(MountableFile.forHostPath(extPath), to);
                 }
             });
         } catch (IOException e) {
@@ -259,8 +259,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
-        String moduleFolder = MountableFile.forClasspathResource(".").getResolvedPath() + "/../../";
-        return moduleFolder + extensionClassFolder;
+        return Paths.get(MountableFile.forClasspathResource(".").getResolvedPath())
+            .getParent()
+            .getParent()
+            .resolve(extensionClassFolder)
+            .toString();
     }
 
     public KeycloakContainer withRealmImportFile(String importFile) {
