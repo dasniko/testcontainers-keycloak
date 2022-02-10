@@ -34,7 +34,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "16.0.0";
+    private static final String KEYCLOAK_VERSION = "17.0.0";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -71,7 +71,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private final Set<String> wildflyDeploymentTriggerFiles = new HashSet<>();
 
     public KeycloakContainer() {
-        this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
+        this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION + "-legacy");
     }
 
     /**
@@ -213,8 +213,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     /**
      * Creates a {@link WaitAllStrategy} based on the current {@link #getWaitStrategy()} if present followed by the given {@link WaitStrategy}.
-     * @param waitStrategy
-     * @return
      */
     private WaitAllStrategy createCombinedWaitAllStrategy(WaitStrategy waitStrategy) {
         WaitAllStrategy waitAll = new WaitAllStrategy();
@@ -230,9 +228,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     /**
      * Registers a {@code extensions.jar.dodeploy} file to be created at container startup.
-     *
-     * @param deploymentLocation
-     * @param extensionArtifact
      */
     private void registerWildflyDeploymentTriggerFile(String deploymentLocation, String extensionArtifact) {
         String triggerFileName = extensionArtifact + ".dodeploy";
@@ -276,6 +271,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
+    @Deprecated
     public KeycloakContainer withStartupScripts(String... startupScripts) {
         this.startupScripts.addAll(Arrays.asList(startupScripts));
         return self();

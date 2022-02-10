@@ -6,7 +6,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-16.0.0-blue)
+![](https://img.shields.io/badge/Keycloak-17.0.0-blue)
 
 ## Keycloak-X compatibility --- IMPORTANT!!!
 
@@ -196,20 +196,21 @@ Consult the docs of your application framework testing capabilities on how to dy
 
 ## Testcontainers & Keycloak version compatiblity
 
-|Testcontainers-Keycloak |Testcontainers |Keycloak
-|---|---|---
-|1.2.0 |1.12.3 |8.0.1
-|1.3.0 |1.12.3 |8.0.1
-|1.3.1 |1.13.0 |9.0.2
-|1.3.3 |1.13.0 |10.0.2
-|1.4.0 |1.13.0 |11.0.2
-|1.5.0 |1.15.1 |12.0.1
-|1.6.0 |1.15.1 |12.0.1
-|1.6.1 |1.15.1 |12.0.4
-|1.7.0 |1.15.3 |13.0.0
-|1.7.1 |1.15.3 |13.0.1
-|1.8.0 |1.15.3 |15.0.2
-|1.9.0 |1.16.2 |16.0.0
+|Testcontainers-Keycloak | Testcontainers |Keycloak
+|---|----------------|---
+|1.2.0 | 1.12.3         |8.0.1
+|1.3.0 | 1.12.3         |8.0.1
+|1.3.1 | 1.13.0         |9.0.2
+|1.3.3 | 1.13.0         |10.0.2
+|1.4.0 | 1.13.0         |11.0.2
+|1.5.0 | 1.15.1         |12.0.1
+|1.6.0 | 1.15.1         |12.0.1
+|1.6.1 | 1.15.1         |12.0.4
+|1.7.0 | 1.15.3         |13.0.0
+|1.7.1 | 1.15.3         |13.0.1
+|1.8.0 | 1.15.3         |15.0.2
+|1.9.0 | 1.16.2         |16.0.0
+|1.10.0 | 1.16.3         |17.0.0
 
 _There might also be other possible version configurations which will work._
 
@@ -228,6 +229,6 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 MIT License
 
-Copyright (c) 2019-2021 Niko Köbler
+Copyright (c) 2019-2022 Niko Köbler
 
 See [LICENSE](LICENSE) file for details.
