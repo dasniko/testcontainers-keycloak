@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +50,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public static final String MASTER_REALM = "master";
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
-    private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak-x";
-    private static final String KEYCLOAK_VERSION = "16.0.0";
+    private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
+    private static final String KEYCLOAK_VERSION = "17.0.0";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -210,8 +211,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
                     .importDirectory(classesLocation)
                     .as(ZipExporter.class)
                     .exportTo(file, true);
-                System.out.println(file.getAbsolutePath());
-                System.out.println(extensionClassFolder);
                 withCopyFileToContainer(MountableFile.forHostPath(file.getAbsolutePath()), deploymentLocation + "/" + extensionName);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -221,8 +220,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
-        String moduleFolder = MountableFile.forClasspathResource(".").getResolvedPath() + "/../../";
-        return moduleFolder + extensionClassFolder;
+        return Paths.get(MountableFile.forClasspathResource(".").getResolvedPath())
+            .getParent()
+            .getParent()
+            .resolve(extensionClassFolder)
+            .toString();
     }
 
     public KeycloakContainer withRealmImportFile(String importFile) {

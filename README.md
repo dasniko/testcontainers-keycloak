@@ -6,7 +6,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak.X-16.0.0-blue)
+![](https://img.shields.io/badge/Keycloak-17.0.0-blue)
 
 ## How to use
 
@@ -179,11 +179,11 @@ Consult the docs of your application framework testing capabilities on how to dy
 
 ## Testcontainers & Keycloak-X version compatiblity
 
-For the legacy Keycloak (before `-X`/Quarkus-based distro), see [version 1.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v1)
+For Keycloak-_Legacy_ (before Quarkus-based distro), see [version 1.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v1)
 
-|Testcontainers-Keycloak |Testcontainers |Keycloak-X
+|Testcontainers-Keycloak | Testcontainers |Keycloak
 |---|---|---
-|2.0.0-SNAPSHOT |1.16.2 |16.0.0
+|2.0.0-SNAPSHOT | 1.16.3 |17.0.0
 
 _There might also be other possible version configurations which will work._
 
@@ -202,6 +202,6 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 Apache License 2.0
 
-Copyright (c) 2019-2021 Niko Köbler
+Copyright (c) 2019-2022 Niko Köbler
 
 See [LICENSE](LICENSE) file for details.
