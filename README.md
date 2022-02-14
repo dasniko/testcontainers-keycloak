@@ -8,6 +8,11 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
 ![](https://img.shields.io/badge/Keycloak-17.0.0-blue)
 
+## IMPORTANT!!!
+
+> This version only handles the new Quarkus distribution of Keycloak (version 17+).  
+> For Keycloak-_Legacy_ (Wildfly-based distro), see [version 1.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v1).
+
 ## How to use
 
 _The `@Container` annotation used here in the readme is from the JUnit 5 support of Testcontainers.
@@ -28,7 +33,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak-x:16.0.0");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:17.0.0");
 ```
 
 Power up a Keycloak instance with one or more existing realm JSON config files (from classpath):
@@ -118,6 +123,19 @@ See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsKeystore`]
 
 The method `getAuthServerUrl()` will also return the HTTPS url.
 
+## Features
+
+You can enable and disable features on your Testcontainer:
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withFeaturesEnabled("docker", "scripts", "...")
+    .withFeaturesDisabled("authorization", "impersonation", "...");
+```
+
+> Please note that the `upload-scripts` feature is disabled by default (other than in v1 of this library), as this feature is deprecated!
+
 ## Testing Custom Extensions
 
 To ease extension testing, you can tell the Keycloak Testcontainer to detect extensions in a given classpath folder.
@@ -177,7 +195,7 @@ Consult the docs of your application framework testing capabilities on how to dy
 [![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "")
 
 
-## Testcontainers & Keycloak-X version compatiblity
+## Testcontainers & Keycloak version compatiblity
 
 For Keycloak-_Legacy_ (before Quarkus-based distro), see [version 1.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v1)
 

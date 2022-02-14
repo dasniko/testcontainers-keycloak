@@ -75,7 +75,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String tlsKeystorePassword;
     private boolean useTls = false;
 
-    private String featureGroup = null;
+    private String[] featuresEnabled = null;
+    private String[] featuresDisabled = null;
 
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
@@ -115,8 +116,13 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             needAutoBuild = true;
         }
 
-        if (featureGroup != null) {
-            commandParts.add("--features=" + featureGroup);
+        if (featuresEnabled != null) {
+            commandParts.add("--features=" + String.join(",", featuresEnabled));
+            needAutoBuild = true;
+        }
+
+        if (featuresDisabled != null) {
+            commandParts.add("--features-disabled=" + String.join(",", featuresDisabled));
             needAutoBuild = true;
         }
 
@@ -279,8 +285,13 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
-    public KeycloakContainer withFeaturesEnabled(String featureGroup) {
-        this.featureGroup = featureGroup;
+    public KeycloakContainer withFeaturesEnabled(String... features) {
+        this.featuresEnabled = features;
+        return self();
+    }
+
+    public KeycloakContainer withFeaturesDisabled(String... features) {
+        this.featuresDisabled = features;
         return self();
     }
 
