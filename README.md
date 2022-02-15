@@ -36,6 +36,8 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:17.0.0");
 ```
 
+### Realm Import
+
 Power up a Keycloak instance with one or more existing realm JSON config files (from classpath):
 
 ```java
@@ -88,6 +90,16 @@ Keycloak keycloakAdminClient = KeycloakBuilder.builder()
     .username(keycloak.getAdminUsername())
     .password(keycloak.getAdminPassword())
     .build();
+```
+
+### Context Path
+
+As Keycloak now comes with the default context path `/`, you can set your custom context path, e.g. for compatibility reasons to previous versions, with:
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withContextPath("/auth/");
 ```
 
 ## TLS (SSL) Usage
@@ -205,6 +217,7 @@ Read the docs about the Quarkus Test Resources and use `@QuarkusTestResource` wi
 
 Consult the docs of your application framework testing capabilities on how to dynamically configure your stack for testing!
 
+## YouTube Video about Keycloak Testcontainers
 
 [![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "")
 
@@ -215,7 +228,7 @@ For Keycloak-_Legacy_ (before Quarkus-based distro), see [version 1.x branch](ht
 
 |Testcontainers-Keycloak | Testcontainers |Keycloak
 |---|---|---
-|2.0.0-SNAPSHOT | 1.16.3 |17.0.0
+|2.0.0 |1.16.3 |17.0.0
 
 _There might also be other possible version configurations which will work._
 
