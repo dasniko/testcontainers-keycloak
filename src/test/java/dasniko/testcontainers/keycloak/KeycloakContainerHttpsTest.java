@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -43,11 +44,29 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
-    public void shouldStartKeycloakWithCustomTlsKeystore() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().useTls("keycloak.jks", "keycloak")) {
+    public void shouldStartKeycloakWithCustomTlsCertAndKey() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTls("keycloak.crt", "keycloak.key")) {
             keycloak.start();
-            checkTls(keycloak,"keycloak.jks", "keycloak");
+            checkTls(keycloak, "keycloak.jks", "keycloak");
         }
+    }
+
+    @Test
+    public void shouldStartKeycloakWithCustomTlsKeystore() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTlsKeystore("keycloak.jks", "keycloak")) {
+            keycloak.start();
+            checkTls(keycloak, "keycloak.jks", "keycloak");
+        }
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionUponEmptyTlsCertificateKeyFilename() {
+        assertThrows(IllegalArgumentException.class, () -> new KeycloakContainer().useTls("keycloak.crt", ""));
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionUponEmptyTlsKeystore() {
+        assertThrows(IllegalArgumentException.class, () -> new KeycloakContainer().useTlsKeystore("keycloak.jks", ""));
     }
 
     private void checkTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword) {

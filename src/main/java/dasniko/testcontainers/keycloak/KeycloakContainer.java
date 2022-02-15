@@ -71,6 +71,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String contextPath = KEYCLOAK_CONTEXT_PATH;
 
     private final Set<String> importFiles;
+    private String tlsCertificateFilename;
+    private String tlsCertificateKeyFilename;
     private String tlsKeystoreFilename;
     private String tlsKeystorePassword;
     private boolean useTls = false;
@@ -92,7 +94,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     /**
      * Create a KeycloakContainer by passing the full docker image name
      *
-     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak-x:16.0.0
+     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:17.0.0
      */
     public KeycloakContainer(String dockerImageName) {
         super(dockerImageName);
@@ -105,7 +107,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     protected void configure() {
         boolean needAutoBuild = false;
         List<String> commandParts = new ArrayList<>();
-        commandParts.add("--profile=testcontainers");
         commandParts.add("start");
         commandParts.add("--http-enabled=true");
         commandParts.add("--hostname-strict=false");
@@ -135,7 +136,14 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         withEnv("KEYCLOAK_ADMIN", adminUsername);
         withEnv("KEYCLOAK_ADMIN_PASSWORD", adminPassword);
 
-        if (useTls && isNotBlank(tlsKeystoreFilename)) {
+        if (useTls && isNotBlank(tlsCertificateFilename)) {
+            String tlsCertFilePath = "/opt/keycloak/conf/tls.crt";
+            String tlsCertKeyFilePath = "/opt/keycloak/conf/tls.key";
+            withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateFilename), tlsCertFilePath);
+            withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateKeyFilename), tlsCertKeyFilePath);
+            commandParts.add("--https-certificate-file=" + tlsCertFilePath);
+            commandParts.add("--https-certificate-key-file=" + tlsCertKeyFilePath);
+        } else if (useTls && isNotBlank(tlsKeystoreFilename)) {
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeystoreFilename), KEYSTORE_FILE_IN_CONTAINER);
             commandParts.add("--https-key-store-file=" + KEYSTORE_FILE_IN_CONTAINER);
             commandParts.add("--https-key-store-password=" + tlsKeystorePassword);
@@ -275,10 +283,21 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer useTls() {
         // server.keystore is provided with this testcontainer
-        return useTls("tls.jks", "changeit");
+        return useTlsKeystore("tls.jks", "changeit");
     }
 
-    public KeycloakContainer useTls(String tlsKeystoreFilename, String tlsKeystorePassword) {
+    public KeycloakContainer useTls(String tlsCertificateFilename, String tlsCertificateKeyFilename) {
+        assertNotBlank(tlsCertificateFilename);
+        assertNotBlank(tlsCertificateKeyFilename);
+        this.tlsCertificateFilename = tlsCertificateFilename;
+        this.tlsCertificateKeyFilename = tlsCertificateKeyFilename;
+        this.useTls = true;
+        return self();
+    }
+
+    public KeycloakContainer useTlsKeystore(String tlsKeystoreFilename, String tlsKeystorePassword) {
+        assertNotBlank(tlsKeystoreFilename);
+        assertNotBlank(tlsKeystorePassword);
         this.tlsKeystoreFilename = tlsKeystoreFilename;
         this.tlsKeystorePassword = tlsKeystorePassword;
         this.useTls = true;
@@ -334,5 +353,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private boolean isNotBlank(String s) {
         return s != null && !s.trim().isEmpty();
+    }
+
+    private void assertNotBlank(String s) {
+        if (!isNotBlank(s)) {
+            throw new IllegalArgumentException("Field may not be blank.");
+        }
     }
 }
