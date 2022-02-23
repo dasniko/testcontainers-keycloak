@@ -54,6 +54,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <quarkus.version>2.7.0.Final</quarkus.version>
         <shrinkwrap.verion>1.2.6</shrinkwrap.verion>
         <testcontainers.version>1.16.3</testcontainers.version>
     </properties>
@@ -69,6 +70,15 @@
                     <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!--
+        Module with some empty JUnit4 classes to allow Testcontainers to run without needing to include JUnit4 on the class path
+        See also https://github.com/testcontainers/testcontainers-java/issues/970 for more details
+        -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit4-mock</artifactId>
+            <version>${quarkus.version}</version>
         </dependency>
 
         <dependency>
