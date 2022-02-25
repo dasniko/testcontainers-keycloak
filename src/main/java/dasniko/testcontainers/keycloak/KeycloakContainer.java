@@ -21,6 +21,8 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenResolverSystem;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.testcontainers.containers.GenericContainer;
@@ -83,6 +85,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
     private String providerClassLocation;
+    private String[] mavenDependencies = null;
 
     /**
      * Create a KeycloakContainer with default image and version tag
@@ -151,6 +154,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
+            needAutoBuild = true;
+        }
+
+        if (mavenDependencies != null) {
+            copyMavenDependenciesToProvider();
             needAutoBuild = true;
         }
 
@@ -230,7 +238,19 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
                 throw new UncheckedIOException(e);
             }
         }
+    }
 
+    protected void copyMavenDependenciesToProvider() {
+        MavenResolverSystem resolver = Maven.resolver();
+
+        for (String dependency : this.mavenDependencies) {
+            File[] files = resolver.resolve(dependency).withTransitivity().asFile();
+
+            for (File file : files) {
+                MountableFile hostPath = MountableFile.forHostPath(file.getAbsolutePath());
+                withCopyFileToContainer(hostPath, DEFAULT_KEYCLOAK_PROVIDERS_LOCATION + "/");
+            }
+        }
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
@@ -273,6 +293,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public KeycloakContainer withProviderClassesFrom(String classesLocation) {
         this.providerClassLocation = classesLocation;
+        return self();
+    }
+
+    public KeycloakContainer withMavenDependencies(String... canonicalForms) {
+        this.mavenDependencies = canonicalForms;
         return self();
     }
 

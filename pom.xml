@@ -55,7 +55,9 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <quarkus.version>2.7.0.Final</quarkus.version>
-        <shrinkwrap.verion>1.2.6</shrinkwrap.verion>
+        <shrinkwrap.version>1.2.6</shrinkwrap.version>
+        <shrinkwrap.resolvers.version>2.2.7</shrinkwrap.resolvers.version>
+
         <testcontainers.version>1.16.3</testcontainers.version>
     </properties>
 
@@ -84,13 +86,18 @@
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
             <artifactId>shrinkwrap-api</artifactId>
-            <version>${shrinkwrap.verion}</version>
+            <version>${shrinkwrap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
             <artifactId>shrinkwrap-impl-base</artifactId>
-            <version>${shrinkwrap.verion}</version>
+            <version>${shrinkwrap.version}</version>
         </dependency>
+		<dependency>
+			<groupId>org.jboss.shrinkwrap.resolver</groupId>
+			<artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
+			<version>${shrinkwrap.resolvers.version}</version>
+		</dependency>
 
         <dependency>
             <groupId>org.keycloak</groupId>
