@@ -84,6 +84,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private String providerClassLocation;
 
+    private boolean needAutoBuild = false;
+
     /**
      * Create a KeycloakContainer with default image and version tag
      */
@@ -105,7 +107,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     @Override
     protected void configure() {
-        boolean needAutoBuild = false;
         List<String> commandParts = new ArrayList<>();
         commandParts.add("start");
         commandParts.add("--http-enabled=true");
@@ -311,6 +312,14 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withFeaturesDisabled(String... features) {
         this.featuresDisabled = features;
+        return self();
+    }
+
+    /**
+     * Start the keycloak with "--auto-build" option
+     */
+    public KeycloakContainer withAutoBuild() {
+        this.needAutoBuild = true;
         return self();
     }
 
