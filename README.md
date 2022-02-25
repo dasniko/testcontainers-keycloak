@@ -179,6 +179,17 @@ KeycloakContainer keycloak = new KeycloakContainer()
 
 See also [`KeycloakContainerExtensionTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) class.
 
+### Add 3rd party libraries
+
+Inform the canonical name of the local maven dependencies.
+This and all the transients packages will be copy to the provider folder.
+
+```java
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withProviderClassesFrom("target/classes")
+    .withMavenDependencies("groupId:artifactId:version");
+```
+
 ## Setup
 
 The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak).

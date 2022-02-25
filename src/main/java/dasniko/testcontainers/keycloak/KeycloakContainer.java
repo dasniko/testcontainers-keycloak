@@ -296,6 +296,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
+    /**
+     * Copy local maven packages and transitive dependencies to the keycloak provider folder
+     *
+     * @param canonicalForms "groupId:artifactId:version"
+     */
     public KeycloakContainer withMavenDependencies(String... canonicalForms) {
         this.mavenDependencies = canonicalForms;
         return self();
