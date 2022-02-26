@@ -109,26 +109,24 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     @Override
     protected void configure() {
-        boolean needAutoBuild = false;
         List<String> commandParts = new ArrayList<>();
         commandParts.add("start");
+        commandParts.add("--auto-build");
+        commandParts.add("--cache=local");
         commandParts.add("--http-enabled=true");
         commandParts.add("--hostname-strict=false");
         commandParts.add("--hostname-strict-https=false");
 
         if (!contextPath.equals(KEYCLOAK_CONTEXT_PATH)) {
             commandParts.add("--http-relative-path=" + contextPath);
-            needAutoBuild = true;
         }
 
         if (featuresEnabled != null) {
             commandParts.add("--features=" + String.join(",", featuresEnabled));
-            needAutoBuild = true;
         }
 
         if (featuresDisabled != null) {
             commandParts.add("--features-disabled=" + String.join(",", featuresDisabled));
-            needAutoBuild = true;
         }
 
         setWaitStrategy(Wait
@@ -155,13 +153,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
-            needAutoBuild = true;
-        }
-
-        if (needAutoBuild) {
-            logger().warn("You have configuration settings which require to pre-build the Keycloak image, this adds additional overhead when the server is starting!");
-            commandParts.add("--cache=local");
-            commandParts.add("--auto-build");
         }
 
         setCommand(commandParts.toArray(new String[0]));
