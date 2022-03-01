@@ -1,1 +1,2 @@
 dasniko.testcontainers.keycloak.extensions.resource.TestResourceProviderFactory
+dasniko.testcontainers.keycloak.extensions.resource.YodaResourceProviderFactory

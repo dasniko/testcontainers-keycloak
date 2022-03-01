@@ -88,6 +88,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
     private String providerClassLocation;
+    private List<File> providerLibsLocations;
 
     /**
      * Create a KeycloakContainer with default image and version tag
@@ -154,6 +155,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
+        }
+
+        if (providerLibsLocations != null) {
+            providerLibsLocations.forEach(file -> withCopyFileToContainer(
+                MountableFile.forHostPath(file.getAbsolutePath()), DEFAULT_KEYCLOAK_PROVIDERS_LOCATION + "/"));
         }
 
         setCommand(commandParts.toArray(new String[0]));
@@ -269,6 +275,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public KeycloakContainer withProviderClassesFrom(String classesLocation) {
         this.providerClassLocation = classesLocation;
+        return self();
+    }
+
+    public KeycloakContainer withProviderLibsFrom(List<File> libs) {
+        this.providerLibsLocations = libs;
         return self();
     }
 

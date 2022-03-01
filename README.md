@@ -179,6 +179,23 @@ KeycloakContainer keycloak = new KeycloakContainer()
 
 See also [`KeycloakContainerExtensionTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) class.
 
+### Dependencies & 3rd-party Libraries
+
+If you need to provide any 3rd-party dependency or library, you can do this with
+
+```java
+List<File> libs = ...;
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withProviderLibsFrom(libs);
+```
+
+You have to provide a list of resolvable `File`s.
+
+#### TIPP
+
+If you want/need to use dependencies from e.g. Maven (or Gradle), you can use [ShrinkWrap Resolvers](https://github.com/shrinkwrap/resolver).
+See, as an example, how this is used at the [`KeycloakContainerExtensionTest#shouldDeployProviderWithDependencyAndCallCustomEndpoint()`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) test.
+
 ## Setup
 
 The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak).

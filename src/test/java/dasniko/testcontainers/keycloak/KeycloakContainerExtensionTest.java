@@ -3,6 +3,7 @@ package dasniko.testcontainers.keycloak;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
@@ -14,15 +15,18 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
@@ -41,13 +45,9 @@ public class KeycloakContainerExtensionTest {
      */
     @Test
     public void shouldDeployProvider() throws Exception {
-        shouldDeploy(kc ->
+        try (KeycloakContainer keycloak = new KeycloakContainer()
             // this would normally be just "target/classes"
-            kc.withProviderClassesFrom("target/test-classes"));
-    }
-
-    private void shouldDeploy(Function<KeycloakContainer, KeycloakContainer> configurator) throws Exception {
-        try (KeycloakContainer keycloak = configurator.apply(new KeycloakContainer())
+            .withProviderClassesFrom("target/test-classes")
             .withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
 
@@ -76,14 +76,9 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldDeployProviderAndCallCustomEndpoint() throws Exception {
-        shouldDeployAndCallCustomEndpoint(kc ->
+        try (KeycloakContainer keycloak = new KeycloakContainer()
             // this would normally be just "target/classes"
-            kc.withProviderClassesFrom("target/test-classes")
-        );
-    }
-
-    private void shouldDeployAndCallCustomEndpoint(Function<KeycloakContainer, KeycloakContainer> configurator) throws Exception {
-        try (KeycloakContainer keycloak = configurator.apply(new KeycloakContainer())) {
+            .withProviderClassesFrom("target/test-classes")) {
             keycloak.start();
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -104,6 +99,28 @@ public class KeycloakContainerExtensionTest {
 
             Map<String, String> authResult = objectMapper.readValue(conn.getInputStream(), new TypeReference<>() {});
             assertThat(authResult.get("hello"), is("admin"));
+        }
+    }
+
+    @Test
+    public void shouldDeployProviderWithDependencyAndCallCustomEndpoint() throws Exception {
+        List<File> dependencies = Maven.resolver()
+            .loadPomFromFile("./pom.xml")
+            .resolve("com.github.javafaker:javafaker")
+            .withoutTransitivity().asList(File.class);
+
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .withProviderClassesFrom("target/test-classes")
+            .withProviderLibsFrom(dependencies)) {
+            keycloak.start();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String uri = keycloak.getAuthServerUrl() + "realms/master/yoda/quote";
+
+            Map<String, String> result = objectMapper.readValue(new URL(uri), new TypeReference<>() {});
+            String quote = result.get("yoda");
+            assertThat(quote, not(emptyOrNullString()));
+            System.out.printf("Yoda says: %s\n", quote);
         }
     }
 
