@@ -43,8 +43,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -204,9 +205,9 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     protected void createKeycloakExtensionDeployment(String deploymentLocation, String extensionName, String extensionClassFolder) {
 
-        Objects.requireNonNull(deploymentLocation, "deploymentLocation");
-        Objects.requireNonNull(extensionName, "extensionName");
-        Objects.requireNonNull(extensionClassFolder, "extensionClassFolder");
+        requireNonNull(deploymentLocation, "deploymentLocation must not be null");
+        requireNonNull(extensionName, "extensionName must not be null");
+        requireNonNull(extensionClassFolder, "extensionClassFolder must not be null");
 
         String classesLocation = resolveExtensionClassLocation(extensionClassFolder);
         if (new File(classesLocation).exists()) {
@@ -282,8 +283,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     public KeycloakContainer useTls(String tlsCertificateFilename, String tlsCertificateKeyFilename) {
-        assertNotBlank(tlsCertificateFilename);
-        assertNotBlank(tlsCertificateKeyFilename);
+        requireNonNull(tlsCertificateFilename, "tlsCertificateFilename must not be null");
+        requireNonNull(tlsCertificateKeyFilename, "tlsCertificateKeyFilename must not be null");
         this.tlsCertificateFilename = tlsCertificateFilename;
         this.tlsCertificateKeyFilename = tlsCertificateKeyFilename;
         this.useTls = true;
@@ -291,8 +292,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     public KeycloakContainer useTlsKeystore(String tlsKeystoreFilename, String tlsKeystorePassword) {
-        assertNotBlank(tlsKeystoreFilename);
-        assertNotBlank(tlsKeystorePassword);
+        requireNonNull(tlsKeystoreFilename, "tlsKeystoreFilename must not be null");
+        requireNonNull(tlsKeystorePassword, "tlsKeystorePassword must not be null");
         this.tlsKeystoreFilename = tlsKeystoreFilename;
         this.tlsKeystorePassword = tlsKeystorePassword;
         this.useTls = true;
@@ -358,11 +359,5 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private boolean isNotBlank(String s) {
         return s != null && !s.trim().isEmpty();
-    }
-
-    private void assertNotBlank(String s) {
-        if (!isNotBlank(s)) {
-            throw new IllegalArgumentException("Field may not be blank.");
-        }
     }
 }
