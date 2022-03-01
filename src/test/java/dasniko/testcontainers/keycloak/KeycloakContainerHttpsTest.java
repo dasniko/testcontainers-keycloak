@@ -60,13 +60,13 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionUponEmptyTlsCertificateKeyFilename() {
-        assertThrows(IllegalArgumentException.class, () -> new KeycloakContainer().useTls("keycloak.crt", ""));
+    public void shouldThrowNullPointerExceptionUponNullTlsCertificateKeyFilename() {
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useTls("keycloak.crt", null));
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionUponEmptyTlsKeystore() {
-        assertThrows(IllegalArgumentException.class, () -> new KeycloakContainer().useTlsKeystore("keycloak.jks", ""));
+    public void shouldThrowNullPointerExceptionUponNullTlsKeystore() {
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useTlsKeystore("keycloak.jks", null));
     }
 
     private void checkTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword) {
