@@ -158,8 +158,10 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         }
 
         if (providerLibsLocations != null) {
-            providerLibsLocations.forEach(file -> withCopyFileToContainer(
-                MountableFile.forHostPath(file.getAbsolutePath()), DEFAULT_KEYCLOAK_PROVIDERS_LOCATION + "/"));
+            providerLibsLocations.forEach(file -> {
+                String containerPath = DEFAULT_KEYCLOAK_PROVIDERS_LOCATION + "/" + file.getName();
+                withCopyFileToContainer(MountableFile.forHostPath(file.getAbsolutePath()), containerPath);
+            });
         }
 
         setCommand(commandParts.toArray(new String[0]));
