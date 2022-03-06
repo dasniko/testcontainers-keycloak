@@ -246,6 +246,7 @@ For Keycloak-_Legacy_ (before Quarkus-based distro), see [version 1.x branch](ht
 |Testcontainers-Keycloak | Testcontainers |Keycloak
 |---|---|---
 |2.0.0 |1.16.3 |17.0.0
+|2.1.0 |1.16.3 |17.0.0
 
 _There might also be other possible version configurations which will work._
 
