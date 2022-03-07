@@ -17,15 +17,11 @@ package dasniko.testcontainers.keycloak;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.keycloak.admin.client.JacksonProvider;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -324,17 +320,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     public Keycloak getKeycloakAdminClient() {
-        ResteasyClient resteasyClient = new ResteasyClientBuilderImpl()
-            .register(JacksonProvider.class, 100)
-            .build();
-        return KeycloakBuilder.builder()
-            .serverUrl(getAuthServerUrl())
-            .realm(MASTER_REALM)
-            .username(getAdminUsername())
-            .password(getAdminPassword())
-            .clientId(ADMIN_CLI_CLIENT)
-            .resteasyClient(resteasyClient)
-            .build();
+        return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
     }
 
     public String getAuthServerUrl() {
