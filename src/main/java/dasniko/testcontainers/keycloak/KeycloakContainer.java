@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -217,7 +216,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         if (new File(classesLocation).exists()) {
             final File file;
             try {
-                file = Files.createTempFile(Path.of("target"), "keycloak", ".jar").toFile();
+                file = Files.createTempFile("keycloak", ".jar").toFile();
                 file.setReadable(true, false);
                 file.deleteOnExit();
                 ShrinkWrap.create(JavaArchive.class, extensionName)
