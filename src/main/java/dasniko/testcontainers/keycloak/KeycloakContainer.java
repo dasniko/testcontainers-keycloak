@@ -173,7 +173,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     @Override
-    protected void containerIsStarted(InspectContainerResponse containerInfo) {
+    protected void containerIsStarted(InspectContainerResponse containerInfo, boolean reused) {
+        if (reused) {
+            logger().info("This container is being reused, so we're skipping the realm import.");
+            return;
+        }
         if (!importFiles.isEmpty()) {
             logger().info("Connect to Keycloak container to import given realm files.");
             Keycloak kcAdmin = getKeycloakAdminClient();
