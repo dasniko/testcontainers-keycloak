@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -187,12 +186,13 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
                 for (String importFile : importFiles) {
                     logger().info("Importing realm from file {}", importFile);
                     InputStream resourceStream = this.getClass().getResourceAsStream(importFile);
-                    if(resourceStream==null){
+                    // this is a dirty hack, but in certain cases, we need to obtain the resource stream from the
+                    // current thread context classloader
+                    // as soon as the auto-import of realm files returns again (approx. KC 18), this complete method is removed anyway.
+                    if (resourceStream == null) {
                         resourceStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(importFile);
                     }
-                    kcAdmin.realms().create(
-                        new ObjectMapper().readValue(resourceStream, RealmRepresentation.class)
-                    );
+                    kcAdmin.realms().create(new ObjectMapper().readValue(resourceStream, RealmRepresentation.class));
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
