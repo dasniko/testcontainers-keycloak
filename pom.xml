@@ -50,9 +50,8 @@
     </distributionManagement>
 
     <properties>
-        <keycloak.version>17.0.0</keycloak.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <keycloak.version>17.0.1</keycloak.version>
+        <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <quarkus.version>2.7.0.Final</quarkus.version>
         <shrinkwrap.verion>1.2.6</shrinkwrap.verion>
