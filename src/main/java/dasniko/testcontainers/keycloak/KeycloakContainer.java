@@ -30,7 +30,9 @@ import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -184,8 +186,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             try {
                 for (String importFile : importFiles) {
                     logger().info("Importing realm from file {}", importFile);
+                    InputStream resourceStream = this.getClass().getResourceAsStream(importFile);
+                    if(resourceStream==null){
+                        resourceStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(importFile);
+                    }
                     kcAdmin.realms().create(
-                        new ObjectMapper().readValue(this.getClass().getResource(importFile), RealmRepresentation.class)
+                        new ObjectMapper().readValue(resourceStream, RealmRepresentation.class)
                     );
                 }
             } catch (IOException e) {
