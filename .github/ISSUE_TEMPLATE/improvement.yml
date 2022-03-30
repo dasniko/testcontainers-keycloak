@@ -1,0 +1,22 @@
+name: Improvement Request
+description: Request an improvement to an existing feature
+labels: ["improvement"]
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: Describe the improvement at a high-level.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Motivation
+      description: Describe why the feature should be added.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Details
+      description: More details? Implementation ideas? Anything that will give us more context about the feature you are proposing!
+    validations:
+      required: false

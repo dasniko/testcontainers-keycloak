@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions
+    url: https://github.com/dasniko/testcontainers-keycloak/discussions
+    about: Propose new ideas, provide feedback, or ask for help here
