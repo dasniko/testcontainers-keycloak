@@ -181,8 +181,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         }
         if (!importFiles.isEmpty()) {
             logger().info("Connect to Keycloak container to import given realm files.");
-            Keycloak kcAdmin = getKeycloakAdminClient();
-            try {
+
+            try(Keycloak kcAdmin = getKeycloakAdminClient()) {
                 for (String importFile : importFiles) {
                     logger().info("Importing realm from file {}", importFile);
                     InputStream resourceStream = this.getClass().getResourceAsStream(importFile);
