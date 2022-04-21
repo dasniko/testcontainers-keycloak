@@ -50,12 +50,12 @@
     </distributionManagement>
 
     <properties>
-        <keycloak.version>17.0.1</keycloak.version>
+        <keycloak.version>18.0.0</keycloak.version>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <quarkus.version>2.7.0.Final</quarkus.version>
+        <quarkus.version>2.7.3.Final</quarkus.version>
         <shrinkwrap.verion>1.2.6</shrinkwrap.verion>
-        <testcontainers.version>1.16.3</testcontainers.version>
+        <testcontainers.version>1.17.1</testcontainers.version>
     </properties>
 
     <dependencies>
@@ -130,13 +130,13 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.10</version>
+            <version>1.2.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>4.5.0</version>
+            <version>4.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

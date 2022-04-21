@@ -15,14 +15,11 @@
  */
 package dasniko.testcontainers.keycloak;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.representations.idm.RealmRepresentation;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -30,7 +27,6 @@ import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -52,7 +48,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "17.0.1";
+    private static final String KEYCLOAK_VERSION = "18.0.0";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -64,6 +60,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_NAME = "providers.jar";
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/keycloak/providers";
+    private static final String DEFAULT_REALM_IMPORT_FILES_LOCATION = "/opt/keycloak/data/import/";
 
     private static final String KEYSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.keystore";
 
@@ -96,7 +93,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     /**
      * Create a KeycloakContainer by passing the full docker image name
      *
-     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:17.0.0
+     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:18.0.0
      */
     public KeycloakContainer(String dockerImageName) {
         super(dockerImageName);
@@ -108,12 +105,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     @Override
     protected void configure() {
         List<String> commandParts = new ArrayList<>();
-        commandParts.add("start");
-        commandParts.add("--auto-build");
-        commandParts.add("--cache=local");
-        commandParts.add("--http-enabled=true");
-        commandParts.add("--hostname-strict=false");
-        commandParts.add("--hostname-strict-https=false");
+        commandParts.add("start-dev");
 
         if (!contextPath.equals(KEYCLOAK_CONTEXT_PATH)) {
             commandParts.add("--http-relative-path=" + contextPath);
@@ -160,6 +152,14 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             });
         }
 
+        if (!importFiles.isEmpty()) {
+            for (String importFile : importFiles) {
+                String importFileInContainer = DEFAULT_REALM_IMPORT_FILES_LOCATION + importFile;
+                withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
+            }
+            commandParts.add("--import-realm");
+        }
+
         setCommand(commandParts.toArray(new String[0]));
     }
 
@@ -171,33 +171,6 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     @Override
     public KeycloakContainer withCommand(String... commandParts) {
         throw new IllegalStateException("You are trying to set custom container commands, which is currently not supported by this Testcontainer.");
-    }
-
-    @Override
-    protected void containerIsStarted(InspectContainerResponse containerInfo, boolean reused) {
-        if (reused) {
-            logger().info("This container is being reused, so we're skipping the realm import.");
-            return;
-        }
-        if (!importFiles.isEmpty()) {
-            logger().info("Connect to Keycloak container to import given realm files.");
-
-            try(Keycloak kcAdmin = getKeycloakAdminClient()) {
-                for (String importFile : importFiles) {
-                    logger().info("Importing realm from file {}", importFile);
-                    InputStream resourceStream = this.getClass().getResourceAsStream(importFile);
-                    // this is a dirty hack, but in certain cases, we need to obtain the resource stream from the
-                    // current thread context classloader
-                    // as soon as the auto-import of realm files returns again (approx. KC 18), this complete method is removed anyway.
-                    if (resourceStream == null) {
-                        resourceStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(importFile);
-                    }
-                    kcAdmin.realms().create(new ObjectMapper().readValue(resourceStream, RealmRepresentation.class));
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
     }
 
     /**
