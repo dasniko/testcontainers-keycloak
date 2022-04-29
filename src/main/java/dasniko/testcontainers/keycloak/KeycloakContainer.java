@@ -15,6 +15,7 @@
  */
 package dasniko.testcontainers.keycloak;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
@@ -154,7 +155,8 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (!importFiles.isEmpty()) {
             for (String importFile : importFiles) {
-                String importFileInContainer = DEFAULT_REALM_IMPORT_FILES_LOCATION + importFile;
+                // TODO: a strategy for files with the same name but in the different dirs
+                String importFileInContainer = DEFAULT_REALM_IMPORT_FILES_LOCATION + FilenameUtils.getName(importFile);
                 withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
             }
             commandParts.add("--import-realm");
