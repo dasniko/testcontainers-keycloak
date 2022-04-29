@@ -1,6 +1,8 @@
 package dasniko.testcontainers.keycloak;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 import org.testcontainers.containers.ContainerLaunchException;
@@ -45,9 +47,10 @@ public class KeycloakContainerTest {
         }
     }
 
-    @Test
-    public void shouldImportRealm() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile(TEST_REALM_JSON)) {
+    @ParameterizedTest
+    @ValueSource(strings = {TEST_REALM_JSON, "/single-test-folder" + TEST_REALM_JSON, "/second-test-folder/first-test-folder" + TEST_REALM_JSON})
+    public void shouldImportRealm(final String realmLocation) {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile(realmLocation)) {
             keycloak.start();
 
             String accountService = given().when().get(keycloak.getAuthServerUrl() + "realms/test")
