@@ -42,8 +42,9 @@ public class KeycloakContainerTest {
             }
         } catch(ContainerLaunchException ex) {
             Duration observedDuration = Duration.between(start, Instant.now());
-            assertTrue(observedDuration.toMillis()/1000 >= MAX_TIMEOUT && observedDuration.toMillis()/1000 < 15,
-                "Startup time should consider configured limit of " + MAX_TIMEOUT + " seconds.");
+            assertTrue(observedDuration.toSeconds() >= MAX_TIMEOUT && observedDuration.toSeconds() < 30,
+                String.format("Startup time should consider configured limit of %d seconds, but took %d seconds",
+                    MAX_TIMEOUT, observedDuration.toSeconds()));
         }
     }
 
