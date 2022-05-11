@@ -4,11 +4,15 @@ import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.ServerInfoResource;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -67,6 +71,17 @@ public class KeycloakContainerHttpsTest {
     @Test
     public void shouldThrowNullPointerExceptionUponNullTlsKeystore() {
         assertThrows(NullPointerException.class, () -> new KeycloakContainer().useTlsKeystore("keycloak.jks", null));
+    }
+
+    @Test
+    public void shouldAdminClientBeAbleToConnect() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTls()) {
+            keycloak.start();
+
+            Keycloak admin = keycloak.getKeycloakAdminClient();
+            ServerInfoResource serverInfoResource = admin.serverInfo();
+            assertNotNull(serverInfoResource.getInfo());
+        }
     }
 
     private void checkTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword) {

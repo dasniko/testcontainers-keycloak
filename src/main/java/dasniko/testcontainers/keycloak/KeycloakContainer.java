@@ -20,17 +20,27 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jetbrains.annotations.Nullable;
 import org.keycloak.admin.client.Keycloak;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.MountableFile;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -304,7 +314,27 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     public Keycloak getKeycloakAdminClient() {
-        return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
+        if (useTls && this.tlsKeystoreFilename != null) {
+            return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT, buildSslContext());
+        } else {
+            return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
+        }
+    }
+
+    @Nullable
+    private SSLContext buildSslContext() {
+        SSLContext sslContext;
+        try {
+            sslContext = SSLContext.getInstance("TLS");
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(KeycloakContainer.class.getClassLoader().getResourceAsStream(this.tlsKeystoreFilename), this.tlsKeystorePassword.toCharArray());
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
+            sslContext.init(null, tmf.getTrustManagers(), new SecureRandom());
+        } catch (GeneralSecurityException | IOException e) {
+            sslContext = null;
+        }
+        return sslContext;
     }
 
     public String getAuthServerUrl() {
