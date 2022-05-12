@@ -12,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -74,13 +73,26 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
-    public void shouldAdminClientBeAbleToConnect() {
+    public void shouldAdminClientBeAbleToConnectWithProvidedTlsKeystore() {
         try (KeycloakContainer keycloak = new KeycloakContainer().useTls()) {
             keycloak.start();
+            checkAdminClient(keycloak);
+        }
+    }
 
-            Keycloak admin = keycloak.getKeycloakAdminClient();
-            ServerInfoResource serverInfoResource = admin.serverInfo();
-            assertNotNull(serverInfoResource.getInfo());
+    @Test
+    public void shouldAdminClientBeAbleToConnectWithCustomTlsCertAndKey() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTls("keycloak.crt", "keycloak.key")) {
+            keycloak.start();
+            checkAdminClient(keycloak);
+        }
+    }
+
+    @Test
+    public void shouldAdminClientBeAbleToConnectWithCustomTlsKeystore() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTlsKeystore("keycloak.jks", "keycloak")) {
+            keycloak.start();
+            checkAdminClient(keycloak);
         }
     }
 
@@ -94,6 +106,12 @@ public class KeycloakContainerHttpsTest {
         given()
             .when().get(keycloak.getAuthServerUrl())
             .then().statusCode(200);
+    }
+
+    private void checkAdminClient(KeycloakContainer keycloak) {
+        Keycloak admin = keycloak.getKeycloakAdminClient();
+        ServerInfoResource serverInfoResource = admin.serverInfo();
+        assertNotNull(serverInfoResource.getInfo());
     }
 
 }
