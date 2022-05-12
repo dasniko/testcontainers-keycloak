@@ -4,10 +4,13 @@ import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.ServerInfoResource;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -69,6 +72,30 @@ public class KeycloakContainerHttpsTest {
         assertThrows(NullPointerException.class, () -> new KeycloakContainer().useTlsKeystore("keycloak.jks", null));
     }
 
+    @Test
+    public void shouldAdminClientBeAbleToConnectWithProvidedTlsKeystore() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTls()) {
+            keycloak.start();
+            checkAdminClient(keycloak);
+        }
+    }
+
+    @Test
+    public void shouldAdminClientBeAbleToConnectWithCustomTlsCertAndKey() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTls("keycloak.crt", "keycloak.key")) {
+            keycloak.start();
+            checkAdminClient(keycloak);
+        }
+    }
+
+    @Test
+    public void shouldAdminClientBeAbleToConnectWithCustomTlsKeystore() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().useTlsKeystore("keycloak.jks", "keycloak")) {
+            keycloak.start();
+            checkAdminClient(keycloak);
+        }
+    }
+
     private void checkTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword) {
         RestAssured.config = RestAssured.config().sslConfig(
             SSLConfig.sslConfig().trustStore(pathToTruststore, truststorePassword)
@@ -79,6 +106,12 @@ public class KeycloakContainerHttpsTest {
         given()
             .when().get(keycloak.getAuthServerUrl())
             .then().statusCode(200);
+    }
+
+    private void checkAdminClient(KeycloakContainer keycloak) {
+        Keycloak admin = keycloak.getKeycloakAdminClient();
+        ServerInfoResource serverInfoResource = admin.serverInfo();
+        assertNotNull(serverInfoResource.getInfo());
     }
 
 }
