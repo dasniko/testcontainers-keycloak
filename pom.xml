@@ -50,10 +50,10 @@
     </distributionManagement>
 
     <properties>
-        <keycloak.version>18.0.0</keycloak.version>
+        <keycloak.version>19.0.0</keycloak.version>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <quarkus.version>2.7.5.Final</quarkus.version>
+        <quarkus.version>2.7.6.Final</quarkus.version>
         <shrinkwrap.verion>1.2.6</shrinkwrap.verion>
         <testcontainers.version>1.17.1</testcontainers.version>
     </properties>
@@ -113,12 +113,6 @@
             <artifactId>keycloak-services</artifactId>
             <version>${keycloak.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
