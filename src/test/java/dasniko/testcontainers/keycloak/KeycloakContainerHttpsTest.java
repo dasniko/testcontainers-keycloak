@@ -13,6 +13,8 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import javax.net.ssl.SSLHandshakeException;
+
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
@@ -63,6 +65,56 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
+    public void shouldStartKeycloakWithMutualTlsRequestNoMutualTls() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .useTlsKeystore("keycloak.jks", "keycloak")
+            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUEST)) {
+            keycloak.start();
+            checkTls(keycloak, "keycloak.jks", "keycloak");
+        }
+    }
+
+    @Test
+    public void shouldStartKeycloakWithMutualTlsRequestWithMutualTls() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .useTlsKeystore("keycloak.jks", "keycloak")
+            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUEST)) {
+            keycloak.start();
+            checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
+        }
+    }
+
+    @Test
+    public void shouldStartKeycloakWithMutualTlsRequiredWithMutualTls() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .useTlsKeystore("keycloak.jks", "keycloak")
+            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)) {
+            keycloak.start();
+            checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
+        }
+    }
+
+    @Test
+    public void shouldStartKeycloakWithMutualTlsRequiredWithoutMutualTls() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .useTlsKeystore("keycloak.jks", "keycloak")
+            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)) {
+            keycloak.start();
+            assertThrows(SSLHandshakeException.class, () -> checkTls(keycloak, "keycloak.jks", "keycloak"));
+        }
+    }
+
+    @Test
+    public void shouldThrowNullPointerExceptionUponNullTlsTruststoreFilename() {
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useMutualTls(null, null, HttpsClientAuth.NONE));
+    }
+
+    @Test
+    public void shouldThrowNullPointerExceptionUponNullHttpsClientAuth() {
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useMutualTls("keycloak.jks", null, null));
+    }
+
+    @Test
     public void shouldThrowNullPointerExceptionUponNullTlsCertificateKeyFilename() {
         assertThrows(NullPointerException.class, () -> new KeycloakContainer().useTls("keycloak.crt", null));
     }
@@ -99,6 +151,21 @@ public class KeycloakContainerHttpsTest {
     private void checkTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword) {
         RestAssured.config = RestAssured.config().sslConfig(
             SSLConfig.sslConfig().trustStore(pathToTruststore, truststorePassword)
+        );
+
+        assertThat(keycloak.getAuthServerUrl(), startsWith("https://"));
+
+        given()
+            .when().get(keycloak.getAuthServerUrl())
+            .then().statusCode(200);
+    }
+
+    private void checkMutualTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword, String pathToKeystore,
+        String keystorePassword) {
+        RestAssured.config = RestAssured.config().sslConfig(
+            SSLConfig.sslConfig()
+                .trustStore(pathToTruststore, truststorePassword)
+                .keyStore(pathToKeystore, keystorePassword)
         );
 
         assertThat(keycloak.getAuthServerUrl(), startsWith("https://"));
