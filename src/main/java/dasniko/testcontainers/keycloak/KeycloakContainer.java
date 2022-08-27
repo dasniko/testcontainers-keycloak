@@ -72,6 +72,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private static final String DEFAULT_REALM_IMPORT_FILES_LOCATION = "/opt/keycloak/data/import/";
 
     private static final String KEYSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.keystore";
+    private static final String TRUSTSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.truststore";
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
@@ -82,8 +83,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String tlsCertificateKeyFilename;
     private String tlsKeystoreFilename;
     private String tlsKeystorePassword;
+    private String tlsTruststoreFilename;
+    private String tlsTruststorePassword;
     private boolean useTls = false;
     private boolean disabledCaching = false;
+    private HttpsClientAuth httpsClientAuth = HttpsClientAuth.NONE;
 
     private String[] featuresEnabled = null;
     private String[] featuresDisabled = null;
@@ -149,6 +153,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeystoreFilename), KEYSTORE_FILE_IN_CONTAINER);
             commandParts.add("--https-key-store-file=" + KEYSTORE_FILE_IN_CONTAINER);
             commandParts.add("--https-key-store-password=" + tlsKeystorePassword);
+        }
+        if (useTls && isNotBlank(tlsTruststoreFilename)) {
+            withCopyFileToContainer(MountableFile.forClasspathResource(tlsTruststoreFilename), TRUSTSTORE_FILE_IN_CONTAINER);
+            commandParts.add("--https-trust-store-file=" + TRUSTSTORE_FILE_IN_CONTAINER);
+            commandParts.add("--https-trust-store-password=" + tlsTruststorePassword);
+            commandParts.add("--https-client-auth=" + this.httpsClientAuth);
         }
 
         if (providerClassLocation != null) {
@@ -311,6 +321,17 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
+    public KeycloakContainer useMutualTls(String tlsTruststoreFilename, String tlsTruststorePassword, HttpsClientAuth httpsClientAuth) {
+        requireNonNull(tlsTruststoreFilename, "tlsTruststoreFilename must not be null");
+        requireNonNull(tlsTruststorePassword, "tlsTruststorePassword must not be null");
+        requireNonNull(httpsClientAuth, "httpsClientAuth must not be null");
+        this.tlsTruststoreFilename = tlsTruststoreFilename;
+        this.tlsTruststorePassword = tlsTruststorePassword;
+        this.httpsClientAuth = httpsClientAuth;
+        this.useTls = true;
+        return self();
+    }
+
     public KeycloakContainer withFeaturesEnabled(String... features) {
         this.featuresEnabled = features;
         return self();
@@ -396,4 +417,5 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private boolean isNotBlank(String s) {
         return s != null && !s.trim().isEmpty();
     }
+
 }
