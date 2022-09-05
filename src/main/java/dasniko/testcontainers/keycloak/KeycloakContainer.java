@@ -83,6 +83,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     private String tlsKeystoreFilename;
     private String tlsKeystorePassword;
     private boolean useTls = false;
+    private boolean disabledCaching = false;
 
     private String[] featuresEnabled = null;
     private String[] featuresDisabled = null;
@@ -168,6 +169,15 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
                 withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
             }
             commandParts.add("--import-realm");
+        }
+
+        /* caching is disabled per default in dev-mode, thus we overwrite that config, unless #withDisabledCaching() has been called */
+        if (!disabledCaching) {
+            withEnv("KC_SPI_THEME_CACHE_THEMES", String.valueOf(true));
+            withEnv("KC_SPI_THEME_CACHE_TEMPLATES", String.valueOf(true));
+
+            // set the max-age directive for the Cache-Control header to 30 days (Keycloak default)
+            withEnv("KC_SPI_THEME_STATIC_MAX_AGE", String.valueOf(2592000));
         }
 
         setCommand(commandParts.toArray(new String[0]));
@@ -308,6 +318,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     public KeycloakContainer withFeaturesDisabled(String... features) {
         this.featuresDisabled = features;
+        return self();
+    }
+
+    public KeycloakContainer withDisabledCaching() {
+        this.disabledCaching = true;
         return self();
     }
 

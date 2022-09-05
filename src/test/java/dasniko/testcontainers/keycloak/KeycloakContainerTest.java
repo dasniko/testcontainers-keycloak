@@ -12,6 +12,7 @@ import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -118,11 +119,37 @@ public class KeycloakContainerTest {
         }
     }
 
+    @Test
+    public void shouldCacheStaticContentPerDefault() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+            keycloak.start();
+
+            String authServerUrl = keycloak.getAuthServerUrl();
+            given().when().get(getProjectLogoUrl(authServerUrl))
+                .then().statusCode(200).header("Cache-Control", containsString("max-age=2592000"));
+        }
+    }
+
+    @Test
+    public void shouldNotCacheStaticContentWithDisabledCaching() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withDisabledCaching()) {
+            keycloak.start();
+
+            String authServerUrl = keycloak.getAuthServerUrl();
+            given().when().get(getProjectLogoUrl(authServerUrl))
+                .then().statusCode(200).header("Cache-Control", "no-cache");
+        }
+    }
+
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
         Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
         assertThat(serverInfo, notNullValue());
         assertThat(serverInfo.getSystemInfo().getVersion(), equalTo(keycloak.getKeycloakVersion()));
+    }
+
+    private String getProjectLogoUrl(String authServerUrl) {
+        return authServerUrl + "welcome-content/keycloak-project.png";
     }
 
 }
