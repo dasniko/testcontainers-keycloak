@@ -70,15 +70,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--
-        Module with some empty JUnit4 classes to allow Testcontainers to run without needing to include JUnit4 on the class path
-        See also https://github.com/testcontainers/testcontainers-java/issues/970 for more details
-        -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit4-mock</artifactId>
-            <version>${quarkus.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
