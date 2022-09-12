@@ -10,6 +10,7 @@ import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.MountableFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -34,7 +35,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "17.0.0";
+    private static final String KEYCLOAK_VERSION = "19.0.1";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -66,6 +67,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
     private String extensionClassLocation;
     private String providerClassLocation;
+    private List<File> providerLibsLocations;
 
     private static final Transferable WILDFLY_DEPLOYMENT_TRIGGER_FILE_CONTENT = Transferable.of("true".getBytes(StandardCharsets.UTF_8));
     private final Set<String> wildflyDeploymentTriggerFiles = new HashSet<>();
@@ -135,6 +137,13 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
+        }
+
+        if (providerLibsLocations != null) {
+            providerLibsLocations.forEach(file -> {
+                String containerPath = DEFAULT_KEYCLOAK_PROVIDERS_LOCATION + "/" + file.getName();
+                withCopyFileToContainer(MountableFile.forHostPath(file.getAbsolutePath()), containerPath);
+            });
         }
     }
 
@@ -316,6 +325,11 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      */
     public KeycloakContainer withProviderClassesFrom(String classesLocation) {
         this.providerClassLocation = classesLocation;
+        return self();
+    }
+
+    public KeycloakContainer withProviderLibsFrom(List<File> libs) {
+        this.providerLibsLocations = libs;
         return self();
     }
 
