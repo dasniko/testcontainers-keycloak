@@ -1,6 +1,6 @@
 package dasniko.testcontainers.keycloak.extensions.resource;
 
-import com.github.javafaker.Faker;
+import net.datafaker.Faker;
 import org.keycloak.services.resource.RealmResourceProvider;
 
 import javax.ws.rs.GET;
