@@ -27,7 +27,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldStartKeycloak() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()) {
             keycloak.start();
         }
     }
@@ -38,7 +38,7 @@ public class KeycloakContainerTest {
         Instant start = Instant.now();
         try {
             Duration duration = Duration.ofSeconds(MAX_TIMEOUT);
-            try (KeycloakContainer keycloak = new KeycloakContainer().withStartupTimeout(duration)) {
+            try (KeycloakContainer<?> keycloak = new KeycloakContainer<>().withStartupTimeout(duration)) {
                 keycloak.start();
             }
         } catch(ContainerLaunchException ex) {
@@ -52,7 +52,7 @@ public class KeycloakContainerTest {
     @ParameterizedTest
     @ValueSource(strings = {TEST_REALM_JSON, "/single-test-folder" + TEST_REALM_JSON, "/second-test-folder/first-test-folder" + TEST_REALM_JSON})
     public void shouldImportRealm(final String realmLocation) {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile(realmLocation)) {
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>().withRealmImportFile(realmLocation)) {
             keycloak.start();
 
             String accountService = given().when().get(keycloak.getAuthServerUrl() + "realms/test")
@@ -65,7 +65,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldImportMultipleRealms() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>().
             withRealmImportFiles(TEST_REALM_JSON, "/another-realm.json")) {
             keycloak.start();
 
@@ -85,7 +85,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldReturnServerInfo() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()) {
             keycloak.start();
 
             checkKeycloakContainerInternals(keycloak);
@@ -94,7 +94,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldUseDifferentAdminCredentials() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()
             .withAdminUsername("foo")
             .withAdminPassword("bar")) {
             keycloak.start();
@@ -106,7 +106,7 @@ public class KeycloakContainerTest {
     @Test
     public void shouldRunOnDifferentContextPath() {
         String contextPath = "/auth/";
-        try (KeycloakContainer keycloak = new KeycloakContainer().withContextPath(contextPath)) {
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>().withContextPath(contextPath)) {
             keycloak.start();
 
             String authServerUrl = keycloak.getAuthServerUrl();
@@ -121,7 +121,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldCacheStaticContentPerDefault() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()) {
             keycloak.start();
 
             String authServerUrl = keycloak.getAuthServerUrl();
@@ -132,7 +132,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldNotCacheStaticContentWithDisabledCaching() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withDisabledCaching()) {
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>().withDisabledCaching()) {
             keycloak.start();
 
             String authServerUrl = keycloak.getAuthServerUrl();
@@ -141,7 +141,7 @@ public class KeycloakContainerTest {
         }
     }
 
-    private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
+    private void checkKeycloakContainerInternals(KeycloakContainer<?> keycloak) {
         Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
         assertThat(serverInfo, notNullValue());

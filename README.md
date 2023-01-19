@@ -24,7 +24,7 @@ Simply spin up a default Keycloak instance:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer();
+KeycloakContainer<?> keycloak = new KeycloakContainer<>();
 ```
 
 ### Custom image
@@ -33,7 +33,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:20.0.0");
+KeycloakContainer<?> keycloak = new KeycloakContainer<>("quay.io/keycloak/keycloak:20.0.0");
 ```
 
 ### Realm Import
@@ -42,7 +42,7 @@ Power up a Keycloak instance with one or more existing realm JSON config files (
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer<?> keycloak = new KeycloakContainer<>()
     .withRealmImportFile("/test-realm.json");
 ```
 or
@@ -56,7 +56,7 @@ Use different admin credentials than the defaut internal (`admin`/`admin`) ones:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer<?> keycloak = new KeycloakContainer<>()
     .withAdminUsername("myKeycloakAdminUser")
     .withAdminPassword("tops3cr3t");
 ```
@@ -98,7 +98,7 @@ As Keycloak now comes with the default context path `/`, you can set your custom
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer<?> keycloak = new KeycloakContainer<>()
     .withContextPath("/auth/");
 ```
 
@@ -113,7 +113,7 @@ You can use this configuration by only configuring your testcontainer like this:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer().useTls();
+KeycloakContainer<?> keycloak = new KeycloakContainer<>().useTls();
 ```
 
 The password for the provided Java KeyStore file is `changeit`.
@@ -127,7 +127,7 @@ Of course you can also provide your own certificate and key file for usage in th
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer()
+private KeycloakContainer<?> keycloak = new KeycloakContainer<>()
 .useTls("your_custom.crt", "your_custom.key");
 ```
 
@@ -141,7 +141,7 @@ Last but not least, you can also provide your own keystore file for usage in thi
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer<?> keycloak = new KeycloakContainer<>()
     .useTlsKeystore("your_custom.jks", "password_for_your_custom_keystore");
 ```
 
@@ -155,7 +155,7 @@ You can enable and disable features on your Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer<?> keycloak = new KeycloakContainer<>()
     .withFeaturesEnabled("docker", "scripts", "...")
     .withFeaturesDisabled("authorization", "impersonation", "...");
 ```
@@ -171,7 +171,7 @@ To test your extensions you just need to tell `KeycloakContainer` to consider ex
 Keycloak Testcontainer will then dynamically generate a packaged jar file with the extension code that is then picked up by Keycloak.
 
 ```java
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer<?> keycloak = new KeycloakContainer<>()
     .withProviderClassesFrom("target/classes");
 ```
 
@@ -183,7 +183,7 @@ If you need to provide any 3rd-party dependency or library, you can do this with
 
 ```java
 List<File> libs = ...;
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer<?> keycloak = new KeycloakContainer<>()
     .withProviderLibsFrom(libs);
 ```
 

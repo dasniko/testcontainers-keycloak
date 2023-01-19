@@ -51,7 +51,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
-public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
+public class KeycloakContainer<SELF extends KeycloakContainer<SELF>> extends GenericContainer<SELF> {
 
     public static final String MASTER_REALM = "master";
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
@@ -194,12 +194,12 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
     }
 
     @Override
-    public KeycloakContainer withCommand(String cmd) {
+    public SELF withCommand(String cmd) {
         throw new IllegalStateException("You are trying to set custom container commands, which is currently not supported by this Testcontainer.");
     }
 
     @Override
-    public KeycloakContainer withCommand(String... commandParts) {
+    public SELF withCommand(String... commandParts) {
         throw new IllegalStateException("You are trying to set custom container commands, which is currently not supported by this Testcontainer.");
     }
 
@@ -253,27 +253,27 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
             .toString();
     }
 
-    public KeycloakContainer withRealmImportFile(String importFile) {
+    public SELF withRealmImportFile(String importFile) {
         this.importFiles.add(importFile);
         return self();
     }
 
-    public KeycloakContainer withRealmImportFiles(String... files) {
+    public SELF withRealmImportFiles(String... files) {
         Arrays.stream(files).forEach(this::withRealmImportFile);
         return self();
     }
 
-    public KeycloakContainer withAdminUsername(String adminUsername) {
+    public SELF withAdminUsername(String adminUsername) {
         this.adminUsername = adminUsername;
         return self();
     }
 
-    public KeycloakContainer withAdminPassword(String adminPassword) {
+    public SELF withAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
         return self();
     }
 
-    public KeycloakContainer withContextPath(String contextPath) {
+    public SELF withContextPath(String contextPath) {
         this.contextPath = contextPath;
         return self();
     }
@@ -283,27 +283,27 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
      *
      * @param classesLocation a classes location relative to the current classpath root.
      */
-    public KeycloakContainer withProviderClassesFrom(String classesLocation) {
+    public SELF withProviderClassesFrom(String classesLocation) {
         this.providerClassLocation = classesLocation;
         return self();
     }
 
-    public KeycloakContainer withProviderLibsFrom(List<File> libs) {
+    public SELF withProviderLibsFrom(List<File> libs) {
         this.providerLibsLocations = libs;
         return self();
     }
 
-    public KeycloakContainer withStartupTimeout(Duration startupTimeout) {
+    public SELF withStartupTimeout(Duration startupTimeout) {
         this.startupTimeout = startupTimeout;
         return self();
     }
 
-    public KeycloakContainer useTls() {
+    public SELF useTls() {
         // server.keystore is provided with this testcontainer
         return useTlsKeystore("tls.jks", "changeit");
     }
 
-    public KeycloakContainer useTls(String tlsCertificateFilename, String tlsCertificateKeyFilename) {
+    public SELF useTls(String tlsCertificateFilename, String tlsCertificateKeyFilename) {
         requireNonNull(tlsCertificateFilename, "tlsCertificateFilename must not be null");
         requireNonNull(tlsCertificateKeyFilename, "tlsCertificateKeyFilename must not be null");
         this.tlsCertificateFilename = tlsCertificateFilename;
@@ -312,7 +312,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
-    public KeycloakContainer useTlsKeystore(String tlsKeystoreFilename, String tlsKeystorePassword) {
+    public SELF useTlsKeystore(String tlsKeystoreFilename, String tlsKeystorePassword) {
         requireNonNull(tlsKeystoreFilename, "tlsKeystoreFilename must not be null");
         requireNonNull(tlsKeystorePassword, "tlsKeystorePassword must not be null");
         this.tlsKeystoreFilename = tlsKeystoreFilename;
@@ -321,7 +321,7 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
-    public KeycloakContainer useMutualTls(String tlsTruststoreFilename, String tlsTruststorePassword, HttpsClientAuth httpsClientAuth) {
+    public SELF useMutualTls(String tlsTruststoreFilename, String tlsTruststorePassword, HttpsClientAuth httpsClientAuth) {
         requireNonNull(tlsTruststoreFilename, "tlsTruststoreFilename must not be null");
         requireNonNull(tlsTruststorePassword, "tlsTruststorePassword must not be null");
         requireNonNull(httpsClientAuth, "httpsClientAuth must not be null");
@@ -332,21 +332,21 @@ public class KeycloakContainer extends GenericContainer<KeycloakContainer> {
         return self();
     }
 
-    public KeycloakContainer withFeaturesEnabled(String... features) {
+    public SELF withFeaturesEnabled(String... features) {
         this.featuresEnabled = features;
         return self();
     }
 
-    public KeycloakContainer withFeaturesDisabled(String... features) {
+    public SELF withFeaturesDisabled(String... features) {
         this.featuresDisabled = features;
         return self();
     }
 
-    public KeycloakContainer withDisabledCaching() {
+    public SELF withDisabledCaching() {
         this.disabledCaching = true;
         return self();
     }
-
+    
     public Keycloak getKeycloakAdminClient() {
         if (useTls) {
             return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT, buildSslContext());

@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.startsWith;
  */
 public class KeycloakContainerExtensionReuseTest {
 
-    public static final KeycloakContainer KEYCLOAK = new KeycloakContainer()
+    public static final KeycloakContainer<?> KEYCLOAK = new KeycloakContainer<>()
         .withRealmImportFile(TEST_REALM_JSON)
         // this would normally be just "target/classes"
         .withProviderClassesFrom("target/test-classes")

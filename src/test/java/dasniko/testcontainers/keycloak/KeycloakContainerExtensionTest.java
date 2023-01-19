@@ -34,7 +34,7 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldStartKeycloakWithNonExistingExtensionClassFolder() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()
             .withProviderClassesFrom("target/does_not_exist")) {
             keycloak.start();
         }
@@ -45,7 +45,7 @@ public class KeycloakContainerExtensionTest {
      */
     @Test
     public void shouldDeployProvider() throws Exception {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()
             // this would normally be just "target/classes"
             .withProviderClassesFrom("target/test-classes")
             .withRealmImportFile(TEST_REALM_JSON)) {
@@ -76,7 +76,7 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldDeployProviderAndCallCustomEndpoint() throws Exception {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()
             // this would normally be just "target/classes"
             .withProviderClassesFrom("target/test-classes")) {
             keycloak.start();
@@ -109,7 +109,7 @@ public class KeycloakContainerExtensionTest {
             .resolve("com.github.javafaker:javafaker")
             .withoutTransitivity().asList(File.class);
 
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer<?> keycloak = new KeycloakContainer<>()
             .withProviderClassesFrom("target/test-classes")
             .withProviderLibsFrom(dependencies)) {
             keycloak.start();
