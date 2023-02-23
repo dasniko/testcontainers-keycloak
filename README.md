@@ -274,6 +274,7 @@ For Keycloak-_Legacy_ (before Quarkus-based distro), see [version 1.x branch](ht
 | 2.2.2                   | 1.17.1         | 18.0.0   |
 | 2.3.0                   | 1.17.1         | 19.0.0   |
 | 2.4.0                   | 1.17.3         | 20.0.0   |
+| 2.5.0                   | 1.17.6         | 21.0     |
 
 _There might also be other possible version configurations which will work._
 
