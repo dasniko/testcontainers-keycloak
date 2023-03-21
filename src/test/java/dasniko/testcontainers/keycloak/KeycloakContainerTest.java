@@ -142,6 +142,28 @@ public class KeycloakContainerTest {
         }
     }
 
+    @Test
+    public void shouldNotExposeMetricsPerDefault() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+            keycloak.start();
+
+            String authServerUrl = keycloak.getAuthServerUrl();
+            given().when().get(getMetricsUrl(authServerUrl))
+                .then().statusCode(404);
+        }
+    }
+
+    @Test
+    public void shouldExposeMetricsWithEnabledMetrics() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withEnabledMetrics()) {
+            keycloak.start();
+
+            String authServerUrl = keycloak.getAuthServerUrl();
+            given().when().get(getMetricsUrl(authServerUrl))
+                .then().statusCode(200);
+        }
+    }
+
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
         Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
@@ -151,6 +173,10 @@ public class KeycloakContainerTest {
 
     private String getProjectLogoUrl(String authServerUrl) {
         return authServerUrl + "welcome-content/keycloak-project.png";
+    }
+
+    private String getMetricsUrl(String authServerUrl) {
+        return authServerUrl + "metrics";
     }
 
 }

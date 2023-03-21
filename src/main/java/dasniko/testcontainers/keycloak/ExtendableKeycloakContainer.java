@@ -87,6 +87,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private String tlsTruststorePassword;
     private boolean useTls = false;
     private boolean disabledCaching = false;
+    private boolean metricsEnabled = false;
     private HttpsClientAuth httpsClientAuth = HttpsClientAuth.NONE;
 
     private String[] featuresEnabled = null;
@@ -189,6 +190,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             // set the max-age directive for the Cache-Control header to 30 days (Keycloak default)
             withEnv("KC_SPI_THEME_STATIC_MAX_AGE", String.valueOf(2592000));
         }
+
+        commandParts.add("--metrics-enabled=" + metricsEnabled);
 
         setCommand(commandParts.toArray(new String[0]));
     }
@@ -344,6 +347,11 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public SELF withDisabledCaching() {
         this.disabledCaching = true;
+        return self();
+    }
+
+    public SELF withEnabledMetrics() {
+        this.metricsEnabled = true;
         return self();
     }
 
