@@ -382,7 +382,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     public String getAuthServerUrl() {
-        return String.format("http%s://%s:%s%s", useTls ? "s" : "", getContainerIpAddress(),
+        return String.format("http%s://%s:%s%s", useTls ? "s" : "", getHost(),
             useTls ? getHttpsPort() : getHttpPort(), getContextPath());
     }
 
