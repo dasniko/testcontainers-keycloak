@@ -65,7 +65,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
-    private static final String KEYCLOAK_CONTEXT_PATH = "/";
+    private static final String KEYCLOAK_CONTEXT_PATH = "";
 
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_NAME = "providers.jar";
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/keycloak/providers";
