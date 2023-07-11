@@ -95,12 +95,12 @@ Keycloak keycloakAdminClient = KeycloakBuilder.builder()
 
 ### Context Path
 
-As Keycloak now comes with the default context path `/`, you can set your custom context path, e.g. for compatibility reasons to previous versions, with:
+As Keycloak comes with the default context path `/`, you can set your custom context path, e.g. for compatibility reasons to previous versions, with:
 
 ```java
 @Container
 KeycloakContainer keycloak = new KeycloakContainer()
-    .withContextPath("/auth/");
+    .withContextPath("/auth");
 ```
 
 ## TLS (SSL) Usage
@@ -267,7 +267,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 
 | Testcontainers-Keycloak | Testcontainers | Keycloak |
 |-------------------------|----------------|----------|
-| ?.0.0                   | 1.18.3         | 22.0     |
+| 3.0.0                   | 1.18.3         | 22.0     |
 
 _There might also be other possible version configurations which will work._
 
