@@ -10,8 +10,9 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 
 ## IMPORTANT!!!
 
-> This version only handles the new Quarkus distribution of Keycloak (version 17+).  
-> For Keycloak-_Legacy_ (Wildfly-based distro), see [version 1.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v1).
+> This version only handles Keycloak from version **22.x** and up, as there are major changes coming with this release.
+> See also the [blog post](https://www.keycloak.org/2023/07/keycloak-2200-released.html).  
+> For older Keycloak versions (until 21.x), see [version 2.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v2).
 
 ## How to use
 
@@ -262,20 +263,11 @@ Consult the docs of your application framework testing capabilities on how to dy
 
 ## Testcontainers & Keycloak version compatiblity
 
-For Keycloak-_Legacy_ (before Quarkus-based distro), see [version 1.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v1)
+For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v2)
 
 | Testcontainers-Keycloak | Testcontainers | Keycloak |
 |-------------------------|----------------|----------|
-| 2.0.0                   | 1.16.3         | 17.0.0   |
-| 2.1.1                   | 1.16.3         | 17.0.0   |
-| 2.1.2                   | 1.16.3         | 17.0.1   |
-| 2.2.0                   | 1.17.1         | 18.0.0   |
-| 2.2.1                   | 1.17.1         | 18.0.0   |
-| 2.2.2                   | 1.17.1         | 18.0.0   |
-| 2.3.0                   | 1.17.1         | 19.0.0   |
-| 2.4.0                   | 1.17.3         | 20.0.0   |
-| 2.5.0                   | 1.17.6         | 21.0     |
-| 2.6.0                   | 1.18.3         | 22.0     |
+| ?.0.0                   | 1.18.3         | 22.0     |
 
 _There might also be other possible version configurations which will work._
 
@@ -294,6 +286,6 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 Apache License 2.0
 
-Copyright (c) 2019-2022 Niko Köbler
+Copyright (c) 2019-2023 Niko Köbler
 
 See [LICENSE](LICENSE) file for details.
