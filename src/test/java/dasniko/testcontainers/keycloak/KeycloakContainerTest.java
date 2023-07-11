@@ -56,7 +56,7 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile(realmLocation)) {
             keycloak.start();
 
-            String accountService = given().when().get(keycloak.getAuthServerUrl() + "realms/test")
+            String accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/test")
                 .then().statusCode(200).body("realm", equalTo("test"))
                 .extract().path("account-service");
 
@@ -70,13 +70,13 @@ public class KeycloakContainerTest {
             withRealmImportFiles(TEST_REALM_JSON, "/another-realm.json")) {
             keycloak.start();
 
-            String accountService = given().when().get(keycloak.getAuthServerUrl() + "realms/test")
+            String accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/test")
                 .then().statusCode(200).body("realm", equalTo("test"))
                 .extract().path("account-service");
 
             given().when().get(accountService).then().statusCode(200);
 
-            accountService = given().when().get(keycloak.getAuthServerUrl() + "realms/another")
+            accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/another")
                 .then().statusCode(200).body("realm", equalTo("another"))
                 .extract().path("account-service");
 
@@ -106,14 +106,14 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldRunOnDifferentContextPath() {
-        String contextPath = "/auth/";
+        String contextPath = "/auth";
         try (KeycloakContainer keycloak = new KeycloakContainer().withContextPath(contextPath)) {
             keycloak.start();
 
             String authServerUrl = keycloak.getAuthServerUrl();
             assertThat(authServerUrl, endsWith(contextPath));
 
-            given().when().get(authServerUrl + "realms/master/.well-known/openid-configuration")
+            given().when().get(authServerUrl + "/realms/master/.well-known/openid-configuration")
                 .then().statusCode(200);
 
             checkKeycloakContainerInternals(keycloak);
@@ -172,11 +172,11 @@ public class KeycloakContainerTest {
     }
 
     private String getProjectLogoUrl(String authServerUrl) {
-        return authServerUrl + "welcome-content/keycloak-project.png";
+        return authServerUrl + "/welcome-content/keycloak-project.png";
     }
 
     private String getMetricsUrl(String authServerUrl) {
-        return authServerUrl + "metrics";
+        return authServerUrl + "/metrics";
     }
 
 }

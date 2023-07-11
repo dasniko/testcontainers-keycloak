@@ -82,7 +82,7 @@ public class KeycloakContainerExtensionTest {
             keycloak.start();
 
             ObjectMapper objectMapper = new ObjectMapper();
-            String uri = keycloak.getAuthServerUrl() + "realms/master/test-resource/hello";
+            String uri = keycloak.getAuthServerUrl() + "/realms/master/test-resource/hello";
 
             // test the "public" endpoint
             Map<String, String> result = objectMapper.readValue(new URL(uri), new TypeReference<>() {});
@@ -92,7 +92,7 @@ public class KeycloakContainerExtensionTest {
             Keycloak keycloakClient = keycloak.getKeycloakAdminClient();
             AccessTokenResponse accessTokenResponse = keycloakClient.tokenManager().getAccessToken();
 
-            URL url = new URL(keycloak.getAuthServerUrl() + "realms/master/test-resource/hello-auth");
+            URL url = new URL(keycloak.getAuthServerUrl() + "/realms/master/test-resource/hello-auth");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Authorization", "Bearer " + accessTokenResponse.getToken());
@@ -115,7 +115,7 @@ public class KeycloakContainerExtensionTest {
             keycloak.start();
 
             ObjectMapper objectMapper = new ObjectMapper();
-            String uri = keycloak.getAuthServerUrl() + "realms/master/yoda/quote";
+            String uri = keycloak.getAuthServerUrl() + "/realms/master/yoda/quote";
 
             Map<String, String> result = objectMapper.readValue(new URL(uri), new TypeReference<>() {});
             String quote = result.get("yoda");
