@@ -418,7 +418,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return startupTimeout;
     }
 
-    protected String getKeycloakVersion() {
+    public String getKeycloakDefaultVersion() {
         return KEYCLOAK_VERSION;
     }
 

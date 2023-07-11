@@ -168,7 +168,7 @@ public class KeycloakContainerTest {
         Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
         assertThat(serverInfo, notNullValue());
-        assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakVersion()));
+        assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakDefaultVersion()));
     }
 
     private String getProjectLogoUrl(String authServerUrl) {
