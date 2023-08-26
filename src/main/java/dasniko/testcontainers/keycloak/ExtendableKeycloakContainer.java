@@ -15,6 +15,8 @@
  */
 package dasniko.testcontainers.keycloak;
 
+import java.nio.file.Path;
+import java.util.Optional;
 import org.apache.commons.io.FilenameUtils;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
@@ -229,17 +231,33 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         requireNonNull(extensionClassFolder, "extensionClassFolder must not be null");
 
         String classesLocation = resolveExtensionClassLocation(extensionClassFolder);
-        if (new File(classesLocation).exists()) {
+        final File classesDirectory = new File(classesLocation);
+        final Path metaInfDirectoryInClassesDirectory = classesDirectory.toPath().resolve("META-INF");
+        if (classesDirectory.exists()) {
             final File file;
             try {
                 file = Files.createTempFile("keycloak", ".jar").toFile();
                 file.setReadable(true, false);
                 file.deleteOnExit();
-                ShrinkWrap.create(JavaArchive.class, extensionName)
-                    .as(ExplodedImporter.class)
-                    .importDirectory(classesLocation)
-                    .as(ZipExporter.class)
-                    .exportTo(file, true);
+                ExplodedImporter explodedImporter = ShrinkWrap.create(JavaArchive.class, extensionName)
+                        .as(ExplodedImporter.class);
+                if (!Files.exists(metaInfDirectoryInClassesDirectory)){
+                    // Try Gradle build dir layout
+                    final Path metaInfDirectoryInResourcesDirectory = Paths.get(classesLocation)
+                            .getParent()
+                            .getParent()
+                            .getParent()
+                            .resolve("resources")
+                            .resolve(classesDirectory.getName())
+                            .resolve("META-INF");
+                    if (Files.exists(metaInfDirectoryInResourcesDirectory)){
+                        explodedImporter.importDirectory(metaInfDirectoryInResourcesDirectory.getParent().toFile());
+                    }
+                }
+                explodedImporter
+                        .importDirectory(classesLocation)
+                        .as(ZipExporter.class)
+                        .exportTo(file, true);
                 withCopyFileToContainer(MountableFile.forHostPath(file.getAbsolutePath()), deploymentLocation + "/" + extensionName);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -249,11 +267,15 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
-        return Paths.get(MountableFile.forClasspathResource(".").getResolvedPath())
-            .getParent()
-            .getParent()
-            .resolve(extensionClassFolder)
-            .toString();
+        return getUserWorkingDirectory()
+                .resolve(extensionClassFolder)
+                .toString();
+    }
+
+    private static Path getUserWorkingDirectory() {
+        return  Optional.ofNullable(System.getProperty("user.dir"))
+                .map(Paths::get)
+                .orElseGet(()-> Paths.get("").toAbsolutePath());
     }
 
     public SELF withRealmImportFile(String importFile) {
