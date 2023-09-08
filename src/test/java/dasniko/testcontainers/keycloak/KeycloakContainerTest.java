@@ -164,6 +164,13 @@ public class KeycloakContainerTest {
         }
     }
 
+    @Test
+    public void shouldStartKeycloakVerbose() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withVerboseOutput()) {
+            keycloak.start();
+        }
+    }
+
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
         Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();

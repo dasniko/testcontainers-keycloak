@@ -90,6 +90,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private boolean metricsEnabled = false;
     private HttpsClientAuth httpsClientAuth = HttpsClientAuth.NONE;
 
+    private boolean useVerbose = false;
     private String[] featuresEnabled = null;
     private String[] featuresDisabled = null;
 
@@ -120,6 +121,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     @Override
     protected void configure() {
         List<String> commandParts = new ArrayList<>();
+        if (useVerbose) {
+            commandParts.add("--verbose");
+        }
         commandParts.add("start-dev");
 
         if (!contextPath.equals(KEYCLOAK_CONTEXT_PATH)) {
@@ -332,6 +336,11 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         this.tlsTruststorePassword = tlsTruststorePassword;
         this.httpsClientAuth = httpsClientAuth;
         this.useTls = true;
+        return self();
+    }
+
+    public SELF withVerboseOutput() {
+        this.useVerbose = true;
         return self();
     }
 
