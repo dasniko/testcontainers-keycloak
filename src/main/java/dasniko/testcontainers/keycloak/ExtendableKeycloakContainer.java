@@ -61,6 +61,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
+    private static final int KEYCLOAK_PORT_DEBUG = 8787;
     private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
@@ -88,6 +89,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private boolean useTls = false;
     private boolean disabledCaching = false;
     private boolean metricsEnabled = false;
+    private boolean debugEnabled = false;
+    private int debugHostPort;
+    private boolean debugSuspend = false;
     private HttpsClientAuth httpsClientAuth = HttpsClientAuth.NONE;
 
     private boolean useVerbose = false;
@@ -196,6 +200,19 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         }
 
         commandParts.add("--metrics-enabled=" + metricsEnabled);
+
+        if (debugEnabled) {
+            commandParts.add("--debug");
+            withEnv("DEBUG_PORT", "*:" + KEYCLOAK_PORT_DEBUG);
+            if (debugHostPort > 0) {
+                addFixedExposedPort(debugHostPort, KEYCLOAK_PORT_DEBUG);
+            } else {
+                addExposedPort(KEYCLOAK_PORT_DEBUG);
+            }
+            if (debugSuspend) {
+                withEnv("DEBUG_SUSPEND", "y");
+            }
+        }
 
         setCommand(commandParts.toArray(new String[0]));
     }
@@ -361,6 +378,21 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public SELF withEnabledMetrics() {
         this.metricsEnabled = true;
+        return self();
+    }
+
+    public SELF withDebug() {
+        return withDebugFixedPort(0, false);
+    }
+
+    public SELF withDebugFixedPort(int hostPort, boolean suspend) {
+        return withDebug(hostPort, suspend);
+    }
+
+    private SELF withDebug(int hostPort, boolean suspend) {
+        this.debugEnabled = true;
+        this.debugHostPort = hostPort;
+        this.debugSuspend = suspend;
         return self();
     }
 
