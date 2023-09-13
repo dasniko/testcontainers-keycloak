@@ -381,10 +381,19 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return self();
     }
 
+    /**
+     * Enable remote debugging in Keycloak and expose it on a random port.
+     */
     public SELF withDebug() {
         return withDebugFixedPort(0, false);
     }
 
+    /**
+     * Enable remote debugging in Keycloak and expose it on a fixed port.
+     *
+     * @param hostPort The port on the host machine
+     * @param suspend Control if Keycloak should wait until a debugger is attached
+     */
     public SELF withDebugFixedPort(int hostPort, boolean suspend) {
         return withDebug(hostPort, suspend);
     }
@@ -449,6 +458,16 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public int getHttpsPort() {
         return getMappedPort(KEYCLOAK_PORT_HTTPS);
+    }
+
+    /**
+     * Get the mapped port for remote debugging. Should only be used if debugging has been enabled.
+     * @return the mapped port or <code>-1</code> if debugging has not been configured
+     * @see #withDebug()
+     * @see #withDebugFixedPort(int, boolean) 
+     */
+    public int getDebugPort() {
+        return debugEnabled ? getMappedPort(KEYCLOAK_PORT_DEBUG) : -1;
     }
 
     public String getContextPath() {
