@@ -217,8 +217,8 @@ public class KeycloakContainerTest {
             return serverSocket.getLocalPort();
         } catch (IOException e) {
             fail("There is no free port available!");
+            return -1;
         }
-        return 12345;
     }
 
     private void testDebugPortAvailable(final String debugHost, final int debugPort) throws IOException {
