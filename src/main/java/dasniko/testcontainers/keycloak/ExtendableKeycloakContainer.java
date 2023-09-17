@@ -15,26 +15,12 @@
  */
 package dasniko.testcontainers.keycloak;
 
-import java.nio.file.Path;
-import java.util.Optional;
-import org.apache.commons.io.FilenameUtils;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.exporter.ZipExporter;
-import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.keycloak.admin.client.Keycloak;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.MountableFile;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -46,9 +32,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import static java.util.Objects.requireNonNull;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import org.apache.commons.io.FilenameUtils;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.exporter.ZipExporter;
+import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.keycloak.admin.client.Keycloak;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.shaded.com.google.common.collect.Sets;
+import static org.testcontainers.shaded.org.apache.commons.lang3.ObjectUtils.requireNonEmpty;
+import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
+import org.testcontainers.utility.MountableFile;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -97,7 +99,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
-    private String providerClassLocation;
+    private final Set<String> providerClassesAndResourcesLocations = Sets.newHashSet();
+
     private List<File> providerLibsLocations;
 
     /**
@@ -164,8 +167,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             commandParts.add("--https-client-auth=" + this.httpsClientAuth);
         }
 
-        if (providerClassLocation != null) {
-            createKeycloakExtensionProvider(providerClassLocation);
+        if (!this.providerClassesAndResourcesLocations.isEmpty()) {
+            createKeycloakExtensionProvider(this.providerClassesAndResourcesLocations);
         }
 
         if (providerLibsLocations != null) {
@@ -209,61 +212,79 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     /**
+     * @deprecated Use {@link ExtendableKeycloakContainer#createKeycloakExtensionProvider(Set)}
+     *
      * Maps the provided {@code extensionClassFolder} as an exploded providers.jar to the Keycloak providers folder.
      *
      * @param extensionClassFolder a path relative to the current classpath root.
      */
-    public void createKeycloakExtensionProvider(String extensionClassFolder) {
-        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_KEYCLOAK_PROVIDERS_NAME, extensionClassFolder);
+    @Deprecated
+    public void createKeycloakExtensionProvider(final String extensionClassFolder) {
+        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_KEYCLOAK_PROVIDERS_NAME, Set.of(extensionClassFolder));
     }
 
     /**
+     * Maps the provided {@code extensionClassFolder} as an exploded providers.jar to the Keycloak providers folder.
+     *
+     * @param  extensionClassAndResourcesFolders relative paths to the current classpath and resources roots.
+     */
+    public void createKeycloakExtensionProvider(final Set<String> extensionClassAndResourcesFolders) {
+        createKeycloakExtensionDeployment(DEFAULT_KEYCLOAK_PROVIDERS_LOCATION, DEFAULT_KEYCLOAK_PROVIDERS_NAME, extensionClassAndResourcesFolders);
+    }
+
+    /**
+     * @deprecated Use {@link ExtendableKeycloakContainer#createKeycloakExtensionDeployment(String, String, Set)}
+     *
      * Maps the provided {@code extensionClassFolder} as an exploded extension.jar to the {@code deploymentLocation}.
      *
      * @param deploymentLocation   the target deployments location of the Keycloak server.
      * @param extensionName        the name suffix of the created extension.
      * @param extensionClassFolder a path relative to the current classpath root.
      */
-    protected void createKeycloakExtensionDeployment(String deploymentLocation, String extensionName, String extensionClassFolder) {
+    @Deprecated
+    protected void createKeycloakExtensionDeployment(final String deploymentLocation, String extensionName, String extensionClassFolder) {
+        createKeycloakExtensionDeployment(deploymentLocation, extensionName, Set.of(extensionClassFolder));
+    }
 
+    /**
+     * Maps the provided {@code providerClassesAndResourcesLocations} as an exploded extension.jar to the {@code deploymentLocation}.
+     *
+     * @param deploymentLocation   the target deployments location of the Keycloak server.
+     * @param extensionName        the name suffix of the created extension.
+     * @param providerClassesAndResourcesLocations a path relative to the current classpath and resources roots.
+     */
+    protected void createKeycloakExtensionDeployment(final String deploymentLocation, final String extensionName, final Set<String> providerClassesAndResourcesLocations) {
         requireNonNull(deploymentLocation, "deploymentLocation must not be null");
         requireNonNull(extensionName, "extensionName must not be null");
-        requireNonNull(extensionClassFolder, "extensionClassFolder must not be null");
+        requireNonNull(providerClassesAndResourcesLocations, "providerClassesAndResourcesLocations must not be null");
 
-        String classesLocation = resolveExtensionClassLocation(extensionClassFolder);
-        final File classesDirectory = new File(classesLocation);
-        final Path metaInfDirectoryInClassesDirectory = classesDirectory.toPath().resolve("META-INF");
-        if (classesDirectory.exists()) {
-            final File file;
-            try {
-                file = Files.createTempFile("keycloak", ".jar").toFile();
-                file.setReadable(true, false);
-                file.deleteOnExit();
-                ExplodedImporter explodedImporter = ShrinkWrap.create(JavaArchive.class, extensionName)
-                        .as(ExplodedImporter.class);
-                if (!Files.exists(metaInfDirectoryInClassesDirectory)){
-                    // Try Gradle build dir layout
-                    final Path metaInfDirectoryInResourcesDirectory = Paths.get(classesLocation)
-                            .getParent()
-                            .getParent()
-                            .getParent()
-                            .resolve("resources")
-                            .resolve(classesDirectory.getName())
-                            .resolve("META-INF");
-                    if (Files.exists(metaInfDirectoryInResourcesDirectory)){
-                        explodedImporter.importDirectory(metaInfDirectoryInResourcesDirectory.getParent().toFile());
-                    }
-                }
-                explodedImporter
-                        .importDirectory(classesLocation)
-                        .as(ZipExporter.class)
-                        .exportTo(file, true);
-                withCopyFileToContainer(MountableFile.forHostPath(file.getAbsolutePath()), deploymentLocation + "/" + extensionName);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+        final Set<File> classesAndResourcesDirectories = providerClassesAndResourcesLocations.stream()
+                .filter(StringUtils::isNotBlank)
+                .map(this::resolveExtensionClassLocation)
+                .map(Paths::get)
+                .filter(Files::exists)
+                .map(Path::toFile)
+                .collect(Collectors.toSet());
+
+        if (classesAndResourcesDirectories.isEmpty()){
+            return;
         }
 
+        final File file;
+        try {
+            file = Files.createTempFile("keycloak", ".jar").toFile();
+            file.setReadable(true, false);
+            file.deleteOnExit();
+            ExplodedImporter explodedImporter = ShrinkWrap.create(JavaArchive.class, extensionName)
+                    .as(ExplodedImporter.class);
+            classesAndResourcesDirectories.forEach(explodedImporter::importDirectory);
+            explodedImporter
+                    .as(ZipExporter.class)
+                    .exportTo(file, true);
+            withCopyFileToContainer(MountableFile.forHostPath(file.getAbsolutePath()), deploymentLocation + "/" + extensionName);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     protected String resolveExtensionClassLocation(String extensionClassFolder) {
@@ -304,12 +325,29 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     /**
+     * @deprecated Use {@link ExtendableKeycloakContainer#withProviderClassesAndResourcesFrom(String...)}
+     *
      * Exposes the given classes location as an exploded providers.jar.
      *
      * @param classesLocation a classes location relative to the current classpath root.
      */
-    public SELF withProviderClassesFrom(String classesLocation) {
-        this.providerClassLocation = classesLocation;
+    @Deprecated
+    public SELF withProviderClassesFrom(final String classesLocation) {
+        return withProviderClassesAndResourcesFrom(classesLocation);
+    }
+
+    /**
+     * Configures the specified classes and resources locations
+     * for addition to an on-the-fly jar file
+     * that's deployed to the container's providers directory.
+     * For Maven builds, the correct argument is usually `target/classes`.
+     * Gradle builds should normally work with `build/classes/java/main` plus `build/resources/main`.
+     *
+     * @param classesAndResourcesLocations paths pointing to classes and resources directories
+     */
+    public SELF withProviderClassesAndResourcesFrom(final String... classesAndResourcesLocations) {
+        requireNonEmpty(classesAndResourcesLocations, "classesAndResourcesLocations must not be null or empty");
+        this.providerClassesAndResourcesLocations.addAll(Arrays.asList(classesAndResourcesLocations));
         return self();
     }
 

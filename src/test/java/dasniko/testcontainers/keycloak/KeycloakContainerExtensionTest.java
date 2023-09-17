@@ -2,9 +2,28 @@ package dasniko.testcontainers.keycloak;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
+import dasniko.testcontainers.keycloak.extensions.somespi.SomeKeycloakSpiFactory;
+import java.io.File;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -14,22 +33,7 @@ import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
-
-import java.io.File;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
+import org.keycloak.representations.info.ProviderRepresentation;
 public class KeycloakContainerExtensionTest {
 
     @Test
@@ -40,14 +44,25 @@ public class KeycloakContainerExtensionTest {
         }
     }
 
+    private static Stream<Arguments> providerClassesAndResourcesLocationConfig() {
+
+        return Stream.of(
+                // this would normally be just "target/classes"
+                Arguments.of(Set.of("target/test-classes")),
+                Arguments.of(Set.of("target/test-classes", "")),
+                Arguments.of(Set.of("target/test-classes", "doesnt/exist"))
+        );
+    }
+
     /**
      * Deploys the Keycloak extensions from the test-classes folder into the created Keycloak container.
      */
-    @Test
-    public void shouldDeployProvider() throws Exception {
+    @ParameterizedTest
+    @MethodSource("providerClassesAndResourcesLocationConfig")
+    public void shouldDeployProvider(final Set<String> paths) throws Exception {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             // this would normally be just "target/classes"
-            .withProviderClassesFrom("target/test-classes")
+            .withProviderClassesAndResourcesFrom(paths.toArray(new String[]{}))
             .withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
 
@@ -99,6 +114,24 @@ public class KeycloakContainerExtensionTest {
 
             Map<String, String> authResult = objectMapper.readValue(conn.getInputStream(), new TypeReference<>() {});
             assertThat(authResult.get("hello"), is("admin"));
+        }
+    }
+
+    @Test
+    void shouldDeployProviderFromMultipleClassesAndMetaInfLocations() {
+        try (final KeycloakContainer keycloak = new KeycloakContainer()) {
+
+            keycloak.withProviderClassesAndResourcesFrom("target/test-classes", "target/test-classes/imaginarygradlebuilddir");
+
+            keycloak.start();
+            final Map<String, ProviderRepresentation> restSpis = keycloak.getKeycloakAdminClient()
+                    .serverInfo()
+                    .getInfo()
+                    .getProviders()
+                    .get("realm-restapi-extension")
+                    .getProviders();
+
+            assertThat(restSpis, org.hamcrest.collection.IsMapContaining.hasKey(SomeKeycloakSpiFactory.ID));
         }
     }
 
