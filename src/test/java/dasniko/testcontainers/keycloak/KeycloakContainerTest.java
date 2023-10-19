@@ -7,6 +7,10 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 import org.testcontainers.containers.ContainerLaunchException;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -15,9 +19,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -171,6 +177,26 @@ public class KeycloakContainerTest {
         }
     }
 
+    @Test
+    void shouldOpenRandomDebugPort() throws IOException {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withDebug()) {
+            keycloak.start();
+
+            testDebugPortAvailable(keycloak.getHost(), keycloak.getDebugPort());
+        }
+    }
+
+    @Test
+    void shouldOpenFixedDebugPort() throws IOException {
+        final int fixedDebugPort = findFreePort();
+        try (KeycloakContainer keycloak = new KeycloakContainer().withDebugFixedPort(fixedDebugPort, false)) {
+            keycloak.start();
+
+            assertThat(keycloak.getDebugPort(), is(fixedDebugPort));
+            testDebugPortAvailable(keycloak.getHost(), keycloak.getDebugPort());
+        }
+    }
+
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
         Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
@@ -184,6 +210,25 @@ public class KeycloakContainerTest {
 
     private String getMetricsUrl(String authServerUrl) {
         return authServerUrl + "/metrics";
+    }
+
+    private static int findFreePort() {
+        try (var serverSocket = new ServerSocket(0)) {
+            return serverSocket.getLocalPort();
+        } catch (IOException e) {
+            fail("There is no free port available!");
+            return -1;
+        }
+    }
+
+    private void testDebugPortAvailable(final String debugHost, final int debugPort) throws IOException {
+        try (var debugSocket = new Socket()) {
+            try {
+                debugSocket.connect(new InetSocketAddress(debugHost, debugPort));
+            } catch (IOException e) {
+                fail("Debug port %d cannot be reached.".formatted(debugPort));
+            }
+        }
     }
 
 }

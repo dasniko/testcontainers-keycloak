@@ -61,6 +61,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
+    private static final int KEYCLOAK_PORT_DEBUG = 8787;
     private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
@@ -88,6 +89,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private boolean useTls = false;
     private boolean disabledCaching = false;
     private boolean metricsEnabled = false;
+    private boolean debugEnabled = false;
+    private int debugHostPort;
+    private boolean debugSuspend = false;
     private HttpsClientAuth httpsClientAuth = HttpsClientAuth.NONE;
 
     private boolean useVerbose = false;
@@ -196,6 +200,19 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         }
 
         commandParts.add("--metrics-enabled=" + metricsEnabled);
+
+        if (debugEnabled) {
+            commandParts.add("--debug");
+            withEnv("DEBUG_PORT", "*:" + KEYCLOAK_PORT_DEBUG);
+            if (debugHostPort > 0) {
+                addFixedExposedPort(debugHostPort, KEYCLOAK_PORT_DEBUG);
+            } else {
+                addExposedPort(KEYCLOAK_PORT_DEBUG);
+            }
+            if (debugSuspend) {
+                withEnv("DEBUG_SUSPEND", "y");
+            }
+        }
 
         setCommand(commandParts.toArray(new String[0]));
     }
@@ -364,6 +381,30 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return self();
     }
 
+    /**
+     * Enable remote debugging in Keycloak and expose it on a random port.
+     */
+    public SELF withDebug() {
+        return withDebugFixedPort(0, false);
+    }
+
+    /**
+     * Enable remote debugging in Keycloak and expose it on a fixed port.
+     *
+     * @param hostPort The port on the host machine
+     * @param suspend Control if Keycloak should wait until a debugger is attached
+     */
+    public SELF withDebugFixedPort(int hostPort, boolean suspend) {
+        return withDebug(hostPort, suspend);
+    }
+
+    private SELF withDebug(int hostPort, boolean suspend) {
+        this.debugEnabled = true;
+        this.debugHostPort = hostPort;
+        this.debugSuspend = suspend;
+        return self();
+    }
+
     public Keycloak getKeycloakAdminClient() {
         if (useTls) {
             return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT, buildSslContext());
@@ -417,6 +458,16 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public int getHttpsPort() {
         return getMappedPort(KEYCLOAK_PORT_HTTPS);
+    }
+
+    /**
+     * Get the mapped port for remote debugging. Should only be used if debugging has been enabled.
+     * @return the mapped port or <code>-1</code> if debugging has not been configured
+     * @see #withDebug()
+     * @see #withDebugFixedPort(int, boolean) 
+     */
+    public int getDebugPort() {
+        return debugEnabled ? getMappedPort(KEYCLOAK_PORT_DEBUG) : -1;
     }
 
     public String getContextPath() {
