@@ -218,6 +218,24 @@ MyCustomKeycloakContainer keycloakContainer = new MyCustomKeycloakContainer()
 If you want/need to use dependencies from e.g. Maven (or Gradle), you can use [ShrinkWrap Resolvers](https://github.com/shrinkwrap/resolver).
 See, as an example, how this is used at the [`KeycloakContainerExtensionTest#shouldDeployProviderWithDependencyAndCallCustomEndpoint()`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) test.
 
+### Remote Debugger Support
+
+You can tell the Keycloak Testcontainer to open a debug port for attaching a remote debugger.
+
+This command will enable remote debugging in Keycloak and expose the used debug port in the container on a random port to the outside:
+
+```java
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withDebug();
+```
+
+If you want to enable remote debugging on a fixed port and optionally have Keycloak wait (suspend) until a debugger has attached to this port, use this command:
+
+```java
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withDebugFixedPort(int hostPort, boolean suspend);
+```
+
 ## Setup
 
 The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak).
