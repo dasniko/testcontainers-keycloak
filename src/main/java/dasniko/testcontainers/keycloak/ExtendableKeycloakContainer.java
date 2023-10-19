@@ -57,7 +57,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "22.0";
+    private static final String KEYCLOAK_VERSION = "22.0.4";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
