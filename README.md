@@ -6,7 +6,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-22.0-blue)
+![](https://img.shields.io/badge/Keycloak-22.0.5-blue)
 
 ## IMPORTANT!!!
 
@@ -286,6 +286,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 | Testcontainers-Keycloak | Testcontainers | Keycloak |
 |-------------------------|----------------|----------|
 | 3.0.0                   | 1.18.3         | 22.0     |
+| 3.1.0                   | 1.18.3         | 22.0.5   |
 
 _There might also be other possible version configurations which will work._
 
