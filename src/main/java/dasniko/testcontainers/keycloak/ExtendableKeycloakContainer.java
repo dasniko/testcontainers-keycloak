@@ -51,13 +51,14 @@ import static java.util.Objects.requireNonNull;
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
+@SuppressWarnings({"resource", "unused"})
 public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloakContainer<SELF>> extends GenericContainer<SELF> {
 
     public static final String MASTER_REALM = "master";
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "22.0.4";
+    private static final String KEYCLOAK_VERSION = "22.0.5";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -464,7 +465,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
      * Get the mapped port for remote debugging. Should only be used if debugging has been enabled.
      * @return the mapped port or <code>-1</code> if debugging has not been configured
      * @see #withDebug()
-     * @see #withDebugFixedPort(int, boolean) 
+     * @see #withDebugFixedPort(int, boolean)
      */
     public int getDebugPort() {
         return debugEnabled ? getMappedPort(KEYCLOAK_PORT_DEBUG) : -1;
