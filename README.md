@@ -287,6 +287,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 |-------------------------|----------------|----------|
 | 3.0.0                   | 1.18.3         | 22.0     |
 | 3.1.0                   | 1.18.3         | 22.0.5   |
+| 3.2.0                   | 1.19.3         | 23.0     |
 
 _There might also be other possible version configurations which will work._
 
