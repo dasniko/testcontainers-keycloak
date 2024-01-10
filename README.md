@@ -250,6 +250,24 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
 </dependency>
 ```
 
+### JUnit4 Dependency
+
+The testcontainers project itself has a dependency on JUnit4 although it is not needed for this project in order to run (see this [issue](https://github.com/testcontainers/testcontainers-java/issues/970) for more details).
+To avoid pulling in JUnit4 this project comes with a dependency on the `quarkus-junit4-mock` library which includes all needed classes as empty stubs. If you need JUnit4 in your project you should exclude this mock library
+when declaring the dependency to `testcontainers-keycloak` to avoid issues. Example for maven:
+
+```xml
+<dependency>
+    <!-- ... see above -->
+    <exclusions>
+        <exclusion>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit4-mock</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
 ## Usage in your application framework tests
 
 > This info is not specific to the Keycloak Testcontainer, but using Testcontainers generally.
