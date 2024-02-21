@@ -313,6 +313,13 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return self();
     }
 
+    /**
+     * Exposes the default classes location <code>target/classes</code> as an exploded providers.jar.
+     */
+    public SELF withDefaultProviderClasses() {
+        return withProviderClassesFrom("target/classes");
+    }
+
     public SELF withProviderLibsFrom(List<File> libs) {
         this.providerLibsLocations = libs;
         return self();
