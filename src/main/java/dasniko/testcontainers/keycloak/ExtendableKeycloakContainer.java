@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.requireNonNull;
 
@@ -101,7 +102,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
 
-    private String providerClassLocation;
+    private List<String> providerClassLocations;
     private List<File> providerLibsLocations;
 
     /**
@@ -171,8 +172,13 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             commandParts.add("--https-client-auth=" + this.httpsClientAuth);
         }
 
-        if (providerClassLocation != null) {
-            createKeycloakExtensionProvider(providerClassLocation);
+        if (providerClassLocations != null && !providerClassLocations.isEmpty()) {
+            AtomicInteger index = new AtomicInteger(0);
+            providerClassLocations.forEach(providerClassLocation -> createKeycloakExtensionDeployment(
+                DEFAULT_KEYCLOAK_PROVIDERS_LOCATION,
+                index.getAndIncrement() + "_" + DEFAULT_KEYCLOAK_PROVIDERS_NAME,
+                providerClassLocation
+            ));
         }
 
         if (providerLibsLocations != null) {
@@ -304,12 +310,12 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     /**
-     * Exposes the given classes location as an exploded providers.jar.
+     * Exposes the given classes locations as an exploded providers.jar.
      *
-     * @param classesLocation a classes location relative to the current classpath root.
+     * @param classesLocations classes locations relative to the current classpath root.
      */
-    public SELF withProviderClassesFrom(String classesLocation) {
-        this.providerClassLocation = classesLocation;
+    public SELF withProviderClassesFrom(String... classesLocations) {
+        this.providerClassLocations = Arrays.asList(classesLocations);
         return self();
     }
 
