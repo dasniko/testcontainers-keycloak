@@ -6,7 +6,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-23.0-blue)
+![](https://img.shields.io/badge/Keycloak-24.0-blue)
 
 ## IMPORTANT!!!
 
@@ -34,7 +34,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:23.0");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:24.0");
 ```
 
 ### Realm Import
@@ -306,6 +306,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 | 3.0.0                   | 1.18.3         | 22.0     |
 | 3.1.0                   | 1.18.3         | 22.0.5   |
 | 3.2.0                   | 1.19.3         | 23.0     |
+| 3.3.0                   | 1.19.6         | 24.0     |
 
 _There might also be other possible version configurations which will work._
 

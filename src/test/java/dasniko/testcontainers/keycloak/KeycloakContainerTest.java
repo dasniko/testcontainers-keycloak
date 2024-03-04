@@ -1,5 +1,6 @@
 package dasniko.testcontainers.keycloak;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -127,6 +128,7 @@ public class KeycloakContainerTest {
     }
 
     @Test
+    @Disabled("currently no static resource known to retrieve")
     public void shouldCacheStaticContentPerDefault() {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
@@ -138,6 +140,7 @@ public class KeycloakContainerTest {
     }
 
     @Test
+    @Disabled("currently no static resource known to retrieve")
     public void shouldNotCacheStaticContentWithDisabledCaching() {
         try (KeycloakContainer keycloak = new KeycloakContainer().withDisabledCaching()) {
             keycloak.start();
