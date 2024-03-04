@@ -103,6 +103,23 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withContextPath("/auth");
 ```
 
+### Memory Settings
+
+As of Keycloak 24 the container doesn't use an absolute amount of memory, but a relative percentage of the overall available memory to the container, [see also here](https://www.keycloak.org/server/containers#_specifying_different_memory_settings).
+
+This testcontainer has an initial memory setting of
+
+    JAVA_OPTS_KC_HEAP="-XX:InitialRAMPercentage=1 -XX:MaxRAMPercentage=5"
+
+to not overload your environment.
+You can override this settng with the `withRamPercentage(initial, max)` method:
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withRamPercentage(50, 70);
+```
+
 ## TLS (SSL) Usage
 
 You have three options to use HTTPS/TLS secured communication with your Keycloak Testcontainer.

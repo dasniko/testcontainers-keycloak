@@ -64,6 +64,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
     private static final int KEYCLOAK_PORT_DEBUG = 8787;
     private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
+    private static final int DEFAULT_INITIAL_RAM_PERCENTAGE = 1;
+    private static final int DEFAULT_MAX_RAM_PERCENTAGE = 5;
 
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
@@ -79,6 +81,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
     private String contextPath = KEYCLOAK_CONTEXT_PATH;
+    private int initialRamPercentage = DEFAULT_INITIAL_RAM_PERCENTAGE;
+    private int maxRamPercentage = DEFAULT_MAX_RAM_PERCENTAGE;
 
     private final Set<String> importFiles;
     private String tlsCertificateFilename;
@@ -151,6 +155,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
         withEnv("KEYCLOAK_ADMIN", adminUsername);
         withEnv("KEYCLOAK_ADMIN_PASSWORD", adminPassword);
+        withEnv("JAVA_OPTS_KC_HEAP", "-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d".formatted(initialRamPercentage, maxRamPercentage));
 
         if (useTls && isNotBlank(tlsCertificateFilename)) {
             String tlsCertFilePath = "/opt/keycloak/conf/tls.crt";
@@ -300,6 +305,12 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public SELF withContextPath(String contextPath) {
         this.contextPath = contextPath;
+        return self();
+    }
+
+    public SELF withRamPercentage(int initialRamPercentage, int maxRamPercentage) {
+        this.initialRamPercentage = initialRamPercentage;
+        this.maxRamPercentage = maxRamPercentage;
         return self();
     }
 
