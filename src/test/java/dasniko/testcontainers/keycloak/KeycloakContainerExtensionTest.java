@@ -106,7 +106,7 @@ public class KeycloakContainerExtensionTest {
     public void shouldDeployProviderWithDependencyAndCallCustomEndpoint() throws Exception {
         List<File> dependencies = Maven.resolver()
             .loadPomFromFile("./pom.xml")
-            .resolve("com.github.javafaker:javafaker")
+            .resolve("net.datafaker:datafaker")
             .withoutTransitivity().asList(File.class);
 
         try (KeycloakContainer keycloak = new KeycloakContainer()
