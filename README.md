@@ -193,6 +193,13 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withProviderClassesFrom("target/classes");
 ```
 
+For your convenience, there's now (since 3.3) a default method, which yields to `target/classes` internally:
+
+```java
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withDefaultProviderClasses();
+```
+
 See also [`KeycloakContainerExtensionTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) class.
 
 ### Dependencies & 3rd-party Libraries
