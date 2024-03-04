@@ -8,11 +8,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.services.Urls;
 import org.keycloak.services.managers.AppAuthManager;
 import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 import org.keycloak.services.resource.RealmResourceProvider;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -47,6 +49,13 @@ public class TestResourceProvider implements RealmResourceProvider {
     public Response helloAuth() {
         AuthResult auth = checkAuth();
         return Response.ok(Collections.singletonMap("hello", auth.getUser().getUsername())).build();
+    }
+
+    @GET
+    @Path("theme-root")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response themeRoot() {
+        return Response.ok(Map.of("url", Urls.themeRoot(session.getContext().getUri().getBaseUri()).toString())).build();
     }
 
     private AuthResult checkAuth() {

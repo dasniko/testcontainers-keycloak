@@ -1,6 +1,5 @@
 package dasniko.testcontainers.keycloak;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -17,7 +16,6 @@ import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -128,30 +126,6 @@ public class KeycloakContainerTest {
     }
 
     @Test
-    @Disabled("currently no static resource known to retrieve")
-    public void shouldCacheStaticContentPerDefault() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
-            keycloak.start();
-
-            String authServerUrl = keycloak.getAuthServerUrl();
-            given().when().get(getProjectLogoUrl(authServerUrl))
-                .then().statusCode(200).header("Cache-Control", containsString("max-age=2592000"));
-        }
-    }
-
-    @Test
-    @Disabled("currently no static resource known to retrieve")
-    public void shouldNotCacheStaticContentWithDisabledCaching() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withDisabledCaching()) {
-            keycloak.start();
-
-            String authServerUrl = keycloak.getAuthServerUrl();
-            given().when().get(getProjectLogoUrl(authServerUrl))
-                .then().statusCode(200).header("Cache-Control", "no-cache");
-        }
-    }
-
-    @Test
     public void shouldNotExposeMetricsPerDefault() {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
@@ -205,10 +179,6 @@ public class KeycloakContainerTest {
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
         assertThat(serverInfo, notNullValue());
         assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakDefaultVersion()));
-    }
-
-    private String getProjectLogoUrl(String authServerUrl) {
-        return authServerUrl + "/welcome-content/keycloak-project.png";
     }
 
     private String getMetricsUrl(String authServerUrl) {

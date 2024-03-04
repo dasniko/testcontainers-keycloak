@@ -16,6 +16,8 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -23,7 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -121,6 +125,38 @@ public class KeycloakContainerExtensionTest {
             String quote = result.get("yoda");
             assertThat(quote, not(emptyOrNullString()));
             System.out.printf("Yoda says: %s\n", quote);
+        }
+    }
+
+    @Test
+    public void shouldCacheStaticContentPerDefault() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .withProviderClassesFrom("target/test-classes")) {
+            keycloak.start();
+            given().when().get(getProjectLogoUrl(keycloak))
+                .then().statusCode(200).header("Cache-Control", containsString("max-age=2592000"));
+        }
+    }
+
+    @Test
+    public void shouldNotCacheStaticContentWithDisabledCaching() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .withProviderClassesFrom("target/test-classes")
+            .withDisabledCaching()) {
+            keycloak.start();
+            given().when().get(getProjectLogoUrl(keycloak))
+                .then().statusCode(200).header("Cache-Control", "no-cache");
+        }
+    }
+
+    private String getProjectLogoUrl(KeycloakContainer keycloak) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String uri = keycloak.getAuthServerUrl() + "/realms/master/test-resource/theme-root";
+        try {
+            Map<String, String> themeRoot = objectMapper.readValue(new URL(uri), new TypeReference<>(){});
+            return themeRoot.get("url") + "/login/keycloak.v2/img/keycloak-logo-text.png";
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
