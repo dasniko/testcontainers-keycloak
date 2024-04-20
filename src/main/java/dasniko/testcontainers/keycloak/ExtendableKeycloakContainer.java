@@ -148,8 +148,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         }
 
         setWaitStrategy(Wait
-            .forHttp(contextPath)
-            .forPort(KEYCLOAK_PORT_HTTP)
+            .forLogMessage(".*Running the server in development mode\\. DO NOT use this configuration in production.*\\n", 1)
             .withStartupTimeout(startupTimeout)
         );
 
@@ -205,6 +204,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_SPI_THEME_STATIC_MAX_AGE", String.valueOf(2592000));
         }
 
+        commandParts.add("--health-enabled=true");
         commandParts.add("--metrics-enabled=" + metricsEnabled);
 
         if (debugEnabled) {
