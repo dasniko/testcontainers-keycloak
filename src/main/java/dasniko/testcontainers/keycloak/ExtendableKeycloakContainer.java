@@ -109,6 +109,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private String providerClassLocation;
     private List<File> providerLibsLocations;
+    private List<String> customCommandParts;
 
     /**
      * Create a KeycloakContainer with default image and version tag
@@ -222,17 +223,33 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             }
         }
 
+        if (customCommandParts != null) {
+            logger().warn("You are using custom command parts. " +
+                "Container behavior and configuration may be corrupted. " +
+                "You are self responsible for proper behavior and functionality!\n" +
+                "CustomCommandParts: {}", customCommandParts);
+            commandParts.addAll(customCommandParts);
+        }
+
         setCommand(commandParts.toArray(new String[0]));
     }
 
     @Override
     public SELF withCommand(String cmd) {
-        throw new IllegalStateException("You are trying to set custom container commands, which is currently not supported by this Testcontainer.");
+        throw new IllegalStateException("You are trying to set custom container commands, which is not supported by this Testcontainer. Try using the withCustomCommand() method.");
     }
 
     @Override
     public SELF withCommand(String... commandParts) {
-        throw new IllegalStateException("You are trying to set custom container commands, which is currently not supported by this Testcontainer.");
+        throw new IllegalStateException("You are trying to set custom container commands, which is not supported by this Testcontainer. Try using the withCustomCommand() method.");
+    }
+
+    public SELF withCustomCommand(String cmd) {
+        if (customCommandParts == null) {
+            customCommandParts = new ArrayList<>();
+        }
+        customCommandParts.add(cmd);
+        return self();
     }
 
     /**
