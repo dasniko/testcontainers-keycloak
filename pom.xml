@@ -51,7 +51,7 @@
 
     <properties>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <keycloak.version>24.0.0</keycloak.version>
+        <keycloak.version>24.0.3</keycloak.version>
         <logback.version>1.5.2</logback.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
