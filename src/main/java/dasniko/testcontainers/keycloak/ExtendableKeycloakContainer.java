@@ -186,13 +186,13 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             });
         }
 
+        commandParts.add("--import-realm");
         if (!importFiles.isEmpty()) {
             for (String importFile : importFiles) {
                 // TODO: a strategy for files with the same name but in the different dirs
                 String importFileInContainer = DEFAULT_REALM_IMPORT_FILES_LOCATION + FilenameUtils.getName(importFile);
                 withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
             }
-            commandParts.add("--import-realm");
         }
 
         /* caching is disabled per default in dev-mode, thus we overwrite that config, unless #withDisabledCaching() has been called */
