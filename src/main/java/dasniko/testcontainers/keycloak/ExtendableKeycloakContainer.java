@@ -507,8 +507,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return startupTimeout;
     }
 
+    @SuppressWarnings({"ConstantValue", "UnreachableCode"})
     public String getKeycloakDefaultVersion() {
-        return KEYCLOAK_VERSION;
+        return KEYCLOAK_VERSION.equals("nightly") ? "999.0.0-SNAPSHOT" : KEYCLOAK_VERSION;
     }
 
     private boolean isNotBlank(String s) {

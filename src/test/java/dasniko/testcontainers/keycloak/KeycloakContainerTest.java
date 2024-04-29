@@ -176,8 +176,7 @@ public class KeycloakContainerTest {
         Keycloak keycloakAdminClient = keycloak.getKeycloakAdminClient();
         ServerInfoRepresentation serverInfo = keycloakAdminClient.serverInfo().getInfo();
         assertThat(serverInfo, notNullValue());
-        assertThat(serverInfo.getSystemInfo().getVersion(), startsWith("999.0.0-SNAPSHOT"));
-//        assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakDefaultVersion()));
+        assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakDefaultVersion()));
     }
 
     private String getMetricsUrl(KeycloakContainer keycloak) {
