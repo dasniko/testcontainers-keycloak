@@ -84,10 +84,12 @@ String adminPassword = keycloak.getAdminPassword();
 with these properties, you can create e.g. a custom `org.keycloak.admin.client.Keycloak` object to connect to the container and do optional further configuration:
 
 ```java
+import dasniko.testcontainers.keycloak.KeycloakContainer;
+
 Keycloak keycloakAdminClient = KeycloakBuilder.builder()
     .serverUrl(keycloak.getAuthServerUrl())
-    .realm("master")
-    .clientId("admin-cli")
+    .realm(KeycloakContainer.MASTER_REALM)
+    .clientId(KeycloakContainer.ADMIN_CLI_CLIENT)
     .username(keycloak.getAdminUsername())
     .password(keycloak.getAdminPassword())
     .build();
@@ -331,6 +333,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 | 3.1.0                   | 1.18.3         | 22.0.5   |
 | 3.2.0                   | 1.19.3         | 23.0     |
 | 3.3.0                   | 1.19.6         | 24.0     |
+| 3.3.1                   | 1.19.6         | 24.0     |
 
 _There might also be other possible version configurations which will work._
 
