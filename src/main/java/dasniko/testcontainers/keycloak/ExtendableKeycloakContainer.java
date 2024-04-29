@@ -191,7 +191,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             for (String importFile : importFiles) {
                 // TODO: a strategy for files with the same name but in the different dirs
                 String importFileInContainer = DEFAULT_REALM_IMPORT_FILES_LOCATION + FilenameUtils.getName(importFile);
-                withCopyFileToContainer(MountableFile.forClasspathResource(importFile), importFileInContainer);
+                withCopyFileToContainer(MountableFile.forClasspathResource(importFile, 0644), importFileInContainer);
             }
         }
 
