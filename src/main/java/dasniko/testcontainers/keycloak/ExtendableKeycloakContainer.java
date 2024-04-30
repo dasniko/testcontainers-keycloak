@@ -138,15 +138,15 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         commandParts.add("start-dev");
 
         if (!contextPath.equals(KEYCLOAK_CONTEXT_PATH)) {
-            commandParts.add("--http-relative-path=" + contextPath);
+            withEnv("KC_HTTP_RELATIVE_PATH", contextPath);
         }
 
         if (featuresEnabled != null) {
-            commandParts.add("--features=" + String.join(",", featuresEnabled));
+            withEnv("KC_FEATURES", String.join(",", featuresEnabled));
         }
 
         if (featuresDisabled != null) {
-            commandParts.add("--features-disabled=" + String.join(",", featuresDisabled));
+            withEnv("KC_FEATURES_DISABLED", String.join(",", featuresDisabled));
         }
 
         withEnv("KEYCLOAK_ADMIN", adminUsername);
@@ -158,21 +158,22 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             String tlsCertKeyFilePath = "/opt/keycloak/conf/tls.key";
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateFilename), tlsCertFilePath);
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateKeyFilename), tlsCertKeyFilePath);
-            commandParts.add("--https-certificate-file=" + tlsCertFilePath);
-            commandParts.add("--https-certificate-key-file=" + tlsCertKeyFilePath);
+            withEnv("KC_HTTPS_CERTIFICATE_FILE", tlsCertFilePath);
+            withEnv("KC_HTTPS_CERTIFICATE_KEY_FILE", tlsCertKeyFilePath);
         } else if (useTls && isNotBlank(tlsKeystoreFilename)) {
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsKeystoreFilename), KEYSTORE_FILE_IN_CONTAINER);
-            commandParts.add("--https-key-store-file=" + KEYSTORE_FILE_IN_CONTAINER);
-            commandParts.add("--https-key-store-password=" + tlsKeystorePassword);
+            withEnv("KC_HTTPS_KEY_STORE_FILE", KEYSTORE_FILE_IN_CONTAINER);
+            withEnv("KC_HTTPS_KEY_STORE_PASSWORD", tlsKeystorePassword);
         }
         if (useTls && isNotBlank(tlsTruststoreFilename)) {
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsTruststoreFilename), TRUSTSTORE_FILE_IN_CONTAINER);
-            commandParts.add("--https-trust-store-file=" + TRUSTSTORE_FILE_IN_CONTAINER);
-            commandParts.add("--https-trust-store-password=" + tlsTruststorePassword);
-            commandParts.add("--https-client-auth=" + this.httpsClientAuth);
+            withEnv("KC_HTTPS_TRUST_STORE_FILE", TRUSTSTORE_FILE_IN_CONTAINER);
+            withEnv("KC_HTTPS_TRUST_STORE_PASSWORD", tlsTruststorePassword);
+            withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
         }
 
-        withEnv("KC_HEALTH_ENABLED", "true");
+        withEnv("KC_METRICS_ENABLED", Boolean.toString(metricsEnabled));
+        withEnv("KC_HEALTH_ENABLED", Boolean.toString(Boolean.TRUE));
         HttpWaitStrategy waitStrategy = Wait.forHttp(contextPath + "/health/started").forPort(KEYCLOAK_PORT_MGMT);
         if (useTls) {
             waitStrategy = waitStrategy.usingTls().allowInsecure();
@@ -208,10 +209,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_SPI_THEME_STATIC_MAX_AGE", String.valueOf(2592000));
         }
 
-        commandParts.add("--metrics-enabled=" + metricsEnabled);
-
         if (debugEnabled) {
-            commandParts.add("--debug");
+            withEnv("DEBUG", Boolean.toString(Boolean.TRUE));
             withEnv("DEBUG_PORT", "*:" + KEYCLOAK_PORT_DEBUG);
             if (debugHostPort > 0) {
                 addFixedExposedPort(debugHostPort, KEYCLOAK_PORT_DEBUG);
