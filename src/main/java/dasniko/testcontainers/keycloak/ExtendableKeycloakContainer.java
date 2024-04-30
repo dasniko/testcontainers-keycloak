@@ -23,6 +23,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.keycloak.admin.client.Keycloak;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.MountableFile;
 
@@ -63,6 +64,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
     private static final int KEYCLOAK_PORT_DEBUG = 8787;
+    private static final int KEYCLOAK_PORT_MGMT = 9000;
     private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
     private static final int DEFAULT_INITIAL_RAM_PERCENTAGE = 1;
     private static final int DEFAULT_MAX_RAM_PERCENTAGE = 5;
@@ -122,7 +124,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
      */
     public ExtendableKeycloakContainer(String dockerImageName) {
         super(dockerImageName);
-        withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS);
+        withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS, KEYCLOAK_PORT_MGMT);
         importFiles = new HashSet<>();
         withLogConsumer(new Slf4jLogConsumer(logger()));
     }
@@ -147,11 +149,6 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             commandParts.add("--features-disabled=" + String.join(",", featuresDisabled));
         }
 
-        setWaitStrategy(Wait
-            .forLogMessage(".*Running the server in development mode\\. DO NOT use this configuration in production.*\\n", 1)
-            .withStartupTimeout(startupTimeout)
-        );
-
         withEnv("KEYCLOAK_ADMIN", adminUsername);
         withEnv("KEYCLOAK_ADMIN_PASSWORD", adminPassword);
         withEnv("JAVA_OPTS_KC_HEAP", "-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d".formatted(initialRamPercentage, maxRamPercentage));
@@ -174,6 +171,13 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             commandParts.add("--https-trust-store-password=" + tlsTruststorePassword);
             commandParts.add("--https-client-auth=" + this.httpsClientAuth);
         }
+
+        withEnv("KC_HEALTH_ENABLED", "true");
+        HttpWaitStrategy waitStrategy = Wait.forHttp(contextPath + "/health/started").forPort(KEYCLOAK_PORT_MGMT);
+        if (useTls) {
+            waitStrategy = waitStrategy.usingTls().allowInsecure();
+        }
+        setWaitStrategy(waitStrategy.withStartupTimeout(startupTimeout));
 
         if (providerClassLocation != null) {
             createKeycloakExtensionProvider(providerClassLocation);
@@ -204,7 +208,6 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_SPI_THEME_STATIC_MAX_AGE", String.valueOf(2592000));
         }
 
-        commandParts.add("--health-enabled=true");
         commandParts.add("--metrics-enabled=" + metricsEnabled);
 
         if (debugEnabled) {
@@ -458,9 +461,12 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return ExtendableKeycloakContainer.class.getClassLoader().getResourceAsStream(filename);
     }
 
+    public String getProtocol() {
+        return "http%s".formatted(useTls ? "s": "");
+    }
+
     public String getAuthServerUrl() {
-        return String.format("http%s://%s:%s%s", useTls ? "s" : "", getHost(),
-            useTls ? getHttpsPort() : getHttpPort(), getContextPath());
+        return String.format("%s://%s:%s%s", getProtocol(), getHost(), useTls ? getHttpsPort() : getHttpPort(), getContextPath());
     }
 
     public String getAdminUsername() {
@@ -477,6 +483,10 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public int getHttpsPort() {
         return getMappedPort(KEYCLOAK_PORT_HTTPS);
+    }
+
+    public int getHttpMgmtPort() {
+        return getMappedPort(KEYCLOAK_PORT_MGMT);
     }
 
     /**
@@ -497,8 +507,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return startupTimeout;
     }
 
+    @SuppressWarnings({"ConstantValue", "UnreachableCode"})
     public String getKeycloakDefaultVersion() {
-        return KEYCLOAK_VERSION;
+        return KEYCLOAK_VERSION.equals("nightly") ? "999.0.0-SNAPSHOT" : KEYCLOAK_VERSION;
     }
 
     private boolean isNotBlank(String s) {

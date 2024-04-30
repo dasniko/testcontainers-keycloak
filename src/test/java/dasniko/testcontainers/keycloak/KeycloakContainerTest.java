@@ -130,8 +130,7 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
 
-            String authServerUrl = keycloak.getAuthServerUrl();
-            given().when().get(getMetricsUrl(authServerUrl))
+            given().when().get(getMetricsUrl(keycloak))
                 .then().statusCode(404);
         }
     }
@@ -141,8 +140,7 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer().withEnabledMetrics()) {
             keycloak.start();
 
-            String authServerUrl = keycloak.getAuthServerUrl();
-            given().when().get(getMetricsUrl(authServerUrl))
+            given().when().get(getMetricsUrl(keycloak))
                 .then().statusCode(200);
         }
     }
@@ -181,8 +179,9 @@ public class KeycloakContainerTest {
         assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakDefaultVersion()));
     }
 
-    private String getMetricsUrl(String authServerUrl) {
-        return authServerUrl + "/metrics";
+    private String getMetricsUrl(KeycloakContainer keycloak) {
+        return "%s://%s:%s%s/metrics"
+            .formatted(keycloak.getProtocol(), keycloak.getHost(), keycloak.getHttpMgmtPort(), keycloak.getContextPath());
     }
 
     private static int findFreePort() {

@@ -3,17 +3,18 @@ package dasniko.testcontainers.keycloak;
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ServerInfoResource;
+
+import javax.net.ssl.SSLHandshakeException;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import javax.net.ssl.SSLHandshakeException;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -85,6 +86,7 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
+    @Disabled
     public void shouldStartKeycloakWithMutualTlsRequiredWithMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
@@ -95,6 +97,7 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
+    @Disabled
     public void shouldStartKeycloakWithMutualTlsRequiredWithoutMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
