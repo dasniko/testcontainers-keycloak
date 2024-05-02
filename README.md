@@ -180,6 +180,19 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withFeaturesDisabled("authorization", "impersonation", "...");
 ```
 
+## Custom CLI Config arguments
+
+All default configurations in this Testcontainer is done through environment variables.
+You can overwrite and/or add config settings on command-line-level (cli args) with this method:
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withCustomCommand("--hostname=keycloak.local");
+```
+
+A warning will be printed to the log output when custom command parts are being used, so that you are aware that you are responsible on your own for proper execution of this container.
+
 ## Testing Custom Extensions
 
 To ease extension testing, you can tell the Keycloak Testcontainer to detect extensions in a given classpath folder.

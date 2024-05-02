@@ -1,5 +1,6 @@
 package dasniko.testcontainers.keycloak;
 
+import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -16,6 +17,7 @@ import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -118,9 +120,7 @@ public class KeycloakContainerTest {
             String authServerUrl = keycloak.getAuthServerUrl();
             assertThat(authServerUrl, endsWith(contextPath));
 
-            given().when().get(authServerUrl + "/realms/master/.well-known/openid-configuration")
-                .then().statusCode(200);
-
+            getWellKnownOpenidConfigurationResponse(authServerUrl);
             checkKeycloakContainerInternals(keycloak);
         }
     }
@@ -170,6 +170,20 @@ public class KeycloakContainerTest {
             assertThat(keycloak.getDebugPort(), is(fixedDebugPort));
             testDebugPortAvailable(keycloak.getHost(), keycloak.getDebugPort());
         }
+    }
+
+    @Test
+    void shouldUseCustomCommandPart() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withCustomCommand("--hostname=keycloak.local")) {
+            keycloak.start();
+            String issuer = getWellKnownOpenidConfigurationResponse(keycloak.getAuthServerUrl()).extract().path("issuer");
+            assertThat(issuer, containsString("keycloak.local"));
+        }
+    }
+
+    private static ValidatableResponse getWellKnownOpenidConfigurationResponse(String authServerUrl) {
+        return given().when().get(authServerUrl + "/realms/master/.well-known/openid-configuration")
+            .then().statusCode(200);
     }
 
     private void checkKeycloakContainerInternals(KeycloakContainer keycloak) {
