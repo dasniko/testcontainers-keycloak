@@ -20,11 +20,13 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jetbrains.annotations.NotNull;
 import org.keycloak.admin.client.Keycloak;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.utility.MountableFile;
 
 import javax.net.ssl.SSLContext;
@@ -58,6 +60,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public static final String MASTER_REALM = "master";
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
+    public static final WaitStrategy LOG_WAIT_STRATEGY = Wait.forLogMessage(".*Running the server in development mode\\. DO NOT use this configuration in production.*\\n", 1);
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
     private static final String KEYCLOAK_VERSION = "nightly";
@@ -107,6 +110,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private String[] featuresDisabled = null;
 
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
+    private boolean customWaitStrategySet = false;
 
     private List<String> providerClassLocations;
     private List<File> providerLibsLocations;
@@ -176,11 +180,13 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
         withEnv("KC_METRICS_ENABLED", Boolean.toString(metricsEnabled));
         withEnv("KC_HEALTH_ENABLED", Boolean.toString(Boolean.TRUE));
-        HttpWaitStrategy waitStrategy = Wait.forHttp(contextPath + "/health/started").forPort(KEYCLOAK_PORT_MGMT);
-        if (useTls) {
-            waitStrategy = waitStrategy.usingTls().allowInsecure();
+        if (!customWaitStrategySet) {
+            HttpWaitStrategy waitStrategy = Wait.forHttp(contextPath + "/health/started").forPort(KEYCLOAK_PORT_MGMT);
+            if (useTls) {
+                waitStrategy = waitStrategy.usingTls().allowInsecure();
+            }
+            setWaitStrategy(waitStrategy.withStartupTimeout(startupTimeout));
         }
-        setWaitStrategy(waitStrategy.withStartupTimeout(startupTimeout));
 
         if (providerClassLocations != null && !providerClassLocations.isEmpty()) {
             AtomicInteger index = new AtomicInteger(0);
@@ -248,6 +254,12 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     @Override
     public SELF withCommand(String... commandParts) {
         throw new IllegalStateException("You are trying to set custom container commands, which is not supported by this Testcontainer. Try using the withCustomCommand() method.");
+    }
+
+    @Override
+    public SELF waitingFor(@NotNull WaitStrategy waitStrategy) {
+        customWaitStrategySet = true;
+        return super.waitingFor(waitStrategy);
     }
 
     public SELF withCustomCommand(String cmd) {

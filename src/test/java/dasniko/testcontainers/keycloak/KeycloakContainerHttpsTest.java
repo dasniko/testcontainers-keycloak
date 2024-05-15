@@ -3,12 +3,13 @@ package dasniko.testcontainers.keycloak;
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ServerInfoResource;
 
 import javax.net.ssl.SSLHandshakeException;
+
+import java.time.Duration;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -86,22 +87,24 @@ public class KeycloakContainerHttpsTest {
     }
 
     @Test
-    @Disabled
     public void shouldStartKeycloakWithMutualTlsRequiredWithMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
-            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)) {
+            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
+            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
+        ) {
             keycloak.start();
             checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
         }
     }
 
     @Test
-    @Disabled
     public void shouldStartKeycloakWithMutualTlsRequiredWithoutMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
-            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)) {
+            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
+            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
+        ) {
             keycloak.start();
             assertThrows(SSLHandshakeException.class, () -> checkTls(keycloak, "keycloak.jks", "keycloak"));
         }
