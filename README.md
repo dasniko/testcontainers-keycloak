@@ -329,9 +329,10 @@ Read the docs about the Quarkus Test Resources and use `@QuarkusTestResource` wi
 
 Consult the docs of your application framework testing capabilities on how to dynamically configure your stack for testing!
 
-## YouTube Video about Keycloak Testcontainers
+## YouTube Videos about Keycloak Testcontainers
 
-[![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "")
+| [![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "") | [![](http://img.youtube.com/vi/l2Lk2Z9mHBs/maxresdefault.jpg)](http://www.youtube.com/watch?v=l2Lk2Z9mHBs "") |
+|---|---|
 
 
 ## Testcontainers & Keycloak version compatiblity
