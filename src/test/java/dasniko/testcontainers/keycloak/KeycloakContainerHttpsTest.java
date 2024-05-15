@@ -70,7 +70,8 @@ public class KeycloakContainerHttpsTest {
     public void shouldStartKeycloakWithMutualTlsRequestNoMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
-            .withMutualTls(List.of("keycloak.crt"), HttpsClientAuth.REQUEST)
+            .withTrustedCertificates(List.of("keycloak.crt"))
+            .withHttpsClientAuth(HttpsClientAuth.REQUEST)
         ) {
             keycloak.start();
             checkTls(keycloak, "keycloak.jks", "keycloak");
@@ -81,7 +82,8 @@ public class KeycloakContainerHttpsTest {
     public void shouldStartKeycloakWithMutualTlsRequestWithMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
-            .withMutualTls(List.of("keycloak.crt"), HttpsClientAuth.REQUEST)
+            .withTrustedCertificates(List.of("keycloak.crt"))
+            .withHttpsClientAuth(HttpsClientAuth.REQUEST)
         ) {
             keycloak.start();
             checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
@@ -92,7 +94,8 @@ public class KeycloakContainerHttpsTest {
     public void shouldStartKeycloakWithMutualTlsRequiredWithMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
-            .withMutualTls(List.of("keycloak.crt"), HttpsClientAuth.REQUIRED)
+            .withTrustedCertificates(List.of("keycloak.crt"))
+            .withHttpsClientAuth(HttpsClientAuth.REQUIRED)
             .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
         ) {
             keycloak.start();
@@ -104,7 +107,8 @@ public class KeycloakContainerHttpsTest {
     public void shouldStartKeycloakWithMutualTlsRequiredWithoutMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
-            .withMutualTls(List.of("keycloak.crt"), HttpsClientAuth.REQUIRED)
+            .withTrustedCertificates(List.of("keycloak.crt"))
+            .withHttpsClientAuth(HttpsClientAuth.REQUIRED)
             .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
         ) {
             keycloak.start();
@@ -114,12 +118,12 @@ public class KeycloakContainerHttpsTest {
 
     @Test
     public void shouldThrowNullPointerExceptionUponNullTlsTrustCertFilename() {
-        assertThrows(NullPointerException.class, () -> new KeycloakContainer().withMutualTls(null, HttpsClientAuth.NONE));
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer().withTrustedCertificates(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionUponNullHttpsClientAuth() {
-        assertThrows(NullPointerException.class, () -> new KeycloakContainer().withMutualTls(List.of("keycloak.crt"), null));
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer().withHttpsClientAuth(null));
     }
 
     @Test

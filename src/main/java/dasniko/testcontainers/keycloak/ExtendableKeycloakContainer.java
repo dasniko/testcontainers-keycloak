@@ -178,7 +178,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_HTTPS_TRUST_STORE_PASSWORD", tlsTruststorePassword);
             withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
         }
-        if (useTls && isNotEmpty(tlsTrustedCertificateFilenames)) {
+        if (isNotEmpty(tlsTrustedCertificateFilenames)) {
             List<String> truststorePaths = new ArrayList<>();
             tlsTrustedCertificateFilenames.forEach(certificateFilename -> {
                 String certPathInContainer = "/opt/keycloak/conf" + (certificateFilename.startsWith("/") ? "" : "/") + certificateFilename;
@@ -186,8 +186,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
                 truststorePaths.add(certPathInContainer);
             });
             withEnv("KC_TRUSTSTORE_PATHS", String.join(",", truststorePaths));
-            withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
         }
+        withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
 
         withEnv("KC_METRICS_ENABLED", Boolean.toString(metricsEnabled));
         withEnv("KC_HEALTH_ENABLED", Boolean.toString(Boolean.TRUE));
@@ -413,7 +413,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     /**
-     * @deprecated Will be removed soon! Use {@link #withMutualTls(List, HttpsClientAuth)} instead.
+     * @deprecated Will be removed soon! Use {@link #withTrustedCertificates(List)} and {@link #withHttpsClientAuth(HttpsClientAuth)} instead.
      */
     @Deprecated(forRemoval = true)
     public SELF useMutualTls(String tlsTruststoreFilename, String tlsTruststorePassword, HttpsClientAuth httpsClientAuth) {
@@ -428,17 +428,26 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     /**
-     * Configures the server to require/request client authentication with mTLS.
+     * Configure the Keycloak Truststore to communicate through TLS.
      *
      * @param tlsTrustedCertificateFilenames List of pkcs12 (p12 or pfx file extensions), PEM files, or directories containing those files
      *                                       that will be used as a system truststore.
+     * @return self
+     */
+    public SELF withTrustedCertificates(List<String> tlsTrustedCertificateFilenames) {
+        requireNonNull(tlsTrustedCertificateFilenames, "tlsTrustCertificateFilenames must not be null");
+        this.tlsTrustedCertificateFilenames = tlsTrustedCertificateFilenames;
+        return self();
+    }
+
+    /**
+     * Configures the server to require/request client authentication.
+     *
      * @param httpsClientAuth The http-client-auth mode
      * @return self
      */
-    public SELF withMutualTls(List<String> tlsTrustedCertificateFilenames, HttpsClientAuth httpsClientAuth) {
-        requireNonNull(tlsTrustedCertificateFilenames, "tlsTrustCertificateFilenames must not be null");
+    public SELF withHttpsClientAuth(HttpsClientAuth httpsClientAuth) {
         requireNonNull(httpsClientAuth, "httpsClientAuth must not be null");
-        this.tlsTrustedCertificateFilenames = tlsTrustedCertificateFilenames;
         this.httpsClientAuth = httpsClientAuth;
         this.useTls = true;
         return self();
