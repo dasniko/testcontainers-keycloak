@@ -3,7 +3,12 @@
 
 name: CI build
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+  pull_request:
 
 jobs:
   build:
