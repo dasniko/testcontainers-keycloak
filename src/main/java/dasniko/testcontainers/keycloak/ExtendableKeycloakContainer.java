@@ -76,13 +76,15 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_CONTEXT_PATH = "";
+    private static final String KEYCLOAK_HOME_DIR = "/opt/keycloak";
+    private static final String KEYCLOAK_CONF_DIR = KEYCLOAK_HOME_DIR + "/conf";
 
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_NAME = "providers.jar";
-    private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/keycloak/providers";
-    private static final String DEFAULT_REALM_IMPORT_FILES_LOCATION = "/opt/keycloak/data/import/";
+    private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = KEYCLOAK_HOME_DIR + "/providers";
+    private static final String DEFAULT_REALM_IMPORT_FILES_LOCATION = KEYCLOAK_HOME_DIR + "/data/import/";
 
-    private static final String KEYSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.keystore";
-    private static final String TRUSTSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.truststore";
+    private static final String KEYSTORE_FILE_IN_CONTAINER = KEYCLOAK_CONF_DIR + "/server.keystore";
+    private static final String TRUSTSTORE_FILE_IN_CONTAINER = KEYCLOAK_CONF_DIR + "/server.truststore";
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
@@ -161,8 +163,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         withEnv("JAVA_OPTS_KC_HEAP", "-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d".formatted(initialRamPercentage, maxRamPercentage));
 
         if (useTls && isNotBlank(tlsCertificateFilename)) {
-            String tlsCertFilePath = "/opt/keycloak/conf/tls.crt";
-            String tlsCertKeyFilePath = "/opt/keycloak/conf/tls.key";
+            String tlsCertFilePath = KEYCLOAK_CONF_DIR + "/tls.crt";
+            String tlsCertKeyFilePath = KEYCLOAK_CONF_DIR + "/tls.key";
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateFilename), tlsCertFilePath);
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateKeyFilename), tlsCertKeyFilePath);
             withEnv("KC_HTTPS_CERTIFICATE_FILE", tlsCertFilePath);
@@ -176,12 +178,11 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsTruststoreFilename), TRUSTSTORE_FILE_IN_CONTAINER);
             withEnv("KC_HTTPS_TRUST_STORE_FILE", TRUSTSTORE_FILE_IN_CONTAINER);
             withEnv("KC_HTTPS_TRUST_STORE_PASSWORD", tlsTruststorePassword);
-            withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
         }
         if (isNotEmpty(tlsTrustedCertificateFilenames)) {
             List<String> truststorePaths = new ArrayList<>();
             tlsTrustedCertificateFilenames.forEach(certificateFilename -> {
-                String certPathInContainer = "/opt/keycloak/conf" + (certificateFilename.startsWith("/") ? "" : "/") + certificateFilename;
+                String certPathInContainer = KEYCLOAK_CONF_DIR + (certificateFilename.startsWith("/") ? "" : "/") + certificateFilename;
                 withCopyFileToContainer(MountableFile.forClasspathResource(certificateFilename), certPathInContainer);
                 truststorePaths.add(certPathInContainer);
             });
