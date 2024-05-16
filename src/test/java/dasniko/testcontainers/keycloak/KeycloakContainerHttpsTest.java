@@ -160,64 +160,6 @@ public class KeycloakContainerHttpsTest {
         }
     }
 
-    // DEPRECATED LEGACY TESTS (for removal when #useMutualTls() method is being removed)
-
-    @Test
-    public void shouldStartKeycloakWithMutualTlsRequestNoMutualTls_legacy() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
-            .useTlsKeystore("keycloak.jks", "keycloak")
-            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUEST)) {
-            keycloak.start();
-            checkTls(keycloak, "keycloak.jks", "keycloak");
-        }
-    }
-
-    @Test
-    public void shouldStartKeycloakWithMutualTlsRequestWithMutualTls_legacy() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
-            .useTlsKeystore("keycloak.jks", "keycloak")
-            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUEST)) {
-            keycloak.start();
-            checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
-        }
-    }
-
-    @Test
-    public void shouldStartKeycloakWithMutualTlsRequiredWithMutualTls_legacy() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
-            .useTlsKeystore("keycloak.jks", "keycloak")
-            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
-            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
-        ) {
-            keycloak.start();
-            checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
-        }
-    }
-
-    @Test
-    public void shouldStartKeycloakWithMutualTlsRequiredWithoutMutualTls_legacy() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
-            .useTlsKeystore("keycloak.jks", "keycloak")
-            .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
-            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
-        ) {
-            keycloak.start();
-            assertThrows(SSLHandshakeException.class, () -> checkTls(keycloak, "keycloak.jks", "keycloak"));
-        }
-    }
-
-    @Test
-    public void shouldThrowNullPointerExceptionUponNullTlsTruststoreFilename_legacy() {
-        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useMutualTls(null, null, HttpsClientAuth.NONE));
-    }
-
-    @Test
-    public void shouldThrowNullPointerExceptionUponNullHttpsClientAuth_legacy() {
-        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useMutualTls("keycloak.jks", null, null));
-    }
-
-    // END DEPRECATED LEGACY TESTS
-
     private void checkTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword) {
         RestAssured.config = RestAssured.config().sslConfig(
             SSLConfig.sslConfig().trustStore(pathToTruststore, truststorePassword)
