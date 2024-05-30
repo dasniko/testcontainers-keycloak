@@ -76,13 +76,15 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_CONTEXT_PATH = "";
+    private static final String KEYCLOAK_HOME_DIR = "/opt/keycloak";
+    private static final String KEYCLOAK_CONF_DIR = KEYCLOAK_HOME_DIR + "/conf";
 
     private static final String DEFAULT_KEYCLOAK_PROVIDERS_NAME = "providers.jar";
-    private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = "/opt/keycloak/providers";
-    private static final String DEFAULT_REALM_IMPORT_FILES_LOCATION = "/opt/keycloak/data/import/";
+    private static final String DEFAULT_KEYCLOAK_PROVIDERS_LOCATION = KEYCLOAK_HOME_DIR + "/providers";
+    private static final String DEFAULT_REALM_IMPORT_FILES_LOCATION = KEYCLOAK_HOME_DIR + "/data/import/";
 
-    private static final String KEYSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.keystore";
-    private static final String TRUSTSTORE_FILE_IN_CONTAINER = "/opt/keycloak/conf/server.truststore";
+    private static final String KEYSTORE_FILE_IN_CONTAINER = KEYCLOAK_CONF_DIR + "/server.keystore";
+    private static final String TRUSTSTORE_FILE_IN_CONTAINER = KEYCLOAK_CONF_DIR + "/server.truststore";
 
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
@@ -97,6 +99,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private String tlsKeystorePassword;
     private String tlsTruststoreFilename;
     private String tlsTruststorePassword;
+    private List<String> tlsTrustedCertificateFilenames;
     private boolean useTls = false;
     private boolean disabledCaching = false;
     private boolean metricsEnabled = false;
@@ -160,8 +163,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         withEnv("JAVA_OPTS_KC_HEAP", "-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d".formatted(initialRamPercentage, maxRamPercentage));
 
         if (useTls && isNotBlank(tlsCertificateFilename)) {
-            String tlsCertFilePath = "/opt/keycloak/conf/tls.crt";
-            String tlsCertKeyFilePath = "/opt/keycloak/conf/tls.key";
+            String tlsCertFilePath = KEYCLOAK_CONF_DIR + "/tls.crt";
+            String tlsCertKeyFilePath = KEYCLOAK_CONF_DIR + "/tls.key";
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateFilename), tlsCertFilePath);
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsCertificateKeyFilename), tlsCertKeyFilePath);
             withEnv("KC_HTTPS_CERTIFICATE_FILE", tlsCertFilePath);
@@ -175,8 +178,17 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withCopyFileToContainer(MountableFile.forClasspathResource(tlsTruststoreFilename), TRUSTSTORE_FILE_IN_CONTAINER);
             withEnv("KC_HTTPS_TRUST_STORE_FILE", TRUSTSTORE_FILE_IN_CONTAINER);
             withEnv("KC_HTTPS_TRUST_STORE_PASSWORD", tlsTruststorePassword);
-            withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
         }
+        if (isNotEmpty(tlsTrustedCertificateFilenames)) {
+            List<String> truststorePaths = new ArrayList<>();
+            tlsTrustedCertificateFilenames.forEach(certificateFilename -> {
+                String certPathInContainer = KEYCLOAK_CONF_DIR + (certificateFilename.startsWith("/") ? "" : "/") + certificateFilename;
+                withCopyFileToContainer(MountableFile.forClasspathResource(certificateFilename), certPathInContainer);
+                truststorePaths.add(certPathInContainer);
+            });
+            withEnv("KC_TRUSTSTORE_PATHS", String.join(",", truststorePaths));
+        }
+        withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
 
         withEnv("KC_METRICS_ENABLED", Boolean.toString(metricsEnabled));
         withEnv("KC_HEALTH_ENABLED", Boolean.toString(Boolean.TRUE));
@@ -401,12 +413,42 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return self();
     }
 
+    /**
+     * @deprecated Will be removed soon! Use {@link #withTrustedCertificates(List)} and {@link #withHttpsClientAuth(HttpsClientAuth)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public SELF useMutualTls(String tlsTruststoreFilename, String tlsTruststorePassword, HttpsClientAuth httpsClientAuth) {
         requireNonNull(tlsTruststoreFilename, "tlsTruststoreFilename must not be null");
         requireNonNull(tlsTruststorePassword, "tlsTruststorePassword must not be null");
         requireNonNull(httpsClientAuth, "httpsClientAuth must not be null");
         this.tlsTruststoreFilename = tlsTruststoreFilename;
         this.tlsTruststorePassword = tlsTruststorePassword;
+        this.httpsClientAuth = httpsClientAuth;
+        this.useTls = true;
+        return self();
+    }
+
+    /**
+     * Configure the Keycloak Truststore to communicate through TLS.
+     *
+     * @param tlsTrustedCertificateFilenames List of pkcs12 (p12 or pfx file extensions), PEM files, or directories containing those files
+     *                                       that will be used as a system truststore.
+     * @return self
+     */
+    public SELF withTrustedCertificates(List<String> tlsTrustedCertificateFilenames) {
+        requireNonNull(tlsTrustedCertificateFilenames, "tlsTrustCertificateFilenames must not be null");
+        this.tlsTrustedCertificateFilenames = tlsTrustedCertificateFilenames;
+        return self();
+    }
+
+    /**
+     * Configures the server to require/request client authentication.
+     *
+     * @param httpsClientAuth The http-client-auth mode
+     * @return self
+     */
+    public SELF withHttpsClientAuth(HttpsClientAuth httpsClientAuth) {
+        requireNonNull(httpsClientAuth, "httpsClientAuth must not be null");
         this.httpsClientAuth = httpsClientAuth;
         this.useTls = true;
         return self();
@@ -548,6 +590,10 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private boolean isNotBlank(String s) {
         return s != null && !s.trim().isEmpty();
+    }
+
+    private boolean isNotEmpty(List<String> l) {
+        return l != null && !l.isEmpty();
     }
 
 }
