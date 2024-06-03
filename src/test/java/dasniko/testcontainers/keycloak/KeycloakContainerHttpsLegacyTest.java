@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLHandshakeException;
-import java.time.Duration;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,7 +45,6 @@ public class KeycloakContainerHttpsLegacyTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
             .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
-            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
         ) {
             keycloak.start();
             checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
@@ -58,7 +56,6 @@ public class KeycloakContainerHttpsLegacyTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
             .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
-            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
         ) {
             keycloak.start();
             assertThrows(SSLHandshakeException.class, () -> checkTls(keycloak, "keycloak.jks", "keycloak"));

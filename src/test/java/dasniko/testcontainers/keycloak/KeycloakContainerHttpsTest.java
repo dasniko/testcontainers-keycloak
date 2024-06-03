@@ -8,7 +8,6 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ServerInfoResource;
 
 import javax.net.ssl.SSLHandshakeException;
-import java.time.Duration;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -96,7 +95,6 @@ public class KeycloakContainerHttpsTest {
             .useTlsKeystore("keycloak.jks", "keycloak")
             .withTrustedCertificates(List.of("keycloak.crt"))
             .withHttpsClientAuth(HttpsClientAuth.REQUIRED)
-            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
         ) {
             keycloak.start();
             checkMutualTls(keycloak, "keycloak.jks", "keycloak", "keycloak.jks", "keycloak");
@@ -109,7 +107,6 @@ public class KeycloakContainerHttpsTest {
             .useTlsKeystore("keycloak.jks", "keycloak")
             .withTrustedCertificates(List.of("keycloak.crt"))
             .withHttpsClientAuth(HttpsClientAuth.REQUIRED)
-            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2))) // this is hopefully only a workaround until mgmt port does not require mutual tls
         ) {
             keycloak.start();
             assertThrows(SSLHandshakeException.class, () -> checkTls(keycloak, "keycloak.jks", "keycloak"));
