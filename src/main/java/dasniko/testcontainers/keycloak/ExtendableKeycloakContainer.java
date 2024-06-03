@@ -189,6 +189,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_TRUSTSTORE_PATHS", String.join(",", truststorePaths));
         }
         withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
+        withEnv("KC_HTTPS_MANAGEMENT_CLIENT_AUTH", HttpsClientAuth.NONE.toString());
 
         withEnv("KC_METRICS_ENABLED", Boolean.toString(metricsEnabled));
         withEnv("KC_HEALTH_ENABLED", Boolean.toString(Boolean.TRUE));
