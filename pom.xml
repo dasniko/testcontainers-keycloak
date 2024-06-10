@@ -49,9 +49,19 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>jboss-snapshots</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <properties>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <keycloak.version>25.0.0</keycloak.version>
+        <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
         <logback.version>1.5.2</logback.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
