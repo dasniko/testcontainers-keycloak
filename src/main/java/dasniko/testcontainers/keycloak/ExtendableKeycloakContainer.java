@@ -129,7 +129,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     /**
      * Create a KeycloakContainer by passing the full docker image name
      *
-     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:24.0
+     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:25.0
      */
     public ExtendableKeycloakContainer(String dockerImageName) {
         super(dockerImageName);
