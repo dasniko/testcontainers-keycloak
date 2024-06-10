@@ -4,7 +4,7 @@
 
     <groupId>com.github.dasniko</groupId>
     <artifactId>testcontainers-keycloak</artifactId>
-    <version>999.0.0-SNAPSHOT</version>
+    <version>3.4.0</version>
 
     <name>Testcontainers Keycloak</name>
     <description>A Testcontainers implementation for Keycloak SSO.</description>
@@ -30,7 +30,7 @@
         <url>https://github.com/dasniko/testcontainers-keycloak</url>
         <connection>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</connection>
         <developerConnection>scm:git:git@github.com:dasniko/testcontainers-keycloak.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>3.4.0</tag>
     </scm>
 
     <issueManagement>
