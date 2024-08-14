@@ -73,6 +73,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private static final int DEFAULT_INITIAL_RAM_PERCENTAGE = 1;
     private static final int DEFAULT_MAX_RAM_PERCENTAGE = 5;
 
+    private static final String KEYCLOAK_START_DEV_COMMAND = "start-dev";
+    private static final String KEYCLOAK_START_PRODUCTION_COMMAND = "start";
     private static final String KEYCLOAK_ADMIN_USER = "admin";
     private static final String KEYCLOAK_ADMIN_PASSWORD = "admin";
     private static final String KEYCLOAK_CONTEXT_PATH = "";
@@ -86,6 +88,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private static final String KEYSTORE_FILE_IN_CONTAINER = KEYCLOAK_CONF_DIR + "/server.keystore";
     private static final String TRUSTSTORE_FILE_IN_CONTAINER = KEYCLOAK_CONF_DIR + "/server.truststore";
 
+    private String startupCommand = KEYCLOAK_START_DEV_COMMAND;
     private String adminUsername = KEYCLOAK_ADMIN_USER;
     private String adminPassword = KEYCLOAK_ADMIN_PASSWORD;
     private String contextPath = KEYCLOAK_CONTEXT_PATH;
@@ -144,7 +147,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         if (useVerbose) {
             commandParts.add("--verbose");
         }
-        commandParts.add("start-dev");
+        commandParts.add(startupCommand);
 
         if (!contextPath.equals(KEYCLOAK_CONTEXT_PATH)) {
             withEnv("KC_HTTP_RELATIVE_PATH", contextPath);
@@ -331,6 +334,11 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             .getParent()
             .resolve(extensionClassFolder)
             .toString();
+    }
+
+    public SELF withProductionMode() {
+        this.startupCommand = KEYCLOAK_START_PRODUCTION_COMMAND;
+        return self();
     }
 
     public SELF withRealmImportFile(String importFile) {

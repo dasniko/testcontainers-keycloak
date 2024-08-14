@@ -191,6 +191,17 @@ KeycloakContainer keycloak = new KeycloakContainer()
 
 A warning will be printed to the log output when custom command parts are being used, so that you are aware that you are responsible on your own for proper execution of this container.
 
+## Starting in production mode
+
+By default, the container is started in dev mode (`start-dev`).
+If needed you can enable production mode: 
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withProductionMode();
+```
+
 ## Testing Custom Extensions
 
 To ease extension testing, you can tell the Keycloak Testcontainer to detect extensions in a given classpath folder.
