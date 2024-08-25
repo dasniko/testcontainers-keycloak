@@ -161,8 +161,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_FEATURES_DISABLED", String.join(",", featuresDisabled));
         }
 
-        withEnv("KEYCLOAK_ADMIN", adminUsername);
-        withEnv("KEYCLOAK_ADMIN_PASSWORD", adminPassword);
+        withEnv("KC_BOOTSTRAP_ADMIN_USERNAME", adminUsername);
+        withEnv("KC_BOOTSTRAP_ADMIN_PASSWORD", adminPassword);
         withEnv("JAVA_OPTS_KC_HEAP", "-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d".formatted(initialRamPercentage, maxRamPercentage));
 
         if (useTls && isNotBlank(tlsCertificateFilename)) {
