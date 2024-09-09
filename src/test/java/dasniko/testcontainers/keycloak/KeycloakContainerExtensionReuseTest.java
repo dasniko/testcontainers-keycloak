@@ -6,10 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.representations.idm.ClientRepresentation;
 
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,13 +29,8 @@ public class KeycloakContainerExtensionReuseTest {
     @BeforeAll
     public static void beforeAll() {
         KEYCLOAK.start();
-
         Keycloak keycloakClient = KEYCLOAK.getKeycloakAdminClient();
-
-        RealmResource realm = keycloakClient.realm(KeycloakContainer.MASTER_REALM);
-        ClientRepresentation client = realm.clients().findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
-
-        KeycloakContainerExtensionTest.configureCustomOidcProtocolMapper(realm, client);
+        KeycloakContainerExtensionTest.configureCustomOidcProtocolMapper(keycloakClient);
     }
 
     @AfterAll
