@@ -22,6 +22,8 @@ import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jetbrains.annotations.NotNull;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.ClientsResource;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -518,6 +521,15 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         } else {
             return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT);
         }
+    }
+
+    public void disableLightweightAccessTokenForAdminCliClient(String realm) {
+        ClientsResource clients = getKeycloakAdminClient().realm(realm).clients();
+        ClientRepresentation client = clients.findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
+        Map<String, String> attributes = client.getAttributes();
+        attributes.put("client.use.lightweight.access.token.enabled", "false");
+        client.setAttributes(attributes);
+        clients.get(client.getId()).update(client);
     }
 
     private SSLContext buildSslContext() {
