@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.models.Constants;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.representations.AccessToken;
@@ -56,11 +55,9 @@ public class KeycloakContainerExtensionTest {
             .withRealmImportFile(TEST_REALM_JSON)) {
             keycloak.start();
 
+            configureCustomOidcProtocolMapper(keycloak);
+
             Keycloak keycloakClient = keycloak.getKeycloakAdminClient();
-
-            configureCustomOidcProtocolMapper(keycloakClient);
-
-            keycloakClient.tokenManager().refreshToken();
             AccessTokenResponse tokenResponse = keycloakClient.tokenManager().getAccessToken();
 
             // parse the received access-token
@@ -161,15 +158,8 @@ public class KeycloakContainerExtensionTest {
     /**
      * Configures the {@link TestOidcProtocolMapper} to the given client in the given realm.
      */
-    static void configureCustomOidcProtocolMapper(Keycloak keycloakClient) {
-        RealmResource realm = keycloakClient.realm(KeycloakContainer.MASTER_REALM);
-        ClientRepresentation client = realm.clients().findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
-
-        // first we have to disable lightweight access_token, which is default now in the admin-cli client
-        Map<String, String> attributes = client.getAttributes();
-        attributes.put(Constants.USE_LIGHTWEIGHT_ACCESS_TOKEN_ENABLED, Boolean.FALSE.toString());
-        client.setAttributes(attributes);
-        realm.clients().get(client.getId()).update(client);
+    static void configureCustomOidcProtocolMapper(KeycloakContainer keycloak) {
+        keycloak.disableLightweightAccessTokenForAdminCliClient(KeycloakContainer.MASTER_REALM);
 
         ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
         mapper.setProtocol(OIDCLoginProtocol.LOGIN_PROTOCOL);
@@ -179,6 +169,8 @@ public class KeycloakContainerExtensionTest {
         config.put(OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN, "true");
         mapper.setConfig(config);
 
+        RealmResource realm = keycloak.getKeycloakAdminClient().realm(KeycloakContainer.MASTER_REALM);
+        ClientRepresentation client = realm.clients().findByClientId(KeycloakContainer.ADMIN_CLI_CLIENT).get(0);
         realm.clients().get(client.getId()).getProtocolMappers().createMapper(mapper).close();
     }
 }

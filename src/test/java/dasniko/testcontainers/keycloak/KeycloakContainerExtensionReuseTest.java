@@ -29,8 +29,7 @@ public class KeycloakContainerExtensionReuseTest {
     @BeforeAll
     public static void beforeAll() {
         KEYCLOAK.start();
-        Keycloak keycloakClient = KEYCLOAK.getKeycloakAdminClient();
-        KeycloakContainerExtensionTest.configureCustomOidcProtocolMapper(keycloakClient);
+        KeycloakContainerExtensionTest.configureCustomOidcProtocolMapper(KEYCLOAK);
     }
 
     @AfterAll
