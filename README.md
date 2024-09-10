@@ -103,6 +103,16 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withContextPath("/auth");
 ```
 
+### Management Port
+
+Starting from Keycloak version 25.0.0, Keycloak will propagate `/health` and `/metrics` on "Management Port", see [Configuraing the Management Interface](https://www.keycloak.org/server/management-interface) and [Migration Guide](https://www.keycloak.org/docs/latest/upgrading/index.html#management-port-for-metrics-and-health-endpoints)
+
+```java
+KeycloakContainer keycloak = new KeycloakContainer().withEnabledMetrics()
+keycloak.start();
+keycloak.getMgmtServerUrl();
+```
+
 ### Memory Settings
 
 As of Keycloak 24 the container doesn't use an absolute amount of memory, but a relative percentage of the overall available memory to the container, [see also here](https://www.keycloak.org/server/containers#_specifying_different_memory_settings).
