@@ -193,11 +193,6 @@ public class KeycloakContainerTest {
         assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakDefaultVersion()));
     }
 
-//    private String getMetricsUrl(KeycloakContainer keycloak) {
-//        return "%s://%s:%s%s/metrics"
-//            .formatted(keycloak.getProtocol(), keycloak.getHost(), keycloak.getHttpMgmtPort(), keycloak.getContextPath());
-//    }
-
     private static int findFreePort() {
         try (var serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();
