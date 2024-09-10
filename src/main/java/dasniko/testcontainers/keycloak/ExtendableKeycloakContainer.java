@@ -565,6 +565,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public String getAuthServerUrl() {
         return String.format("%s://%s:%s%s", getProtocol(), getHost(), useTls ? getHttpsPort() : getHttpPort(), getContextPath());
     }
+    public String getMgmtServerUrl() {
+        return String.format("%s://%s:%s%s", getProtocol(), getHost(), getHttpMgmtPort(), getContextPath());
+    }
 
     public String getAdminUsername() {
         return adminUsername;

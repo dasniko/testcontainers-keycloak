@@ -130,7 +130,7 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer()) {
             keycloak.start();
 
-            given().when().get(getMetricsUrl(keycloak))
+            given().when().get(keycloak.getMgmtServerUrl() + "/metrics")
                 .then().statusCode(404);
         }
     }
@@ -140,7 +140,7 @@ public class KeycloakContainerTest {
         try (KeycloakContainer keycloak = new KeycloakContainer().withEnabledMetrics()) {
             keycloak.start();
 
-            given().when().get(getMetricsUrl(keycloak))
+            given().when().get(keycloak.getMgmtServerUrl() + "/metrics")
                 .then().statusCode(200);
         }
     }
@@ -193,10 +193,10 @@ public class KeycloakContainerTest {
         assertThat(serverInfo.getSystemInfo().getVersion(), startsWith(keycloak.getKeycloakDefaultVersion()));
     }
 
-    private String getMetricsUrl(KeycloakContainer keycloak) {
-        return "%s://%s:%s%s/metrics"
-            .formatted(keycloak.getProtocol(), keycloak.getHost(), keycloak.getHttpMgmtPort(), keycloak.getContextPath());
-    }
+//    private String getMetricsUrl(KeycloakContainer keycloak) {
+//        return "%s://%s:%s%s/metrics"
+//            .formatted(keycloak.getProtocol(), keycloak.getHost(), keycloak.getHttpMgmtPort(), keycloak.getContextPath());
+//    }
 
     private static int findFreePort() {
         try (var serverSocket = new ServerSocket(0)) {
