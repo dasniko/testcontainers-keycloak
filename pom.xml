@@ -13,8 +13,8 @@
     <developers>
         <developer>
             <id>dasniko</id>
-            <name>Niko Köbler</name>
-            <email>niko@n-k.de</email>
+            <name>Niko Köbler (@dasniko) Expert for Keycloak IAM &amp; SSO</name>
+            <email>info@n-k.de</email>
             <url>https://www.n-k.de</url>
         </developer>
     </developers>
@@ -214,7 +214,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.5.0</version>
+                        <version>3.10.1</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -227,7 +227,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.2.1</version>
+                        <version>3.3.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
