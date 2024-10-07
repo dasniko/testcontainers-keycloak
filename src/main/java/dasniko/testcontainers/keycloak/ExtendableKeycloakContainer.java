@@ -66,7 +66,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public static final WaitStrategy LOG_WAIT_STRATEGY = Wait.forLogMessage(".*Running the server in development mode\\. DO NOT use this configuration in production.*\\n", 1);
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "nightly";
+    private static final String KEYCLOAK_VERSION = "26.0";
 
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
@@ -135,7 +135,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     /**
      * Create a KeycloakContainer by passing the full docker image name
      *
-     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:25.0
+     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:26.0
      */
     public ExtendableKeycloakContainer(String dockerImageName) {
         super(dockerImageName);

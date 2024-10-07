@@ -6,7 +6,8 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
 ![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-25.0-blue)
+![](https://img.shields.io/badge/Keycloak-26.0-blue)
+![](https://img.shields.io/badge/Java-17-f89820)
 
 ## IMPORTANT!!!
 
@@ -34,7 +35,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:25.0");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.0");
 ```
 
 ### Realm Import
@@ -368,6 +369,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 | 3.3.0                   | 1.19.6         | 24.0     |
 | 3.3.1                   | 1.19.6         | 24.0     |
 | 3.4.0                   | 1.19.8         | 25.0     |
+| 3.5.0                   | 1.20.2         | 26.0     |
 
 _There might also be other possible version configurations which will work._
 
@@ -386,6 +388,6 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 Apache License 2.0
 
-Copyright (c) 2019-2023 Niko Köbler
+Copyright (c) 2019-2024 Niko Köbler
 
 See [LICENSE](LICENSE) file for details.
