@@ -9,11 +9,12 @@ on:
       - main
       - 'release/**'
     paths-ignore:
-      - '.github/ISSUE_TEMPLATE/*.yaml'
+      - '.github/ISSUE_TEMPLATE/*.yml'
+      - 'pom.xml'
       - 'README.md'
   pull_request:
     paths-ignore:
-      - '.github/ISSUE_TEMPLATE/*.yaml'
+      - '.github/ISSUE_TEMPLATE/*.yml'
       - 'README.md'
   schedule:
     - cron: "0 3 * * 0"
