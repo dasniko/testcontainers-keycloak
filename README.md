@@ -2,12 +2,16 @@
 
 A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
 
-[![CI build](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml/badge.svg)](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml)
-![](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)
+[![GitHub Release](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)](https://github.com/dasniko/testcontainers-keycloak/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
-![](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
-![](https://img.shields.io/badge/Keycloak-26.0-blue)
-![](https://img.shields.io/badge/Java-17-f89820)
+![GitHub Release Date](https://img.shields.io/github/release-date-pre/dasniko/testcontainers-keycloak)
+![Github Last Commit](https://img.shields.io/github/last-commit/dasniko/testcontainers-keycloak)
+![License](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
+
+[![Keycloak Version](https://img.shields.io/badge/Keycloak-26.0-blue)](https://www.keycloak.org)
+![Java Version](https://img.shields.io/badge/Java-17-f89820)
+[![GitHub Stars](https://img.shields.io/github/stars/dasniko/testcontainers-keycloak)](https://github.com/dasniko/testcontainers-keycloak/stargazers)
+[![CI build](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml/badge.svg)](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml)
 
 ## IMPORTANT!!!
 
@@ -329,7 +333,7 @@ when declaring the dependency to `testcontainers-keycloak` to avoid issues. Exam
 
 ## Usage in your application framework tests
 
-> This info is not specific to the Keycloak Testcontainer, but using Testcontainers generally.
+> This info is not specific to the Keycloak Testcontainer, but using Testcontainers in general.
 
 I mention it here, as I see people asking again and again on how to use it in their test setup, when they think they need to specify a fixed port in their properties or YAML files...  
 You don't have to!  
@@ -363,13 +367,12 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 
 | Testcontainers-Keycloak | Testcontainers | Keycloak |
 |-------------------------|----------------|----------|
-| 3.0.0                   | 1.18.3         | 22.0     |
-| 3.1.0                   | 1.18.3         | 22.0.5   |
-| 3.2.0                   | 1.19.3         | 23.0     |
-| 3.3.0                   | 1.19.6         | 24.0     |
-| 3.3.1                   | 1.19.6         | 24.0     |
-| 3.4.0                   | 1.19.8         | 25.0     |
-| 3.5.0                   | 1.20.2         | 26.0     |
+| 3.0.x                   | 1.18.3         | 22.0     |
+| 3.1.x                   | 1.18.3         | 22.0.5   |
+| 3.2.x                   | 1.19.3         | 23.0     |
+| 3.3.x                   | 1.19.6         | 24.0     |
+| 3.4.x                   | 1.19.8         | 25.0     |
+| 3.5.x                   | 1.20.2         | 26.0     |
 
 _There might also be other possible version configurations which will work._
 
