@@ -15,9 +15,8 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 
 ## IMPORTANT!!!
 
-> This version branch (3.x) only handles Keycloak from version **22.x** and up, as there are major changes coming with this release.
-> See also the [blog post](https://www.keycloak.org/2023/07/keycloak-2200-released.html).  
-> See also [compatibility matrix](#testcontainers--keycloak-version-compatiblity)
+> This version branch (3.x) only handles Keycloak from version **22.x** and up, as there are major changes coming with this release (see the [blog post](https://www.keycloak.org/2023/07/keycloak-2200-released.html)).  
+> See also [compatibility matrix](#testcontainers--keycloak-version-compatiblity).  
 > For older Keycloak versions (until 21.x), see [version 2.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v2).
 
 ## How to use
