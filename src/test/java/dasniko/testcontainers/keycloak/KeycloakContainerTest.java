@@ -1,6 +1,7 @@
 package dasniko.testcontainers.keycloak;
 
 import io.restassured.response.ValidatableResponse;
+import jakarta.ws.rs.NotAuthorizedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -23,6 +24,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class KeycloakContainerTest {
 
     public static final String TEST_REALM_JSON = "/test-realm.json";
+    public static final String MASTER_REALM_USERS_JSON = "/master-realm.json";
 
     @Test
     public void shouldStartKeycloak() {
@@ -88,6 +91,22 @@ public class KeycloakContainerTest {
                 .extract().path("account-service");
 
             given().when().get(accountService).then().statusCode(200);
+        }
+    }
+
+    @Test
+    public void shouldImportMasterRealmAdmin() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .withoutBootstrapAdmin()
+            .withRealmImportFiles(MASTER_REALM_USERS_JSON)) {
+            keycloak.start();
+
+            // Throws because we have imported a different admin user with different password
+            assertThrows(NotAuthorizedException.class, () -> keycloak.getKeycloakAdminClient().tokenManager().getAccessToken());
+
+            // Set password from imported realm, see json file
+            keycloak.withAdminPassword("password");
+            keycloak.getKeycloakAdminClient().tokenManager().getAccessToken();
         }
     }
 

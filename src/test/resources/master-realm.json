@@ -1,0 +1,23 @@
+{
+    "realm": "master",
+    "enabled": true,
+    "users": [
+        {
+            "username": "admin",
+            "firstName": "Example",
+            "lastName": "User",
+            "email": "example@keycloak.org",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password"
+                }
+            ],
+            "realmRoles": [
+                "admin",
+                "default-roles-master"
+            ]
+        }
+    ]
+}

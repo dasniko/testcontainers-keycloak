@@ -125,6 +125,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private List<File> providerLibsLocations;
     private List<String> customCommandParts;
 
+    private boolean bootstrapAdmin = true;
+
     /**
      * Create a KeycloakContainer with default image and version tag
      */
@@ -164,8 +166,11 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_FEATURES_DISABLED", String.join(",", featuresDisabled));
         }
 
-        withEnv("KC_BOOTSTRAP_ADMIN_USERNAME", adminUsername);
-        withEnv("KC_BOOTSTRAP_ADMIN_PASSWORD", adminPassword);
+        if(bootstrapAdmin) {
+            withEnv("KC_BOOTSTRAP_ADMIN_USERNAME", adminUsername);
+            withEnv("KC_BOOTSTRAP_ADMIN_PASSWORD", adminPassword);
+        }
+
         withEnv("JAVA_OPTS_KC_HEAP", "-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d".formatted(initialRamPercentage, maxRamPercentage));
 
         if (useTls && isNotBlank(tlsCertificateFilename)) {
@@ -515,6 +520,16 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return self();
     }
 
+    /** Disable default bootstrapping of the keycloak admin. Useful when realms are imported. */
+    public SELF withoutBootstrapAdmin() {
+        this.bootstrapAdmin = false;
+        return self();
+    }
+
+    /**
+     * Returns the keycloak admin. Note that this may not return a functioning admin client
+     * if the master realm including users were imported.
+     */
     public Keycloak getKeycloakAdminClient() {
         if (useTls) {
             return Keycloak.getInstance(getAuthServerUrl(), MASTER_REALM, getAdminUsername(), getAdminPassword(), ADMIN_CLI_CLIENT, buildSslContext());
