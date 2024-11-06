@@ -42,6 +42,17 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.0");
 ```
 
+### Initial admin user credentials
+
+Use different admin credentials than the default internal (`admin`/`admin`) ones:
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withAdminUsername("myKeycloakAdminUser")
+    .withAdminPassword("tops3cr3t");
+```
+
 ### Realm Import
 
 Power up a Keycloak instance with one or more existing realm JSON config files (from classpath):
@@ -56,13 +67,24 @@ or
     .withRealmImportFiles("/test-realm-1.json", "/test-realm-2.json");
 ```
 
-### Initial admin user credentials
-
-Use different admin credentials than the defaut internal (`admin`/`admin`) ones:
+If your realm JSON configuration file includes user definitions - particularly the admin user 
+for the master realm - ensure you disable the automatic bootstrapping of the admin user:
 
 ```java
 @Container
 KeycloakContainer keycloak = new KeycloakContainer()
+    .withBootstrapAdminDisabled()
+    .withRealmImportFile("/test-realm.json");
+```
+
+To retrieve a working Keycloak Admin Client from the container, make sure to override the admin 
+credentials to match those in your imported realm JSON configuration file:
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer()
+    .withBootstrapAdminDisabled()
+    .withRealmImportFile("/test-realm.json")
     .withAdminUsername("myKeycloakAdminUser")
     .withAdminPassword("tops3cr3t");
 ```

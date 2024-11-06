@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class KeycloakContainerTest {
 
     public static final String TEST_REALM_JSON = "/test-realm.json";
-    public static final String MASTER_REALM_USERS_JSON = "/master-realm.json";
+    public static final String MASTER_REALM_WITH_ADMIN_USER_JSON = "/master-realm-with-admin-user.json";
 
     @Test
     public void shouldStartKeycloak() {
@@ -52,7 +52,7 @@ public class KeycloakContainerTest {
             try (KeycloakContainer keycloak = new KeycloakContainer().withStartupTimeout(duration)) {
                 keycloak.start();
             }
-        } catch(ContainerLaunchException ex) {
+        } catch (ContainerLaunchException ex) {
             Duration observedDuration = Duration.between(start, Instant.now());
             assertTrue(observedDuration.toSeconds() >= MAX_TIMEOUT && observedDuration.toSeconds() < 30,
                 String.format("Startup time should consider configured limit of %d seconds, but took %d seconds",
@@ -97,8 +97,8 @@ public class KeycloakContainerTest {
     @Test
     public void shouldImportMasterRealmAdmin() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
-            .withoutBootstrapAdmin()
-            .withRealmImportFiles(MASTER_REALM_USERS_JSON)) {
+            .withBootstrapAdminDisabled()
+            .withRealmImportFiles(MASTER_REALM_WITH_ADMIN_USER_JSON)) {
             keycloak.start();
 
             // Throws because we have imported a different admin user with different password

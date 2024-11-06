@@ -166,7 +166,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_FEATURES_DISABLED", String.join(",", featuresDisabled));
         }
 
-        if(bootstrapAdmin) {
+        if (bootstrapAdmin) {
             withEnv("KC_BOOTSTRAP_ADMIN_USERNAME", adminUsername);
             withEnv("KC_BOOTSTRAP_ADMIN_PASSWORD", adminPassword);
         }
@@ -521,7 +521,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     /** Disable default bootstrapping of the keycloak admin. Useful when realms are imported. */
-    public SELF withoutBootstrapAdmin() {
+    public SELF withBootstrapAdminDisabled() {
         this.bootstrapAdmin = false;
         return self();
     }
