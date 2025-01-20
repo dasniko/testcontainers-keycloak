@@ -226,7 +226,7 @@ public class KeycloakContainerTest {
             try {
                 debugSocket.connect(new InetSocketAddress(debugHost, debugPort));
             } catch (IOException e) {
-                fail("Debug port %d cannot be reached.".formatted(debugPort));
+                fail(String.format("Debug port %d cannot be reached.", debugPort));
             }
         }
     }
