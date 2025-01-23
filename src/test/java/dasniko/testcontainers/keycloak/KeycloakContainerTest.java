@@ -1,5 +1,6 @@
 package dasniko.testcontainers.keycloak;
 
+import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import jakarta.ws.rs.NotAuthorizedException;
 import org.junit.jupiter.api.Test;
@@ -8,25 +9,21 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.info.ServerInfoRepresentation;
 import org.testcontainers.containers.ContainerLaunchException;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
@@ -227,6 +224,32 @@ public class KeycloakContainerTest {
                 debugSocket.connect(new InetSocketAddress(debugHost, debugPort));
             } catch (IOException e) {
                 fail("Debug port %d cannot be reached.".formatted(debugPort));
+            }
+        }
+    }
+
+    @Test
+    public void shouldStartWithOptimizedOption() {
+        try (GenericContainer<?> container = new GenericContainer<>(
+            new ImageFromDockerfile("temporary-keycloak-image", false)
+                .withDockerfile(Paths.get("src/test/resources/Dockerfile"))
+                .withTarget("builder"))) {
+            try (KeycloakContainer keycloak = new KeycloakContainer(container.getDockerImageName() + ":latest")
+                .withProductionMode()
+                .useTls()
+                .withEnv("KC_HOSTNAME_STRICT", "false")
+                .withOptimizedFlag()) {
+                keycloak.start();
+
+                RestAssured.useRelaxedHTTPSValidation();
+                assertThat(keycloak.getAuthServerUrl(), startsWith("https://"));
+
+                // TODO add test on logs, for profile prod is activated
+                // TODO add test on logs, that suggestion for next time run build start ... is NOT present
+
+                given()
+                    .when().get(keycloak.getAuthServerUrl())
+                    .then().statusCode(200);
             }
         }
     }
