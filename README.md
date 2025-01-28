@@ -321,6 +321,15 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withDebugFixedPort(int hostPort, boolean suspend);
 ```
 
+It is possible that you use your own pre-build image. If you dont enable the health endpoint, the container will not be healthy. In this case please provide your own waitStrategy.
+Check out the tests at [`KeycloakContainerOptimizedTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerOptimizedTest.java).
+
+```java
+KeycloakContainer keycloak = new KeycloakContainer("<YOUR_IMAGE>" + ":<YOUR_TAG>")
+    .withProductionMode()
+    .withOptimizedFlag();
+```
+
 ## Setup
 
 The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak).

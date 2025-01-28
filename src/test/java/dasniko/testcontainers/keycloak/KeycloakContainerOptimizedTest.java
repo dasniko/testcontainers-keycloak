@@ -40,10 +40,6 @@ public class KeycloakContainerOptimizedTest {
         keycloakContainer.start();
         RestAssured.useRelaxedHTTPSValidation();
         assertThat(keycloakContainer.getAuthServerUrl(), startsWith("https://"));
-
-        // TODO add test on logs, for profile prod is activated
-        // TODO add test on logs, that suggestion for next time run build start ... is NOT present
-
         given()
             .when().get(keycloakContainer.getAuthServerUrl())
             .then().statusCode(200);
