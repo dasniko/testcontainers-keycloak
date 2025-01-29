@@ -239,6 +239,21 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withProductionMode();
 ```
 
+### Optimized flag
+
+It is possible that you use your own pre-build image with the `--optimized` flag.
+Setting this option will implicitly enable production mode!
+
+```java
+@Container
+KeycloakContainer keycloak = new KeycloakContainer("<YOUR_IMAGE>" + ":<YOUR_TAG>")
+    .withOptimizedFlag();
+```
+
+NOTE: If you don't enable the health endpoint, the container will not be healthy.
+In this case please provide your own waitStrategy.
+Check out the tests at [`KeycloakContainerOptimizedTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerOptimizedTest.java).
+
 ## Testing Custom Extensions
 
 To ease extension testing, you can tell the Keycloak Testcontainer to detect extensions in a given classpath folder.

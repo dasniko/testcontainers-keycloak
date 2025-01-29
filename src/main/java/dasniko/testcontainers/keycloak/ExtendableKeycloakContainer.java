@@ -126,6 +126,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private List<String> customCommandParts;
 
     private boolean bootstrapAdmin = true;
+    private boolean optimizeFlag = false;
 
     /**
      * Create a KeycloakContainer with default image and version tag
@@ -199,10 +200,17 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             });
             withEnv("KC_TRUSTSTORE_PATHS", String.join(",", truststorePaths));
         }
-        withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
-        withEnv("KC_HTTPS_MANAGEMENT_CLIENT_AUTH", HttpsClientAuth.NONE.toString());
 
-        withEnv("KC_METRICS_ENABLED", Boolean.toString(metricsEnabled));
+        if (!this.optimizeFlag) {
+            // here are all default build options listed, that would prevent Keycloak from starting, without a new build
+            withEnv("KC_HTTPS_CLIENT_AUTH", httpsClientAuth.toString());
+            withEnv("KC_HTTPS_MANAGEMENT_CLIENT_AUTH", HttpsClientAuth.NONE.toString());
+
+            withEnv("KC_METRICS_ENABLED", Boolean.toString(metricsEnabled));
+        } else {
+            commandParts.add("--optimized");
+        }
+
         withEnv("KC_HEALTH_ENABLED", Boolean.toString(Boolean.TRUE));
         if (!customWaitStrategySet) {
             HttpWaitStrategy waitStrategy = Wait.forHttp(contextPath + "/health/started").forPort(KEYCLOAK_PORT_MGMT);
@@ -524,6 +532,17 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public SELF withBootstrapAdminDisabled() {
         this.bootstrapAdmin = false;
         return self();
+    }
+
+    /**
+     * Will add the "--optimized" flag to Keycloak startup command.
+     * It will ignore all build time options, that have been set.
+     * For example: KC_HTTPS_CLIENT_AUTH, KC_HTTPS_MANAGEMENT_CLIENT_AUTH
+     *
+     */
+    public SELF withOptimizedFlag() {
+        this.optimizeFlag = true;
+        return self().withProductionMode();
     }
 
     /**
