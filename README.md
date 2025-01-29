@@ -326,7 +326,6 @@ Check out the tests at [`KeycloakContainerOptimizedTest`](./src/test/java/dasnik
 
 ```java
 KeycloakContainer keycloak = new KeycloakContainer("<YOUR_IMAGE>" + ":<YOUR_TAG>")
-    .withProductionMode()
     .withOptimizedFlag();
 ```
 

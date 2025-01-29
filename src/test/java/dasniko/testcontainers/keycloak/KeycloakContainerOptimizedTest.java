@@ -26,7 +26,6 @@ public class KeycloakContainerOptimizedTest {
                 .withDockerfile(Paths.get("src/test/resources/Dockerfile"))
                 .withTarget("builder"))) {
             try (KeycloakContainer keycloak = new KeycloakContainer(container.getDockerImageName() + ":latest")
-                .withProductionMode()
                 .useTls()
                 .withEnv("KC_HOSTNAME_STRICT", "false")
                 .withOptimizedFlag()) {

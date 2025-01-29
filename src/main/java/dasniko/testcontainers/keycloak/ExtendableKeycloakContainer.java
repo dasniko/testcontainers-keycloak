@@ -542,7 +542,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
      */
     public SELF withOptimizedFlag() {
         this.optimizeFlag = true;
-        return self();
+        return self().withProductionMode();
     }
 
     /**
