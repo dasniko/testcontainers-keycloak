@@ -439,9 +439,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     /**
-     * @deprecated Will be removed soon! Use {@link #withTrustedCertificates(List)} and {@link #withHttpsClientAuth(HttpsClientAuth)} instead.
+     * Think about using {@link #withTrustedCertificates(List)} and {@link #withHttpsClientAuth(HttpsClientAuth)} instead.
      */
-    @Deprecated(forRemoval = true)
     public SELF useMutualTls(String tlsTruststoreFilename, String tlsTruststorePassword, HttpsClientAuth httpsClientAuth) {
         requireNonNull(tlsTruststoreFilename, "tlsTruststoreFilename must not be null");
         requireNonNull(tlsTruststorePassword, "tlsTruststorePassword must not be null");
