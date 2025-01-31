@@ -172,7 +172,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
             withEnv("KC_BOOTSTRAP_ADMIN_PASSWORD", adminPassword);
         }
 
-        withEnv("JAVA_OPTS_KC_HEAP", "-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d".formatted(initialRamPercentage, maxRamPercentage));
+        withEnv("JAVA_OPTS_KC_HEAP", String.format("-XX:InitialRAMPercentage=%d -XX:MaxRAMPercentage=%d", initialRamPercentage, maxRamPercentage));
 
         if (useTls && isNotBlank(tlsCertificateFilename)) {
             String tlsCertFilePath = KEYCLOAK_CONF_DIR + "/tls.crt";
@@ -593,7 +593,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     }
 
     public String getProtocol() {
-        return "http%s".formatted(useTls ? "s": "");
+        return String.format("http%s", useTls ? "s": "");
     }
 
     public String getAuthServerUrl() {
