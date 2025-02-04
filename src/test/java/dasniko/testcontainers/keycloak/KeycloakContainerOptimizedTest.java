@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.startsWith;
 public class KeycloakContainerOptimizedTest {
 
     public static final String UPDATING_THE_CONFIGURATION = "Updating the configuration and installing your custom providers, if any. Please wait.";
-    private static final String TEMPORARY_KEYCLOAK_IMAGE = "temporary-testcontainer-keycloak-image:latest";
+    private static final String TEMPORARY_KEYCLOAK_IMAGE = "localhost/temporary-testcontainer-keycloak-image:latest";
     private KeycloakContainer keycloakContainer;
 
     @BeforeEach
