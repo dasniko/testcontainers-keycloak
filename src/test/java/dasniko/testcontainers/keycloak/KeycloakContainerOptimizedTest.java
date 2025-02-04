@@ -1,11 +1,8 @@
 package dasniko.testcontainers.keycloak;
 
-import com.github.dockerjava.api.exception.NotFoundException;
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
@@ -26,7 +23,7 @@ public class KeycloakContainerOptimizedTest {
     @BeforeEach
     void setUp() {
         try (GenericContainer<?> container = new GenericContainer<>(
-            new ImageFromDockerfile(TEMPORARY_KEYCLOAK_IMAGE, false)
+            new ImageFromDockerfile(TEMPORARY_KEYCLOAK_IMAGE, true)
                 .withDockerfile(Paths.get("src/test/resources/Dockerfile"))
                 .withTarget("builder"))) {
             try (KeycloakContainer keycloak = new KeycloakContainer(container.getDockerImageName())
@@ -67,18 +64,6 @@ public class KeycloakContainerOptimizedTest {
             keycloak.start();
             assertThat(keycloak.getLogs(),
                 containsString(UPDATING_THE_CONFIGURATION));
-        }
-    }
-
-    @AfterAll
-    static void tearDown() {
-        try {
-            DockerClientFactory.lazyClient()
-                .removeImageCmd(TEMPORARY_KEYCLOAK_IMAGE)
-                .withForce(true)
-                .exec();
-        } catch (NotFoundException e) {
-            System.err.println("Failed to remove image: " + e.getMessage());
         }
     }
 }
