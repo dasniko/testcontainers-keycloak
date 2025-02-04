@@ -17,15 +17,16 @@ import static org.hamcrest.Matchers.startsWith;
 public class KeycloakContainerOptimizedTest {
 
     public static final String UPDATING_THE_CONFIGURATION = "Updating the configuration and installing your custom providers, if any. Please wait.";
+    private static final String TEMPORARY_KEYCLOAK_IMAGE = "temporary-testcontainer-keycloak-image:latest";
     private KeycloakContainer keycloakContainer;
 
     @BeforeEach
     void setUp() {
         try (GenericContainer<?> container = new GenericContainer<>(
-            new ImageFromDockerfile("temporary-keycloak-image", false)
+            new ImageFromDockerfile(TEMPORARY_KEYCLOAK_IMAGE, true)
                 .withDockerfile(Paths.get("src/test/resources/Dockerfile"))
                 .withTarget("builder"))) {
-            try (KeycloakContainer keycloak = new KeycloakContainer(container.getDockerImageName() + ":latest")
+            try (KeycloakContainer keycloak = new KeycloakContainer(container.getDockerImageName())
                 .useTls()
                 .withEnv("KC_HOSTNAME_STRICT", "false")
                 .withOptimizedFlag()) {
@@ -65,5 +66,4 @@ public class KeycloakContainerOptimizedTest {
                 containsString(UPDATING_THE_CONFIGURATION));
         }
     }
-
 }
