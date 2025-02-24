@@ -396,6 +396,7 @@ Consult the docs of your application framework testing capabilities on how to dy
 
 | [![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "") | [![](http://img.youtube.com/vi/l2Lk2Z9mHBs/maxresdefault.jpg)](http://www.youtube.com/watch?v=l2Lk2Z9mHBs "") |
 |---|---|
+| [![](http://img.youtube.com/vi/lBC51XZUM90/maxresdefault.jpg)](https://www.youtube.com/watch?v=lBC51XZUM90 "") |
 
 
 ## Testcontainers & Keycloak version compatiblity
