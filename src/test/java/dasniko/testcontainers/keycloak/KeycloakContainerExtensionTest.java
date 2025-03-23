@@ -149,7 +149,7 @@ public class KeycloakContainerExtensionTest {
         String uri = keycloak.getAuthServerUrl() + "/realms/master/test-resource/theme-root";
         try {
             Map<String, String> themeRoot = objectMapper.readValue(new URL(uri), new TypeReference<>(){});
-            return themeRoot.get("url") + "/login/keycloak.v2/img/keycloak-logo-text.png";
+            return themeRoot.get("url") + "/login/keycloak.v2/img/keycloak-logo-text.svg";
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
