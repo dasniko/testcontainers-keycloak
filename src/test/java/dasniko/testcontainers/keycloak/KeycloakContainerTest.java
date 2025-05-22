@@ -120,6 +120,14 @@ public class KeycloakContainerTest {
     }
 
     @Test
+    public void shouldReturnServerInfoNightly() {
+        try (KeycloakContainer keycloak = new KeycloakContainer().withNightly()) {
+            keycloak.start();
+            checkKeycloakContainerInternals(keycloak);
+        }
+    }
+
+    @Test
     public void shouldUseDifferentAdminCredentials() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .withAdminUsername("foo")

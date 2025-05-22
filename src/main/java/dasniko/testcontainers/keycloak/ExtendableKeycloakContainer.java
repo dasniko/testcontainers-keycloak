@@ -29,6 +29,8 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
+import org.testcontainers.images.PullPolicy;
+import org.testcontainers.images.RemoteDockerImage;
 import org.testcontainers.utility.MountableFile;
 
 import javax.net.ssl.SSLContext;
@@ -292,6 +294,12 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public SELF waitingFor(@NotNull WaitStrategy waitStrategy) {
         customWaitStrategySet = true;
         return super.waitingFor(waitStrategy);
+    }
+
+    public SELF withNightly() {
+        this.setDockerImageName(KEYCLOAK_IMAGE + ":nightly");
+        this.withImagePullPolicy(PullPolicy.ageBased(Duration.ofHours(12)));
+        return self();
     }
 
     public SELF withCustomCommand(String cmd) {
@@ -640,9 +648,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return startupTimeout;
     }
 
-    @SuppressWarnings({"ConstantValue", "UnreachableCode"})
     public String getKeycloakDefaultVersion() {
-        return KEYCLOAK_VERSION.equals("nightly") ? "999.0.0-SNAPSHOT" : KEYCLOAK_VERSION;
+        RemoteDockerImage image = this.getImage();
+        return this.getDockerImageName().endsWith(":nightly") ? "999.0.0-SNAPSHOT" : KEYCLOAK_VERSION;
     }
 
     private boolean isNotBlank(String s) {
