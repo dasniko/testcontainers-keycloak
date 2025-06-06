@@ -77,7 +77,7 @@
         <shrinkwrap.version>2.0.0-beta-2</shrinkwrap.version>
         <shrinkwrap-resolver.version>3.3.4</shrinkwrap-resolver.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <testcontainers.version>1.20.6</testcontainers.version>
+        <testcontainers.version>1.21.1</testcontainers.version>
     </properties>
 
     <dependencies>
