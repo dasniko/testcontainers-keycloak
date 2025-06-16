@@ -249,11 +249,11 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
         /* caching is disabled per default in dev-mode, thus we overwrite that config, unless #withDisabledCaching() has been called */
         if (!disabledCaching) {
-            withEnv("KC_SPI_THEME_CACHE_THEMES", String.valueOf(true));
-            withEnv("KC_SPI_THEME_CACHE_TEMPLATES", String.valueOf(true));
+            withEnv("KC_SPI_THEME__CACHE_THEMES", String.valueOf(true));
+            withEnv("KC_SPI_THEME__CACHE_TEMPLATES", String.valueOf(true));
 
             // set the max-age directive for the Cache-Control header to 30 days (Keycloak default)
-            withEnv("KC_SPI_THEME_STATIC_MAX_AGE", String.valueOf(2592000));
+            withEnv("KC_SPI_THEME__STATIC_MAX_AGE", String.valueOf(2592000));
         }
 
         if (debugEnabled) {
