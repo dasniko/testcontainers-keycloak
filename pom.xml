@@ -65,7 +65,7 @@
     </repositories>
 
     <properties>
-        <jackson.version>2.19.0</jackson.version>
+        <jackson.version>2.19.1</jackson.version>
         <junit-jupiter.version>5.13.1</junit-jupiter.version>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
         <keycloak-admin-client.version>26.0.5</keycloak-admin-client.version>
