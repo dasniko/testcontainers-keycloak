@@ -8,7 +8,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![Github Last Commit](https://img.shields.io/github/last-commit/dasniko/testcontainers-keycloak)
 ![License](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
 
-[![Keycloak Version](https://img.shields.io/badge/Keycloak-26.2-blue)](https://www.keycloak.org)
+[![Keycloak Version](https://img.shields.io/badge/Keycloak-25.3-blue)](https://www.keycloak.org)
 ![Java Version](https://img.shields.io/badge/Java-11-f89820)
 [![GitHub Stars](https://img.shields.io/github/stars/dasniko/testcontainers-keycloak)](https://github.com/dasniko/testcontainers-keycloak/stargazers)
 [![CI build](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml/badge.svg)](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml)
@@ -39,7 +39,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.2");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:25.3");
 ```
 
 ### Initial admin user credentials
@@ -350,6 +350,8 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
 </dependency>
 ```
 
+> There is also a `999.0.0-SNAPSHOT` version available, pointing to `nightly` Docker image by default and using the `999.0.0-SNAPSHOT` Keycloak libraries as dependencies.
+
 ### JUnit4 Dependency
 
 The testcontainers project itself has a dependency on JUnit4 although it is not needed for this project in order to run (see this [issue](https://github.com/testcontainers/testcontainers-java/issues/970) for more details).
@@ -413,6 +415,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 | 3.5.x                   | 1.20.2         | 26.0     |
 | 3.6.x                   | 1.20.4         | 26.1     |
 | 3.7.x                   | 1.20.6         | 26.2     |
+| 3.8.x                   | 1.21.3         | 26.3     |
 
 _There might also be other possible version configurations which will work._
 
