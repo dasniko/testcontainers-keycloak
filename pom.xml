@@ -67,7 +67,7 @@
     <properties>
         <jackson.version>2.19.1</jackson.version>
         <junit-jupiter.version>5.13.2</junit-jupiter.version>
-        <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
+        <keycloak.version>26.3.0</keycloak.version>
         <keycloak-admin-client.version>26.0.5</keycloak-admin-client.version>
         <logback.version>1.5.18</logback.version>
         <maven.compiler.release>11</maven.compiler.release>
