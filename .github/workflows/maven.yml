@@ -9,12 +9,12 @@ on:
       - main
       - 'release/**'
     paths-ignore:
-      - '.github/ISSUE_TEMPLATE/*.yml'
+      - '.github/**'
       - 'pom.xml'
       - 'README.md'
   pull_request:
     paths-ignore:
-      - '.github/ISSUE_TEMPLATE/*.yml'
+      - '.github/**'
       - 'README.md'
   workflow_dispatch: {}
 
