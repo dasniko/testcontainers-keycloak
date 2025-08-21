@@ -290,6 +290,11 @@ KeycloakContainer keycloak = new KeycloakContainer()
 
 You have to provide a list of resolvable `File`s.
 
+#### TIP
+
+If you want/need to use dependencies from e.g., Maven (or Gradle), you can use [ShrinkWrap Resolvers](https://github.com/shrinkwrap/resolver).
+See, as an example, how this is used at the [`KeycloakContainerExtensionTest#shouldDeployProviderWithDependencyAndCallCustomEndpoint()`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) test.
+
 ### Extending KeycloakContainer
 
 In case you need a custom implementation of the default `KeycloakContainer`, you should inherit from `ExtendableKeycloakContainer`. This allows to set the generics and use your custom implementation without the need for type casts.  
@@ -312,11 +317,6 @@ public class MyCustomKeycloakContainer extends ExtendableKeycloakContainer<MyCus
 MyCustomKeycloakContainer keycloakContainer = new MyCustomKeycloakContainer()
     .withAdminPassword("password");
 ```
-
-#### TIPP
-
-If you want/need to use dependencies from e.g. Maven (or Gradle), you can use [ShrinkWrap Resolvers](https://github.com/shrinkwrap/resolver).
-See, as an example, how this is used at the [`KeycloakContainerExtensionTest#shouldDeployProviderWithDependencyAndCallCustomEndpoint()`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) test.
 
 ### Remote Debugger Support
 
