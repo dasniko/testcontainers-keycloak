@@ -68,7 +68,7 @@
         <jackson.version>2.19.1</jackson.version>
         <junit-jupiter.version>5.13.2</junit-jupiter.version>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
-        <keycloak-admin-client.version>26.0.6</keycloak-admin-client.version>
+        <keycloak-admin-client.version>999.0.0-SNAPSHOT</keycloak-admin-client.version>
         <logback.version>1.5.18</logback.version>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
