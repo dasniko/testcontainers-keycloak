@@ -10,9 +10,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-    assignees:
-      - "dasniko"
+      interval: "monthly"
     commit-message:
       prefix: "chore"
 
@@ -22,8 +20,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    assignees:
-      - "dasniko"
     commit-message:
       include: "scope"
       prefix: "chore"
