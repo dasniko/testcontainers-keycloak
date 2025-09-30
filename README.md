@@ -3,12 +3,12 @@
 A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
 
 [![GitHub Release](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)](https://github.com/dasniko/testcontainers-keycloak/releases)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.dasniko%22%20AND%20a:%22testcontainers-keycloak%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.github.dasniko/testcontainers-keycloak)
 ![GitHub Release Date](https://img.shields.io/github/release-date-pre/dasniko/testcontainers-keycloak)
 ![Github Last Commit](https://img.shields.io/github/last-commit/dasniko/testcontainers-keycloak)
 ![License](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
 
-[![Keycloak Version](https://img.shields.io/badge/Keycloak-26.3-blue)](https://www.keycloak.org)
+[![Keycloak Version](https://img.shields.io/badge/Keycloak-26.4-blue)](https://www.keycloak.org)
 ![Java Version](https://img.shields.io/badge/Java-11-f89820)
 [![GitHub Stars](https://img.shields.io/github/stars/dasniko/testcontainers-keycloak)](https://github.com/dasniko/testcontainers-keycloak/stargazers)
 [![CI build](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml/badge.svg)](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml)
@@ -39,7 +39,7 @@ Use another Keycloak Docker image/version than used in this Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.3");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4");
 ```
 
 ### Initial admin user credentials
@@ -416,6 +416,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 | 3.6.x                   | 1.20.4         | 26.1     |
 | 3.7.x                   | 1.20.6         | 26.2     |
 | 3.8.x                   | 1.21.3         | 26.3     |
+| 3.9.x                   | 1.21.3         | 26.4     |
 
 _There might also be other possible version configurations which will work._
 
