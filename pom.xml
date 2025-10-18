@@ -72,12 +72,11 @@
         <logback.version>1.5.21</logback.version>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <quarkus.version>3.28.1</quarkus.version>
         <rest-assured.version>5.5.6</rest-assured.version>
         <shrinkwrap.version>2.0.0-beta-2</shrinkwrap.version>
         <shrinkwrap-resolver.version>3.3.4</shrinkwrap-resolver.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <testcontainers.version>1.21.3</testcontainers.version>
+        <testcontainers.version>2.0.2</testcontainers.version>
     </properties>
 
     <dependencies>
@@ -85,23 +84,7 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <version>${testcontainers.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-        <!--
-        Module with some empty JUnit4 classes to allow Testcontainers to run without needing to include JUnit4 on the class path
-        See also https://github.com/testcontainers/testcontainers-java/issues/970 for more details
-        -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit4-mock</artifactId>
-            <version>${quarkus.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
             <artifactId>shrinkwrap-api</artifactId>
