@@ -48,7 +48,7 @@ public class TestResourceProvider implements RealmResourceProvider {
     @Produces(MediaType.APPLICATION_JSON)
     public Response helloAuth() {
         AuthResult auth = checkAuth();
-        return Response.ok(Collections.singletonMap("hello", auth.getUser().getUsername())).build();
+        return Response.ok(Collections.singletonMap("hello", auth.user().getUsername())).build();
     }
 
     @GET
@@ -62,7 +62,7 @@ public class TestResourceProvider implements RealmResourceProvider {
         AuthResult auth = new AppAuthManager.BearerTokenAuthenticator(session).authenticate();
         if (auth == null) {
             throw new NotAuthorizedException("Bearer");
-        } else if (auth.getToken().getIssuedFor() == null || !auth.getToken().getIssuedFor().equals("admin-cli")) {
+        } else if (auth.token().getIssuedFor() == null || !auth.token().getIssuedFor().equals("admin-cli")) {
             throw new ForbiddenException("Token is not properly issued for admin-cli");
         }
         return auth;
