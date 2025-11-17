@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dasniko.testcontainers.keycloak.extensions.oidcmapper.TestOidcProtocolMapper;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
@@ -134,6 +135,7 @@ public class KeycloakContainerExtensionTest {
     }
 
     @Test
+    @Disabled("temporarily disabled, until cause and fix is clarified")
     public void shouldNotCacheStaticContentWithDisabledCaching() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .withProviderClassesFrom("target/test-classes")

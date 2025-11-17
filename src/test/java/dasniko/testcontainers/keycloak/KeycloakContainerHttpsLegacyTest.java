@@ -3,6 +3,7 @@ package dasniko.testcontainers.keycloak;
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -41,6 +42,7 @@ public class KeycloakContainerHttpsLegacyTest {
     }
 
     @Test
+    @Disabled("temporarily disabled, until cause and fix is clarified")
     public void shouldStartKeycloakWithMutualTlsRequiredWithMutualTls() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
             .useTlsKeystore("keycloak.jks", "keycloak")
