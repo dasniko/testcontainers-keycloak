@@ -399,6 +399,7 @@ For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/da
 | 3.7.x                   | 1.20.6         | 26.2     |
 | 3.8.x                   | 1.21.3         | 26.3     |
 | 3.9.x                   | 1.21.3         | 26.4     |
+| 4.0.x                   | 2.0.2          | 26.4     |
 
 _There might also be other possible version configurations which will work._
 
