@@ -326,6 +326,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
      * @param extensionName        the name suffix of the created extension.
      * @param extensionClassFolder a path relative to the current classpath root.
      */
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "SameParameterValue"})
     protected void createKeycloakExtensionDeployment(String deploymentLocation, String extensionName, String extensionClassFolder) {
 
         requireNonNull(deploymentLocation, "deploymentLocation must not be null");
