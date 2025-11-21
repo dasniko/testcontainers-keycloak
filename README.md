@@ -13,11 +13,10 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 [![GitHub Stars](https://img.shields.io/github/stars/dasniko/testcontainers-keycloak)](https://github.com/dasniko/testcontainers-keycloak/stargazers)
 [![CI build](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml/badge.svg)](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml)
 
-## IMPORTANT!!!
+## IMPORTANT!!! VERSIONS!!!
 
-> This version branch (3.x) only handles Keycloak from version **22.x** and up, as there are major changes coming with this release (see the [blog post](https://www.keycloak.org/2023/07/keycloak-2200-released.html)).  
-> See also [compatibility matrix](#testcontainers--keycloak-version-compatiblity).  
-> For older Keycloak versions (until 21.x), see [version 2.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v2).
+> See [version overview](versions.md) for an overview which Keycloak release works with this library by default and which [Testcontainers](https://www.testcontainers.org/) version is used.  
+> This library is, like Keycloak, only being developed in forward direction, there is no LTS, no backports, etc. available. So make sure to stay up to date.
 
 ## How to use
 
@@ -301,15 +300,12 @@ In case you need a custom implementation of the default `KeycloakContainer`, you
 
 ```java
 public class MyCustomKeycloakContainer extends ExtendableKeycloakContainer<MyCustomKeycloakContainer> {
-
-	public MyCustomKeycloakContainer() {
-		super();
-	}
-
-	public MyCustomKeycloakContainer(String dockerImageName) {
-		super(dockerImageName);
-	}
-	
+  public MyCustomKeycloakContainer() {
+    super();
+  }
+  public MyCustomKeycloakContainer(String dockerImageName) {
+    super(dockerImageName);
+  }
 }
 
 ...
@@ -338,7 +334,7 @@ KeycloakContainer keycloak = new KeycloakContainer()
 
 ## Setup
 
-The release versions of this project are available at [Maven Central](https://search.maven.org/artifact/com.github.dasniko/testcontainers-keycloak).
+The release versions of this project are available at [Maven Central](https://central.sonatype.com/artifact/com.github.dasniko/testcontainers-keycloak).
 Simply put the dependency coordinates to your `pom.xml` (or something similar, if you use e.g. Gradle or something else):
 
 ```xml
@@ -349,6 +345,8 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
   <scope>test</scope>
 </dependency>
 ```
+
+For a version overview, see [here](versions.md).
 
 > There is also a `999.0.0-SNAPSHOT` version available, pointing to `nightly` Docker image by default and using the `999.0.0-SNAPSHOT` Keycloak libraries as dependencies.
 
@@ -381,29 +379,6 @@ Consult the docs of your application framework testing capabilities on how to dy
 | [![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "")  | [![](http://img.youtube.com/vi/l2Lk2Z9mHBs/maxresdefault.jpg)](http://www.youtube.com/watch?v=l2Lk2Z9mHBs "") |
 |---|---|
 | [![](http://img.youtube.com/vi/lBC51XZUM90/maxresdefault.jpg)](https://www.youtube.com/watch?v=lBC51XZUM90 "") |
-
-
-## Testcontainers & Keycloak version compatiblity
-
-For Keycloak versions until 21.x, see [version 2.x branch](https://github.com/dasniko/testcontainers-keycloak/tree/v2)
-
-| Testcontainers-Keycloak | Testcontainers | Keycloak |
-|-------------------------|----------------|----------|
-| 3.0.x                   | 1.18.3         | 22.0     |
-| 3.1.x                   | 1.18.3         | 22.0.5   |
-| 3.2.x                   | 1.19.3         | 23.0     |
-| 3.3.x                   | 1.19.6         | 24.0     |
-| 3.4.x                   | 1.19.8         | 25.0     |
-| 3.5.x                   | 1.20.2         | 26.0     |
-| 3.6.x                   | 1.20.4         | 26.1     |
-| 3.7.x                   | 1.20.6         | 26.2     |
-| 3.8.x                   | 1.21.3         | 26.3     |
-| 3.9.x                   | 1.21.3         | 26.4     |
-| 4.0.x                   | 2.0.2          | 26.4     |
-
-_There might also be other possible version configurations which will work._
-
-See also the [Releases](https://github.com/dasniko/testcontainers-keycloak/releases) page for version and feature update notes.
 
 ## Credits
 
