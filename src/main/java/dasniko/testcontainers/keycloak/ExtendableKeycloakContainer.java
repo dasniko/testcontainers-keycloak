@@ -65,15 +65,16 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public static final String MASTER_REALM = "master";
     public static final String ADMIN_CLI_CLIENT = "admin-cli";
-    public static final WaitStrategy LOG_WAIT_STRATEGY = Wait.forLogMessage(".*Running the server in development mode\\. DO NOT use this configuration in production.*\\n", 1);
-
-    private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "nightly";
-
     private static final int KEYCLOAK_PORT_HTTP = 8080;
     private static final int KEYCLOAK_PORT_HTTPS = 8443;
     private static final int KEYCLOAK_PORT_DEBUG = 8787;
     private static final int KEYCLOAK_PORT_MGMT = 9000;
+
+    public static final WaitStrategy LOG_WAIT_STRATEGY = Wait.forLogMessage("Listening on\\: http:\\/\\/0\\.0\\.0\\.0:" + KEYCLOAK_PORT_HTTP + "\\. Management interface listening on http\\:\\/\\/0\\.0\\.0\\.0:" + KEYCLOAK_PORT_MGMT +"*\\..*", 1);
+
+    private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
+    private static final String KEYCLOAK_VERSION = "nightly";
+
     private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
     private static final int DEFAULT_INITIAL_RAM_PERCENTAGE = 1;
     private static final int DEFAULT_MAX_RAM_PERCENTAGE = 5;
