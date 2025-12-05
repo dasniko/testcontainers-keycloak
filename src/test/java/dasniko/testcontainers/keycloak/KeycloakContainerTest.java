@@ -211,7 +211,7 @@ public class KeycloakContainerTest {
     @Test
     public void shouldStartKeycloakWithDifferentWaitStrategy() {
         try (KeycloakContainer keycloak = new KeycloakContainer()
-            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY)) {
+            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2)))) {
             keycloak.start();
             checkKeycloakContainerInternals(keycloak);
         }
