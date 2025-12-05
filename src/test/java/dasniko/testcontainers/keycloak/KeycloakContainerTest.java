@@ -208,6 +208,15 @@ public class KeycloakContainerTest {
         }
     }
 
+    @Test
+    public void shouldStartKeycloakWithDifferentWaitStrategy() {
+        try (KeycloakContainer keycloak = new KeycloakContainer()
+            .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY)) {
+            keycloak.start();
+            checkKeycloakContainerInternals(keycloak);
+        }
+    }
+
     private static ValidatableResponse getWellKnownOpenidConfigurationResponse(String authServerUrl) {
         return given().when().get(authServerUrl + "/realms/master/.well-known/openid-configuration")
             .then().statusCode(200);
