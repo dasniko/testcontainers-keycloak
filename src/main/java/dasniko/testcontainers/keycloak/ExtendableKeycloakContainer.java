@@ -74,7 +74,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private static final int KEYCLOAK_PORT_DEBUG = 8787;
     private static final int KEYCLOAK_PORT_MGMT = 9000;
 
-    public static final WaitStrategy LOG_WAIT_STRATEGY = Wait.forLogMessage("Listening on\\: http:\\/\\/0\\.0\\.0\\.0:" + KEYCLOAK_PORT_HTTP + "\\. Management interface listening on http\\:\\/\\/0\\.0\\.0\\.0:" + KEYCLOAK_PORT_MGMT +"*\\..*", 1);
+    public static final WaitStrategy LOG_WAIT_STRATEGY = Wait.forLogMessage(".*Listening on\\: http:\\/\\/0\\.0\\.0\\.0:" + KEYCLOAK_PORT_HTTP + "\\. Management interface listening on http\\:\\/\\/0\\.0\\.0\\.0:" + KEYCLOAK_PORT_MGMT +"\\..*", 1);
 
     private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(2);
     private static final int DEFAULT_INITIAL_RAM_PERCENTAGE = 1;
