@@ -258,7 +258,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
         if (debugEnabled) {
             withEnv("DEBUG", Boolean.toString(Boolean.TRUE));
-            withEnv("DEBUG_PORT", String.valueOf(KEYCLOAK_PORT_DEBUG));
+            withEnv("DEBUG_PORT", "0.0.0.0:" + KEYCLOAK_PORT_DEBUG);
             if (debugHostPort > 0) {
                 addFixedExposedPort(debugHostPort, KEYCLOAK_PORT_DEBUG);
             } else {
