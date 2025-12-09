@@ -2,6 +2,7 @@ package dasniko.testcontainers.keycloak;
 
 import io.restassured.response.ValidatableResponse;
 import jakarta.ws.rs.NotAuthorizedException;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -10,9 +11,12 @@ import org.keycloak.representations.info.ServerInfoRepresentation;
 import org.testcontainers.containers.ContainerLaunchException;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -238,13 +242,30 @@ public class KeycloakContainerTest {
         }
     }
 
-    private void testDebugPortAvailable(final String debugHost, final int debugPort) throws IOException {
-        try (var debugSocket = new Socket()) {
-            try {
-                debugSocket.connect(new InetSocketAddress(debugHost, debugPort));
-            } catch (IOException e) {
-                fail(String.format("Debug port %d cannot be reached.", debugPort));
-            }
+    private void testDebugPortAvailable(String debugHost, int debugPort) {
+        Awaitility.await()
+            .atMost(Duration.ofSeconds(30))
+            .pollInterval(Duration.ofMillis(500))
+            .pollDelay(Duration.ofSeconds(1))
+            .untilAsserted(() -> assertJdwpHandshake(debugHost, debugPort));
+    }
+
+    private void assertJdwpHandshake(String debugHost, int debugPort) throws IOException {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(debugHost, debugPort), 2000);
+            socket.setSoTimeout(2000);
+
+            // send JDWP Handshake
+            OutputStream out = socket.getOutputStream();
+            out.write("JDWP-Handshake".getBytes(StandardCharsets.US_ASCII));
+            out.flush();
+
+            InputStream in = socket.getInputStream();
+            byte[] response = new byte[14];
+            int bytesRead = in.read(response);
+
+            assertThat(bytesRead, is(14));
+            assertThat(new String(response, StandardCharsets.US_ASCII), equalTo("JDWP-Handshake"));
         }
     }
 }
