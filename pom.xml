@@ -67,8 +67,8 @@
     <properties>
         <jackson.version>2.19.4</jackson.version>
         <junit-jupiter.version>6.0.1</junit-jupiter.version>
-        <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
-        <keycloak-admin-client.version>999.0.0-SNAPSHOT</keycloak-admin-client.version>
+        <keycloak.version>26.5.0</keycloak.version>
+        <keycloak-admin-client.version>26.0.7</keycloak-admin-client.version>
         <logback.version>1.5.23</logback.version>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -76,7 +76,7 @@
         <shrinkwrap.version>2.0.0-beta-2</shrinkwrap.version>
         <shrinkwrap-resolver.version>3.3.4</shrinkwrap-resolver.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <testcontainers.version>2.0.2</testcontainers.version>
+        <testcontainers.version>2.0.3</testcontainers.version>
     </properties>
 
     <dependencies>
