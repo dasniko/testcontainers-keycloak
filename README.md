@@ -8,7 +8,7 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 ![Github Last Commit](https://img.shields.io/github/last-commit/dasniko/testcontainers-keycloak)
 ![License](https://img.shields.io/github/license/dasniko/testcontainers-keycloak?label=License)
 
-[![Keycloak Version](https://img.shields.io/badge/Keycloak-26.4-blue)](https://www.keycloak.org)
+[![Keycloak Version](https://img.shields.io/badge/Keycloak-26.5-blue)](https://www.keycloak.org)
 ![Java Version](https://img.shields.io/badge/Java-11-f89820)
 [![GitHub Stars](https://img.shields.io/github/stars/dasniko/testcontainers-keycloak)](https://github.com/dasniko/testcontainers-keycloak/stargazers)
 [![CI build](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml/badge.svg)](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml)
