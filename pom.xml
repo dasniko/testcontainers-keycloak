@@ -69,7 +69,7 @@
         <junit-jupiter.version>6.0.2</junit-jupiter.version>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
         <keycloak-admin-client.version>999.0.0-SNAPSHOT</keycloak-admin-client.version>
-        <logback.version>1.5.24</logback.version>
+        <logback.version>1.5.26</logback.version>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rest-assured.version>6.0.0</rest-assured.version>
