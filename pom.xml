@@ -65,7 +65,8 @@
     </repositories>
 
     <properties>
-        <jackson.version>2.19.4</jackson.version>
+        <jackson.version>2.21.0</jackson.version>
+        <jackson-annotations.version>2.21</jackson-annotations.version>
         <junit-jupiter.version>6.0.2</junit-jupiter.version>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
         <keycloak-admin-client.version>999.0.0-SNAPSHOT</keycloak-admin-client.version>
@@ -139,7 +140,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jackson-annotations.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
