@@ -1,7 +1,7 @@
 package dasniko.testcontainers.keycloak;
 
 import io.restassured.response.ValidatableResponse;
-import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.BadRequestException;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -106,7 +106,7 @@ public class KeycloakContainerTest {
             keycloak.start();
 
             // Throws because we have imported a different admin user with different password
-            assertThrows(NotAuthorizedException.class, () -> keycloak.getKeycloakAdminClient().tokenManager().getAccessToken());
+            assertThrows(BadRequestException.class, () -> keycloak.getKeycloakAdminClient().tokenManager().getAccessToken());
 
             // Set password from imported realm, see json file
             keycloak.withAdminPassword("password");
