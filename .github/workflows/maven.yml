@@ -21,6 +21,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: 1
+            classes: "dasniko.testcontainers.keycloak.KeycloakContainerTest"
+          - shard: 2
+            classes: "dasniko.testcontainers.keycloak.KeycloakContainerHttpsTest"
+          - shard: 3
+            classes: "dasniko.testcontainers.keycloak.KeycloakContainerHttpsLegacyTest,dasniko.testcontainers.keycloak.KeycloakContainerOptimizedTest"
+          - shard: 4
+            classes: "dasniko.testcontainers.keycloak.KeycloakContainerExtensionTest,dasniko.testcontainers.keycloak.KeycloakContainerExtensionReuseTest"
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -30,5 +42,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
+      - name: Run tests (Shard ${{ matrix.shard }})
+        run: |
+          mvn test -Dtest="${{ matrix.classes }}" \
+                   -Dsurefire.failIfNoSpecifiedTests=false
       - name: Maven build
-        run: mvn -B -U package
+        run: mvn -B package -DskipTests
