@@ -217,7 +217,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
         withEnv("KC_HEALTH_ENABLED", Boolean.toString(Boolean.TRUE));
         if (!customWaitStrategySet) {
-            HttpWaitStrategy waitStrategy = Wait.forHttp(contextPath + "/health/started").forPort(KEYCLOAK_PORT_MGMT);
+            HttpWaitStrategy waitStrategy = Wait.forHttp(contextPath + "/health/ready").forPort(KEYCLOAK_PORT_MGMT);
             if (useTls) {
                 waitStrategy = waitStrategy.usingTls().allowInsecure();
             }
