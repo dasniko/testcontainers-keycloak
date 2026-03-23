@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  deploy-snapshot:
+  test:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     strategy:
@@ -30,13 +30,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
-          server-id: central
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
       - name: Run tests (Shard ${{ matrix.shard }})
         run: |
           mvn test -Dtest="${{ matrix.classes }}" \
                    -Dsurefire.failIfNoSpecifiedTests=false
+
+  deploy-snapshot:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
       - name: Deploy snapshot to Maven Central
         run: mvn -B clean deploy -DskipTests=true
         env:
