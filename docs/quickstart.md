@@ -38,7 +38,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class MyKeycloakTest {
 
     @Container
-    static KeycloakContainer keycloak = new KeycloakContainer();
+    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26");
 
     @Test
     void shouldStartKeycloak() {
@@ -54,7 +54,7 @@ Place your realm export JSON in `src/test/resources/` and pass it to the contain
 
 ```java
 @Container
-static KeycloakContainer keycloak = new KeycloakContainer()
+static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26")
     .withRealmImportFile("/test-realm.json");
 ```
 

@@ -15,17 +15,40 @@
  */
 package dasniko.testcontainers.keycloak;
 
+import org.testcontainers.utility.DockerImageName;
+
 /**
  * @author Niko Köbler, https://www.n-k.de, @dasniko
  */
 public class KeycloakContainer extends ExtendableKeycloakContainer<KeycloakContainer> {
 
+    /**
+     * Create a KeycloakContainer with the default image and version tag
+     *
+     * @deprecated use KeycloakContainer(String dockerImageName) or KeycloakContainer(DockerImageName dockerImageName) instead.
+     * The behavior of this constructor will change in the future!
+     */
+    @Deprecated(since = "4.2.0")
 	public KeycloakContainer() {
 		super();
 	}
 
-	public KeycloakContainer(String dockerImageName) {
+    /**
+     * Create a KeycloakContainer by passing the full docker image name
+     *
+     * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:25.0
+     */
+    public KeycloakContainer(String dockerImageName) {
 		super(dockerImageName);
 	}
+
+    /**
+     * Create a KeycloakContainer by passing the full docker image name
+     *
+     * @param dockerImageName Full docker image name as DockerImageName object, e.g. DockerImageName.parse("quay.io/keycloak/keycloak:25.0")
+     */
+    public KeycloakContainer(DockerImageName dockerImageName) {
+        super(dockerImageName);
+    }
 
 }

@@ -31,6 +31,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.PullPolicy;
 import org.testcontainers.images.RemoteDockerImage;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import javax.net.ssl.SSLContext;
@@ -133,8 +134,12 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     private boolean optimizeFlag = false;
 
     /**
-     * Create a KeycloakContainer with default image and version tag
+     * Create a KeycloakContainer with the default image and version tag
+     *
+     * @deprecated use KeycloakContainer(String dockerImageName) or KeycloakContainer(DockerImageName dockerImageName) instead.
+     * The behavior of this constructor will change in the future!
      */
+    @Deprecated(since = "4.2.0")
     public ExtendableKeycloakContainer() {
         this(KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION);
     }
@@ -145,6 +150,15 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
      * @param dockerImageName Full docker image name, e.g. quay.io/keycloak/keycloak:25.0
      */
     public ExtendableKeycloakContainer(String dockerImageName) {
+        this(DockerImageName.parse(dockerImageName));
+    }
+
+    /**
+     * Create a KeycloakContainer by passing the full docker image name
+     *
+     * @param dockerImageName Full docker image name as DockerImageName object, e.g. DockerImageName.parse("quay.io/keycloak/keycloak:25.0")
+     */
+    public ExtendableKeycloakContainer(DockerImageName dockerImageName) {
         super(dockerImageName);
         withExposedPorts(KEYCLOAK_PORT_HTTP, KEYCLOAK_PORT_HTTPS, KEYCLOAK_PORT_MGMT);
         importFiles = new HashSet<>();
