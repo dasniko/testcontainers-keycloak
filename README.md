@@ -15,8 +15,9 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 
 ## IMPORTANT!!! VERSIONS!!!
 
+> [!IMPORTANT]
 > See [version overview](versions.md) for an overview which Keycloak release works with this library by default and which [Testcontainers](https://www.testcontainers.org/) version is used.  
-> This library is, like Keycloak, only being developed in forward direction, there is no LTS, no backports, etc. available. So make sure to stay up to date.
+> This library is, like Keycloak, only being developed in forward direction; there is no LTS, no backports, etc. available. So make sure to stay up to date.
 
 ## How to use
 
@@ -34,11 +35,11 @@ KeycloakContainer keycloak = new KeycloakContainer();
 
 ### Custom image
 
-Use another Keycloak Docker image/version than used in this Testcontainer:
+Use a distinct Keycloak Docker image/version:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26");
 ```
 
 ### Initial admin user credentials
@@ -97,9 +98,10 @@ org.keycloak.admin.Keycloak keycloakAdmin = keycloakContainer.getKeycloakAdminCl
 ```
 The admin client is configured with current admin credentials.
 
-> The `org.keycloak:keycloak-admin-client` package is now a transitive dependency of this project, ready to be used by you in your tests, no more need to add it on your own.
+> [!NOTE] 
+> The `org.keycloak:keycloak-admin-client` package is a transitive dependency of this project, ready to be used by you in your tests, no need to add it on your own.
 
-You can also obtain several properties from the Keycloak container:
+You can also get several properties from the Keycloak container:
 
 ```java
 String authServerUrl = keycloak.getAuthServerUrl();
@@ -249,8 +251,9 @@ KeycloakContainer keycloak = new KeycloakContainer("<YOUR_IMAGE>" + ":<YOUR_TAG>
     .withOptimizedFlag();
 ```
 
-NOTE: If you don't enable the health endpoint, the container will not be healthy.
-In this case please provide your own waitStrategy.
+> [!NOTE]
+> If you don't enable the health endpoint in your custom image, the container will not be healthy.
+> In this case please provide your own waitStrategy.
 Check out the tests at [`KeycloakContainerOptimizedTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerOptimizedTest.java).
 
 ## Testing Custom Extensions
@@ -289,10 +292,9 @@ KeycloakContainer keycloak = new KeycloakContainer()
 
 You have to provide a list of resolvable `File`s.
 
-#### TIP
-
-If you want/need to use dependencies from e.g., Maven (or Gradle), you can use [ShrinkWrap Resolvers](https://github.com/shrinkwrap/resolver).
-See, as an example, how this is used at the [`KeycloakContainerExtensionTest#shouldDeployProviderWithDependencyAndCallCustomEndpoint()`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) test.
+> [!TIP]
+> If you want/need to use dependencies from e.g., Maven (or Gradle), you can use [ShrinkWrap Resolvers](https://github.com/shrinkwrap/resolver).
+> See, as an example, how this is used at the [`KeycloakContainerExtensionTest#shouldDeployProviderWithDependencyAndCallCustomEndpoint()`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerExtensionTest.java) test.
 
 ### Extending KeycloakContainer
 
@@ -348,10 +350,12 @@ Simply put the dependency coordinates to your `pom.xml` (or something similar, i
 
 For a version overview, see [here](versions.md).
 
+> [!TIP]
 > There is also a `999.0.0-SNAPSHOT` version available, pointing to `nightly` Docker image by default and using the `999.0.0-SNAPSHOT` Keycloak libraries as dependencies.
 
 ## Usage in your application framework tests
 
+> [!NOTE]
 > This info is not specific to the Keycloak Testcontainer, but using Testcontainers in general.
 
 I mention it here, as I see people asking again and again on how to use it in their test setup, when they think they need to specify a fixed port in their properties or YAML files...  
@@ -393,6 +397,6 @@ Kudos to [@thomasdarimont](https://github.com/thomasdarimont) for some inspirati
 
 Apache License 2.0
 
-Copyright (c) 2019-2025 Niko Köbler
+Copyright (c) 2019-2026 Niko Köbler
 
 See [LICENSE](LICENSE) file for details.
