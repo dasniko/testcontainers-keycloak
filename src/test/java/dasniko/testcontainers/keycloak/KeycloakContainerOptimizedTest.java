@@ -8,6 +8,7 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 
 import java.nio.file.Paths;
 
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.KEYCLOAK_IMAGE;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -60,7 +61,7 @@ public class KeycloakContainerOptimizedTest {
 
     @Test
     public void shouldStartWithProviderInstallationLogMessageWhenOptimizedIsNotSet() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)) {
             keycloak.start();
             assertThat(keycloak.getLogs(),
                 containsString(UPDATING_THE_CONFIGURATION));

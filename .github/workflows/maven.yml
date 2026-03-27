@@ -8,6 +8,7 @@ on:
     branches:
       - main
       - 'release/**'
+      - 'feature/**'
     paths-ignore:
       - '.github/**'
       - 'pom.xml'
@@ -24,6 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        keycloak-version: ['25', '26', 'latest', 'nightly']
+        shard: [1, 2, 3, 4]
         include:
           - shard: 1
             classes: "dasniko.testcontainers.keycloak.KeycloakContainerTest"
@@ -42,9 +45,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
-      - name: Run tests (Shard ${{ matrix.shard }})
+      - name: Run tests (Shard ${{ matrix.shard }}, Keycloak ${{ matrix.keycloak-version }})
         run: |
           mvn test -Dtest="${{ matrix.classes }}" \
+                   -Dkeycloak.version="${{ matrix.keycloak-version }}" \
                    -Dsurefire.failIfNoSpecifiedTests=false
 
   build:

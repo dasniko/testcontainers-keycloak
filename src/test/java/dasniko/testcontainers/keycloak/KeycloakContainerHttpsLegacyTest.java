@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.KEYCLOAK_IMAGE;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
@@ -23,7 +24,7 @@ public class KeycloakContainerHttpsLegacyTest {
 
     @Test
     public void shouldStartKeycloakWithMutualTlsRequestNoMutualTls() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .useTlsKeystore("keycloak.jks", "keycloak")
             .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUEST)) {
             keycloak.start();
@@ -33,7 +34,7 @@ public class KeycloakContainerHttpsLegacyTest {
 
     @Test
     public void shouldStartKeycloakWithMutualTlsRequestWithMutualTls() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .useTlsKeystore("keycloak.jks", "keycloak")
             .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUEST)) {
             keycloak.start();
@@ -44,7 +45,7 @@ public class KeycloakContainerHttpsLegacyTest {
     @Test
     @Disabled("temporarily disabled, until cause and fix is clarified")
     public void shouldStartKeycloakWithMutualTlsRequiredWithMutualTls() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .useTlsKeystore("keycloak.jks", "keycloak")
             .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
         ) {
@@ -55,7 +56,7 @@ public class KeycloakContainerHttpsLegacyTest {
 
     @Test
     public void shouldStartKeycloakWithMutualTlsRequiredWithoutMutualTls() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .useTlsKeystore("keycloak.jks", "keycloak")
             .useMutualTls("keycloak.jks", "keycloak", HttpsClientAuth.REQUIRED)
         ) {
@@ -66,12 +67,12 @@ public class KeycloakContainerHttpsLegacyTest {
 
     @Test
     public void shouldThrowNullPointerExceptionUponNullTlsTruststoreFilename() {
-        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useMutualTls(null, null, HttpsClientAuth.NONE));
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer(KEYCLOAK_IMAGE).useMutualTls(null, null, HttpsClientAuth.NONE));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionUponNullHttpsClientAuth() {
-        assertThrows(NullPointerException.class, () -> new KeycloakContainer().useMutualTls("keycloak.jks", null, null));
+        assertThrows(NullPointerException.class, () -> new KeycloakContainer(KEYCLOAK_IMAGE).useMutualTls("keycloak.jks", null, null));
     }
 
     private void checkTls(KeycloakContainer keycloak, String pathToTruststore, String truststorePassword) {

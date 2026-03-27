@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.KEYCLOAK_IMAGE;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +39,7 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldStartKeycloakWithNonExistingExtensionClassFolder() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .withProviderClassesFrom("target/does_not_exist")) {
             keycloak.start();
         }
@@ -49,7 +50,7 @@ public class KeycloakContainerExtensionTest {
      */
     @Test
     public void shouldDeployProvider() throws Exception {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             // this would normally be just "target/classes"
             .withProviderClassesFrom("target/test-classes")
             .withRealmImportFile(TEST_REALM_JSON)) {
@@ -75,7 +76,7 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldDeployProviderAndCallCustomEndpoint() throws Exception {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             // this would normally be just "target/classes"
             .withProviderClassesFrom("target/test-classes")) {
             keycloak.start();
@@ -108,7 +109,7 @@ public class KeycloakContainerExtensionTest {
             .resolve("net.datafaker:datafaker")
             .withoutTransitivity().asList(File.class);
 
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .withProviderClassesFrom("target/test-classes")
             .withProviderLibsFrom(dependencies)) {
             keycloak.start();
@@ -125,7 +126,7 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldCacheStaticContentPerDefault() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .withProviderClassesFrom("target/test-classes")) {
             keycloak.start();
             given().when().get(getProjectLogoUrl(keycloak))
@@ -135,7 +136,7 @@ public class KeycloakContainerExtensionTest {
 
     @Test
     public void shouldNotCacheStaticContentWithDisabledCaching() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KEYCLOAK_IMAGE)
             .withProviderClassesFrom("target/test-classes")
             .withDisabledCaching()) {
             keycloak.start();

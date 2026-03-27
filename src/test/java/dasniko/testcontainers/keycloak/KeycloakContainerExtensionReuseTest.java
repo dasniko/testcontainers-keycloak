@@ -9,6 +9,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
 
+import static dasniko.testcontainers.keycloak.KeycloakContainerTest.KEYCLOAK_IMAGE;
 import static dasniko.testcontainers.keycloak.KeycloakContainerTest.TEST_REALM_JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -19,7 +20,7 @@ import static org.hamcrest.Matchers.startsWith;
  */
 public class KeycloakContainerExtensionReuseTest {
 
-    public static final KeycloakContainer KEYCLOAK = new KeycloakContainer()
+    public static final KeycloakContainer KEYCLOAK = new KeycloakContainer(KEYCLOAK_IMAGE)
         .withRealmImportFile(TEST_REALM_JSON)
         // this would normally be just "target/classes"
         .withProviderClassesFrom("target/test-classes")
