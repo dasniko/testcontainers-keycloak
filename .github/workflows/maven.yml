@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        keycloak-version: ['25', '26', 'latest', 'nightly']
+        keycloak-version: ['25.0', '26.4', 'latest', 'nightly']
         shard: [1, 2, 3, 4]
         include:
           - shard: 1
