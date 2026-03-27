@@ -48,7 +48,7 @@ jobs:
       - name: Run tests (Shard ${{ matrix.shard }}, Keycloak ${{ matrix.keycloak-version }})
         run: |
           mvn test -Dtest="${{ matrix.classes }}" \
-                   -Dkeycloak.version="${{ matrix.keycloak-version }}" \
+                   -Dkc.version="${{ matrix.keycloak-version }}" \
                    -Dsurefire.failIfNoSpecifiedTests=false
 
   build:

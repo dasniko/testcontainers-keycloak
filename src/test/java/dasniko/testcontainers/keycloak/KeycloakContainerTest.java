@@ -39,7 +39,7 @@ public class KeycloakContainerTest {
 
     public static final String TEST_REALM_JSON = "/test-realm.json";
     public static final String MASTER_REALM_WITH_ADMIN_USER_JSON = "/master-realm-with-admin-user.json";
-    public static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak:" + System.getProperty("keycloak.version", "nightly");
+    public static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak:" + System.getProperty("kc.version", "nightly");
 
     @Test
     public void shouldStartKeycloak() {
