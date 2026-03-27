@@ -1,3 +1,5 @@
+← [README](../README.md)
+
 # Keycloak Testcontainer Versions
 
 ## Testcontainers & Keycloak version compatibility
@@ -43,19 +45,3 @@
 _There might also be other possible version configurations which will work._
 
 See also the [Releases](https://github.com/dasniko/testcontainers-keycloak/releases) page for version and feature update notes.
-
-## Public Repository
-
-The release versions of this project are available at [Maven Central](https://central.sonatype.com/artifact/com.github.dasniko/testcontainers-keycloak).
-Simply put the dependency coordinates to your `pom.xml` (or something similar, if you use e.g. Gradle or something else):
-
-```xml
-<dependency>
-  <groupId>com.github.dasniko</groupId>
-  <artifactId>testcontainers-keycloak</artifactId>
-  <version>VERSION</version>
-  <scope>test</scope>
-</dependency>
-```
-
-There is also a `999.0.0-SNAPSHOT` version available, pointing to `nightly` Docker image by default and using the `999.0.0-SNAPSHOT` Keycloak libraries as dependencies.
