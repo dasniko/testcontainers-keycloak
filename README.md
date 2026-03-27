@@ -1,6 +1,7 @@
 # Keycloak Testcontainer
 
 A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
+**New here? → [Quick Start](docs/quickstart.md)**
 
 [![GitHub Release](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)](https://github.com/dasniko/testcontainers-keycloak/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.dasniko/testcontainers-keycloak.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.github.dasniko/testcontainers-keycloak)
@@ -13,11 +14,59 @@ A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak
 [![GitHub Stars](https://img.shields.io/github/stars/dasniko/testcontainers-keycloak)](https://github.com/dasniko/testcontainers-keycloak/stargazers)
 [![CI build](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml/badge.svg)](https://github.com/dasniko/testcontainers-keycloak/actions/workflows/maven.yml)
 
-## IMPORTANT!!! VERSIONS!!!
+## Setup
+
+The release versions of this project are available at [Maven Central](https://central.sonatype.com/artifact/com.github.dasniko/testcontainers-keycloak).
+
+**Maven:**
+```xml
+<dependency>
+  <groupId>com.github.dasniko</groupId>
+  <artifactId>testcontainers-keycloak</artifactId>
+  <version>VERSION</version>
+  <scope>test</scope>
+</dependency>
+```
+
+**Gradle (Kotlin DSL):**
+```kotlin
+testImplementation("com.github.dasniko:testcontainers-keycloak:VERSION")
+```
+
+> [!TIP]
+> There is also a `999.0.0-SNAPSHOT` version available, pointing to the `nightly` Docker image by default and using the `999.0.0-SNAPSHOT` Keycloak libraries as dependencies.
+
+## Version Compatibility
 
 > [!IMPORTANT]
-> See [version overview](versions.md) for an overview which Keycloak release works with this library by default and which [Testcontainers](https://www.testcontainers.org/) version is used.  
-> This library is, like Keycloak, only being developed in forward direction; there is no LTS, no backports, etc. available. So make sure to stay up to date.
+> See [version overview](docs/versions.md) for an overview of which Keycloak release works with this library by default and which [Testcontainers](https://www.testcontainers.org/) version is used.
+> This library is, like Keycloak, only developed in the forward direction — no LTS, no backports. Make sure to stay up to date.
+
+## Contents
+
+- [How to use](#how-to-use)
+  - [Default](#default)
+  - [Custom image](#custom-image)
+  - [Initial admin user credentials](#initial-admin-user-credentials)
+  - [Realm Import](#realm-import)
+  - [Getting an admin client and other information](#getting-an-admin-client-and-other-information-from-the-testcontainer)
+  - [Context Path](#context-path)
+  - [Management Port](#management-port)
+  - [Memory Settings](#memory-settings)
+- [TLS (SSL) Usage](#tls-ssl-usage)
+  - [Built-in TLS Keystore](#built-in-tls-keystore)
+  - [Custom TLS Cert and Key](#custom-tls-cert-and-key)
+  - [Custom TLS Keystore](#custom-tls-keystore)
+- [Features](#features)
+- [Custom CLI Config arguments](#custom-cli-config-arguments)
+- [Starting in production mode](#starting-in-production-mode)
+  - [Optimized flag](#optimized-flag)
+- [Testing Custom Extensions](#testing-custom-extensions)
+  - [Dependencies & 3rd-party Libraries](#dependencies--3rd-party-libraries)
+  - [Extending KeycloakContainer](#extending-keycloakcontainer)
+  - [Remote Debugger Support](#remote-debugger-support)
+- [Usage in your application framework tests](#usage-in-your-application-framework-tests)
+- [YouTube Videos](#youtube-videos-about-keycloak-testcontainers)
 
 ## How to use
 
@@ -62,12 +111,14 @@ Power up a Keycloak instance with one or more existing realm JSON config files (
 KeycloakContainer keycloak = new KeycloakContainer()
     .withRealmImportFile("/test-realm.json");
 ```
+
 or
+
 ```java
     .withRealmImportFiles("/test-realm-1.json", "/test-realm-2.json");
 ```
 
-If your realm JSON configuration file includes user definitions - particularly the admin user 
+If your realm JSON configuration file includes user definitions - particularly the admin user
 for the master realm - ensure you disable the automatic bootstrapping of the admin user:
 
 ```java
@@ -77,7 +128,7 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withRealmImportFile("/test-realm.json");
 ```
 
-To retrieve a working Keycloak Admin Client from the container, make sure to override the admin 
+To retrieve a working Keycloak Admin Client from the container, make sure to override the admin
 credentials to match those in your imported realm JSON configuration file:
 
 ```java
@@ -98,7 +149,7 @@ org.keycloak.admin.Keycloak keycloakAdmin = keycloakContainer.getKeycloakAdminCl
 ```
 The admin client is configured with current admin credentials.
 
-> [!NOTE] 
+> [!NOTE]
 > The `org.keycloak:keycloak-admin-client` package is a transitive dependency of this project, ready to be used by you in your tests, no need to add it on your own.
 
 You can also get several properties from the Keycloak container:
@@ -133,7 +184,7 @@ KeycloakContainer keycloak = new KeycloakContainer()
 
 ### Management Port
 
-Starting from Keycloak version 25.0.0, Keycloak will propagate `/health` and `/metrics` on "Management Port", see [Configuraing the Management Interface](https://www.keycloak.org/server/management-interface) and [Migration Guide](https://www.keycloak.org/docs/latest/upgrading/index.html#management-port-for-metrics-and-health-endpoints)
+Starting from Keycloak version 25.0.0, Keycloak will propagate `/health` and `/metrics` on "Management Port", see [Configuring the Management Interface](https://www.keycloak.org/server/management-interface) and [Migration Guide](https://www.keycloak.org/docs/latest/upgrading/index.html#management-port-for-metrics-and-health-endpoints)
 
 ```java
 KeycloakContainer keycloak = new KeycloakContainer().withEnabledMetrics()
@@ -150,7 +201,7 @@ This testcontainer has an initial memory setting of
     JAVA_OPTS_KC_HEAP="-XX:InitialRAMPercentage=1 -XX:MaxRAMPercentage=5"
 
 to not overload your environment.
-You can override this settng with the `withRamPercentage(initial, max)` method:
+You can override this setting with the `withRamPercentage(initial, max)` method:
 
 ```java
 @Container
@@ -183,13 +234,13 @@ Of course you can also provide your own certificate and key file for usage in th
 
 ```java
 @Container
-private KeycloakContainer keycloak = new KeycloakContainer()
-.useTls("your_custom.crt", "your_custom.key");
+KeycloakContainer keycloak = new KeycloakContainer()
+    .useTls("your_custom.crt", "your_custom.key");
 ```
 
 See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsCertAndKey`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerHttpsTest.java#L47).
 
-The method getAuthServerUrl() will also return the HTTPS url.
+The method `getAuthServerUrl()` will also return the HTTPS url.
 
 ### Custom TLS Keystore
 
@@ -232,7 +283,7 @@ A warning will be printed to the log output when custom command parts are being 
 ## Starting in production mode
 
 By default, the container is started in dev mode (`start-dev`).
-If needed you can enable production mode: 
+If needed you can enable production mode:
 
 ```java
 @Container
@@ -254,6 +305,7 @@ KeycloakContainer keycloak = new KeycloakContainer("<YOUR_IMAGE>" + ":<YOUR_TAG>
 > [!NOTE]
 > If you don't enable the health endpoint in your custom image, the container will not be healthy.
 > In this case please provide your own waitStrategy.
+
 Check out the tests at [`KeycloakContainerOptimizedTest`](./src/test/java/dasniko/testcontainers/keycloak/KeycloakContainerOptimizedTest.java).
 
 ## Testing Custom Extensions
@@ -298,7 +350,7 @@ You have to provide a list of resolvable `File`s.
 
 ### Extending KeycloakContainer
 
-In case you need a custom implementation of the default `KeycloakContainer`, you should inherit from `ExtendableKeycloakContainer`. This allows to set the generics and use your custom implementation without the need for type casts.  
+In case you need a custom implementation of the default `KeycloakContainer`, you should inherit from `ExtendableKeycloakContainer`. This allows to set the generics and use your custom implementation without the need for type casts.
 
 ```java
 public class MyCustomKeycloakContainer extends ExtendableKeycloakContainer<MyCustomKeycloakContainer> {
@@ -334,33 +386,12 @@ KeycloakContainer keycloak = new KeycloakContainer()
     .withDebugFixedPort(int hostPort, boolean suspend);
 ```
 
-## Setup
-
-The release versions of this project are available at [Maven Central](https://central.sonatype.com/artifact/com.github.dasniko/testcontainers-keycloak).
-Simply put the dependency coordinates to your `pom.xml` (or something similar, if you use e.g. Gradle or something else):
-
-```xml
-<dependency>
-  <groupId>com.github.dasniko</groupId>
-  <artifactId>testcontainers-keycloak</artifactId>
-  <version>VERSION</version>
-  <scope>test</scope>
-</dependency>
-```
-
-For a version overview, see [here](versions.md).
-
-> [!TIP]
-> There is also a `999.0.0-SNAPSHOT` version available, pointing to `nightly` Docker image by default and using the `999.0.0-SNAPSHOT` Keycloak libraries as dependencies.
-
 ## Usage in your application framework tests
 
 > [!NOTE]
-> This info is not specific to the Keycloak Testcontainer, but using Testcontainers in general.
+> This info is not specific to the Keycloak Testcontainer, but to using Testcontainers in general.
 
-I mention it here, as I see people asking again and again on how to use it in their test setup, when they think they need to specify a fixed port in their properties or YAML files...  
-You don't have to!  
-But you have to read the Testcontainers docs and the docs of your application framework on testing resources!!
+A common question is how to configure your test setup when you're used to specifying fixed ports in properties or YAML files. With Testcontainers you don't need fixed ports — each framework provides a way to dynamically configure your application context after the container starts.
 
 ### Spring (Boot)
 
@@ -371,18 +402,18 @@ In particular, look for `@ContextConfiguration` and `ApplicationContextInitializ
 
 ### Quarkus
 
-Read the docs about the Quarkus Test Resources and use `@QuarkusTestResource` with `QuarkusTestResourceLifecycleManager`
+Read the docs about the Quarkus Test Resources and use `@QuarkusTestResource` with `QuarkusTestResourceLifecycleManager`:
 * https://quarkus.io/guides/getting-started-testing#quarkus-test-resource
 
 ### Others
 
-Consult the docs of your application framework testing capabilities on how to dynamically configure your stack for testing!
+Consult the docs of your application framework on how to dynamically configure your stack for testing.
 
 ## YouTube Videos about Keycloak Testcontainers
 
-| [![](http://img.youtube.com/vi/FEbIW23RoXk/maxresdefault.jpg)](http://www.youtube.com/watch?v=FEbIW23RoXk "")  | [![](http://img.youtube.com/vi/l2Lk2Z9mHBs/maxresdefault.jpg)](http://www.youtube.com/watch?v=l2Lk2Z9mHBs "") |
-|---|---|
-| [![](http://img.youtube.com/vi/lBC51XZUM90/maxresdefault.jpg)](https://www.youtube.com/watch?v=lBC51XZUM90 "") |
+| [![Integration Tests with Keycloak & Testcontainers](https://img.youtube.com/vi/FEbIW23RoXk/mqdefault.jpg)](https://www.youtube.com/watch?v=FEbIW23RoXk) | [![Keycloak DevDay 2024: Extensions Development with Testcontainers-Keycloak](https://img.youtube.com/vi/l2Lk2Z9mHBs/mqdefault.jpg)](https://www.youtube.com/watch?v=l2Lk2Z9mHBs) | [![Testing Keycloak extensions using Testcontainers](https://img.youtube.com/vi/lBC51XZUM90/mqdefault.jpg)](https://www.youtube.com/watch?v=lBC51XZUM90) |
+|---|---|---|
+| Integration Tests with Keycloak & Testcontainers | Keycloak DevDay 2024: Extensions Development with Testcontainers-Keycloak | Testing Keycloak extensions using Testcontainers (Keycloak Hour of Code) |
 
 ## Credits
 
