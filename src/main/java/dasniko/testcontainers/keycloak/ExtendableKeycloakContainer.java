@@ -312,6 +312,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return super.waitingFor(waitStrategy);
     }
 
+    @Deprecated(since = "4.2.0", forRemoval = true)
     public SELF withNightly() {
         this.setDockerImageName(KEYCLOAK_IMAGE + ":nightly");
         this.withImagePullPolicy(PullPolicy.ageBased(Duration.ofHours(12)));
