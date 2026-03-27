@@ -45,7 +45,7 @@ testImplementation("com.github.dasniko:testcontainers-keycloak:VERSION")
 ## Contents
 
 - [How to use](#how-to-use)
-  - [Default](#default)
+  - [Default _(deprecated)_](#default-deprecated)
   - [Custom image](#custom-image)
   - [Initial admin user credentials](#initial-admin-user-credentials)
   - [Realm Import](#realm-import)
@@ -73,7 +73,12 @@ testImplementation("com.github.dasniko:testcontainers-keycloak:VERSION")
 _The `@Container` annotation used here in the readme is from the JUnit 5 support of Testcontainers.
 Please refer to the Testcontainers documentation for more information._
 
-### Default
+### Default _(deprecated)_
+
+> [!IMPORTANT]
+> Starting with version 4.2, the default constructor is deprecated and should no longer be used.
+> Please use the `new KeycloakContainer(String imageName)` constructor instead (see section [Custom image](#custom-image) below).
+> The behavior of the default constructor will most likely change in future versions!
 
 Simply spin up a default Keycloak instance:
 
@@ -97,7 +102,7 @@ Use different admin credentials than the default internal (`admin`/`admin`) ones
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withAdminUsername("myKeycloakAdminUser")
     .withAdminPassword("tops3cr3t");
 ```
@@ -108,7 +113,7 @@ Power up a Keycloak instance with one or more existing realm JSON config files (
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withRealmImportFile("/test-realm.json");
 ```
 
@@ -123,7 +128,7 @@ for the master realm - ensure you disable the automatic bootstrapping of the adm
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withBootstrapAdminDisabled()
     .withRealmImportFile("/test-realm.json");
 ```
@@ -133,7 +138,7 @@ credentials to match those in your imported realm JSON configuration file:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withBootstrapAdminDisabled()
     .withRealmImportFile("/test-realm.json")
     .withAdminUsername("myKeycloakAdminUser")
@@ -178,7 +183,7 @@ As Keycloak comes with the default context path `/`, you can set your custom con
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withContextPath("/auth");
 ```
 
@@ -187,7 +192,7 @@ KeycloakContainer keycloak = new KeycloakContainer()
 Starting from Keycloak version 25.0.0, Keycloak will propagate `/health` and `/metrics` on "Management Port", see [Configuring the Management Interface](https://www.keycloak.org/server/management-interface) and [Migration Guide](https://www.keycloak.org/docs/latest/upgrading/index.html#management-port-for-metrics-and-health-endpoints)
 
 ```java
-KeycloakContainer keycloak = new KeycloakContainer().withEnabledMetrics()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag").withEnabledMetrics();
 keycloak.start();
 keycloak.getMgmtServerUrl();
 ```
@@ -205,7 +210,7 @@ You can override this setting with the `withRamPercentage(initial, max)` method:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withRamPercentage(50, 70);
 ```
 
@@ -220,7 +225,7 @@ You can use this configuration by only configuring your testcontainer like this:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer().useTls();
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag").useTls();
 ```
 
 The password for the provided Java KeyStore file is `changeit`.
@@ -234,7 +239,7 @@ Of course you can also provide your own certificate and key file for usage in th
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .useTls("your_custom.crt", "your_custom.key");
 ```
 
@@ -248,7 +253,7 @@ Last but not least, you can also provide your own keystore file for usage in thi
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .useTlsKeystore("your_custom.jks", "password_for_your_custom_keystore");
 ```
 
@@ -262,7 +267,7 @@ You can enable and disable features on your Testcontainer:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withFeaturesEnabled("docker", "scripts", "...")
     .withFeaturesDisabled("authorization", "impersonation", "...");
 ```
@@ -274,7 +279,7 @@ You can overwrite and/or add config settings on command-line-level (cli args) wi
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withCustomCommand("--hostname=keycloak.local");
 ```
 
@@ -287,7 +292,7 @@ If needed you can enable production mode:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withProductionMode();
 ```
 
@@ -319,14 +324,14 @@ To test your extensions you just need to tell `KeycloakContainer` to consider ex
 Keycloak Testcontainer will then dynamically generate a packaged jar file with the extension code that is then picked up by Keycloak.
 
 ```java
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withProviderClassesFrom("target/classes");
 ```
 
 For your convenience, there's now (since 3.3) a default method, which yields to `target/classes` internally:
 
 ```java
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withDefaultProviderClasses();
 ```
 
@@ -338,7 +343,7 @@ If you need to provide any 3rd-party dependency or library, you can do this with
 
 ```java
 List<File> libs = ...;
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withProviderLibsFrom(libs);
 ```
 
@@ -355,7 +360,7 @@ In case you need a custom implementation of the default `KeycloakContainer`, you
 ```java
 public class MyCustomKeycloakContainer extends ExtendableKeycloakContainer<MyCustomKeycloakContainer> {
   public MyCustomKeycloakContainer() {
-    super();
+    super("kcImageName:tag");
   }
   public MyCustomKeycloakContainer(String dockerImageName) {
     super(dockerImageName);
@@ -375,14 +380,14 @@ You can tell the Keycloak Testcontainer to open a debug port for attaching a rem
 This command will enable remote debugging in Keycloak and expose the used debug port in the container on a random port to the outside:
 
 ```java
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withDebug();
 ```
 
 If you want to enable remote debugging on a fixed port and optionally have Keycloak wait (suspend) until a debugger has attached to this port, use this command:
 
 ```java
-KeycloakContainer keycloak = new KeycloakContainer()
+KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
     .withDebugFixedPort(int hostPort, boolean suspend);
 ```
 
