@@ -39,10 +39,12 @@ public class KeycloakContainerTest {
 
     public static final String TEST_REALM_JSON = "/test-realm.json";
     public static final String MASTER_REALM_WITH_ADMIN_USER_JSON = "/master-realm-with-admin-user.json";
+    public static final String KC_VERSION = System.getProperty("kc.version", "nightly");
+    public static final String KC_IMAGE = "quay.io/keycloak/keycloak:" + KC_VERSION;
 
     @Test
     public void shouldStartKeycloak() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE)) {
             keycloak.start();
         }
     }
@@ -53,7 +55,7 @@ public class KeycloakContainerTest {
         Instant start = Instant.now();
         try {
             Duration duration = Duration.ofSeconds(MAX_TIMEOUT);
-            try (KeycloakContainer keycloak = new KeycloakContainer().withStartupTimeout(duration)) {
+            try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withStartupTimeout(duration)) {
                 keycloak.start();
             }
         } catch (ContainerLaunchException ex) {
@@ -67,7 +69,7 @@ public class KeycloakContainerTest {
     @ParameterizedTest
     @ValueSource(strings = {TEST_REALM_JSON, "/single-test-folder" + TEST_REALM_JSON, "/second-test-folder/first-test-folder" + TEST_REALM_JSON})
     public void shouldImportRealm(final String realmLocation) {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withRealmImportFile(realmLocation)) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withRealmImportFile(realmLocation)) {
             keycloak.start();
 
             String accountService = given().when().get(keycloak.getAuthServerUrl() + "/realms/test")
@@ -80,7 +82,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldImportMultipleRealms() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).
             withRealmImportFiles(TEST_REALM_JSON, "/another-realm.json")) {
             keycloak.start();
 
@@ -100,7 +102,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldImportMasterRealmAdmin() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE)
             .withBootstrapAdminDisabled()
             .withRealmImportFiles(MASTER_REALM_WITH_ADMIN_USER_JSON)) {
             keycloak.start();
@@ -116,16 +118,15 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldReturnServerInfo() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE)) {
             keycloak.start();
-
             checkKeycloakContainerInternals(keycloak);
         }
     }
 
     @Test
     public void shouldReturnServerInfoNightly() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withNightly()) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withNightly()) {
             keycloak.start();
             checkKeycloakContainerInternals(keycloak);
         }
@@ -133,7 +134,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldUseDifferentAdminCredentials() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE)
             .withAdminUsername("foo")
             .withAdminPassword("bar")) {
             keycloak.start();
@@ -145,7 +146,7 @@ public class KeycloakContainerTest {
     @Test
     public void shouldRunOnDifferentContextPath() {
         String contextPath = "/auth";
-        try (KeycloakContainer keycloak = new KeycloakContainer().withContextPath(contextPath)) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withContextPath(contextPath)) {
             keycloak.start();
 
             String authServerUrl = keycloak.getAuthServerUrl();
@@ -158,7 +159,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldNotExposeMetricsPerDefault() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE)) {
             keycloak.start();
 
             given().when().get(keycloak.getMgmtServerUrl() + "/metrics")
@@ -168,7 +169,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldExposeMetricsWithEnabledMetrics() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withEnabledMetrics()) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withEnabledMetrics()) {
             keycloak.start();
 
             given().when().get(keycloak.getMgmtServerUrl() + "/metrics")
@@ -178,14 +179,14 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldStartKeycloakVerbose() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withVerboseOutput()) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withVerboseOutput()) {
             keycloak.start();
         }
     }
 
     @Test
-    void shouldOpenRandomDebugPort() throws IOException {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withDebug()) {
+    void shouldOpenRandomDebugPort() {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withDebug()) {
             keycloak.start();
 
             testDebugPortAvailable(keycloak.getHost(), keycloak.getDebugPort());
@@ -193,9 +194,9 @@ public class KeycloakContainerTest {
     }
 
     @Test
-    void shouldOpenFixedDebugPort() throws IOException {
+    void shouldOpenFixedDebugPort() {
         final int fixedDebugPort = findFreePort();
-        try (KeycloakContainer keycloak = new KeycloakContainer().withDebugFixedPort(fixedDebugPort, false)) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withDebugFixedPort(fixedDebugPort, false)) {
             keycloak.start();
 
             assertThat(keycloak.getDebugPort(), is(fixedDebugPort));
@@ -205,7 +206,7 @@ public class KeycloakContainerTest {
 
     @Test
     void shouldUseCustomCommandPart() {
-        try (KeycloakContainer keycloak = new KeycloakContainer().withCustomCommand("--hostname=keycloak.local")) {
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE).withCustomCommand("--hostname=keycloak.local")) {
             keycloak.start();
             String issuer = getWellKnownOpenidConfigurationResponse(keycloak.getAuthServerUrl()).extract().path("issuer");
             assertThat(issuer, containsString("keycloak.local"));
@@ -214,7 +215,7 @@ public class KeycloakContainerTest {
 
     @Test
     public void shouldStartKeycloakWithDifferentWaitStrategy() {
-        try (KeycloakContainer keycloak = new KeycloakContainer()
+        try (KeycloakContainer keycloak = new KeycloakContainer(KC_IMAGE)
             .waitingFor(KeycloakContainer.LOG_WAIT_STRATEGY.withStartupTimeout(Duration.ofMinutes(2)))) {
             keycloak.start();
             checkKeycloakContainerInternals(keycloak);
