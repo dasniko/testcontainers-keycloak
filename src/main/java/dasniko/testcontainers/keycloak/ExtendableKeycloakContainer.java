@@ -666,6 +666,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return startupTimeout;
     }
 
+    @Deprecated(since = "4.2.0", forRemoval = true)
     public String getKeycloakDefaultVersion() {
         RemoteDockerImage image = this.getImage();
         return this.getDockerImageName().endsWith(":nightly") ? "999.0.0-SNAPSHOT" : KEYCLOAK_VERSION;
