@@ -5,13 +5,8 @@ name: CI build
 
 on:
   push:
-    branches:
-      - main
-      - 'release/**'
-      - 'feature/**'
     paths-ignore:
       - '.github/**'
-      - 'pom.xml'
       - 'README.md'
   pull_request:
     paths-ignore:
