@@ -66,6 +66,8 @@ testImplementation("com.github.dasniko:testcontainers-keycloak:VERSION")
   - [Extending KeycloakContainer](#extending-keycloakcontainer)
   - [Remote Debugger Support](#remote-debugger-support)
 - [Usage in your application framework tests](#usage-in-your-application-framework-tests)
+  - [Spring Boot](#spring-boot)
+  - [Quarkus](#quarkus)
 - [YouTube Videos](#youtube-videos-about-keycloak-testcontainers)
 
 ## How to use
@@ -393,22 +395,57 @@ KeycloakContainer keycloak = new KeycloakContainer("kcImageName:tag")
 
 ## Usage in your application framework tests
 
-> [!NOTE]
-> This info is not specific to the Keycloak Testcontainer, but to using Testcontainers in general.
-
 A common question is how to configure your test setup when you're used to specifying fixed ports in properties or YAML files. With Testcontainers you don't need fixed ports — each framework provides a way to dynamically configure your application context after the container starts.
 
-### Spring (Boot)
+### Spring Boot
 
-Dynamic context configuration with context initializers is your friend.
-In particular, look for `@ContextConfiguration` and `ApplicationContextInitializer<ConfigurableApplicationContext>`:
-* https://docs.spring.io/spring-framework/docs/current/reference/html/testing.html#spring-testing-annotation-contextconfiguration
-* https://docs.spring.io/spring-framework/docs/current/reference/html/testing.html#testcontext-ctx-management-initializers
+The recommended approach is `@DynamicPropertySource`, which injects the container's dynamic URLs into the Spring `Environment` before the application context starts. For example:
+
+```java
+@Testcontainers
+@SpringBootTest
+class MyTest {
+
+    @Container
+    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26")
+        .withRealmImportFile("/test-realm.json");
+
+    @DynamicPropertySource
+    static void keycloakProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
+            () -> keycloak.getAuthServerUrl() + "/realms/test");
+    }
+}
+```
+
+**→ [Full Spring Boot integration guide](docs/spring-boot.md)** — covers OAuth2 resource server, OAuth2 client, shared container patterns, token acquisition, and TLS.
 
 ### Quarkus
 
-Read the docs about the Quarkus Test Resources and use `@QuarkusTestResource` with `QuarkusTestResourceLifecycleManager`:
-* https://quarkus.io/guides/getting-started-testing#quarkus-test-resource
+Implement `QuarkusTestResourceLifecycleManager` to start the container and inject config properties before the Quarkus application context boots:
+
+```java
+public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager {
+
+    private static final KeycloakContainer keycloak =
+        new KeycloakContainer("quay.io/keycloak/keycloak:26")
+            .withRealmImportFile("/test-realm.json");
+
+    @Override
+    public Map<String, String> start() {
+        keycloak.start();
+        return Map.of(
+            "quarkus.oidc.auth-server-url", keycloak.getAuthServerUrl() + "/realms/test",
+            "quarkus.oidc.client-id", "my-client"
+        );
+    }
+
+    @Override
+    public void stop() { keycloak.stop(); }
+}
+```
+
+**→ [Full Quarkus integration guide](docs/quarkus.md)** — covers OIDC resource server, OIDC client, multi-tenant setups, container injection into tests, and TLS.
 
 ### Others
 
