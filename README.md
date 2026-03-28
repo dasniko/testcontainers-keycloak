@@ -1,6 +1,7 @@
 # Keycloak Testcontainer
 
-A [Testcontainers](https://www.testcontainers.org/) implementation for [Keycloak](https://www.keycloak.org/) SSO.
+Spin up a real [Keycloak](https://www.keycloak.org/) OAuth2/OIDC identity provider as a Docker container in your Java integration tests — no mocks, no manual setup.
+Built on [Testcontainers](https://www.testcontainers.org/), it works with JUnit 5 and integrates seamlessly with Spring Boot, Quarkus, and any other Java framework.
 **New here? → [Quick Start](docs/quickstart.md)**
 
 [![GitHub Release](https://img.shields.io/github/v/release/dasniko/testcontainers-keycloak?label=Release)](https://github.com/dasniko/testcontainers-keycloak/releases)
@@ -57,7 +58,7 @@ testImplementation("com.github.dasniko:testcontainers-keycloak:VERSION")
   - [Built-in TLS Keystore](#built-in-tls-keystore)
   - [Custom TLS Cert and Key](#custom-tls-cert-and-key)
   - [Custom TLS Keystore](#custom-tls-keystore)
-- [Features](#features)
+- [Keycloak Feature Flags](#keycloak-feature-flags)
 - [Custom CLI Config arguments](#custom-cli-config-arguments)
 - [Starting in production mode](#starting-in-production-mode)
   - [Optimized flag](#optimized-flag)
@@ -263,9 +264,9 @@ See also [`KeycloakContainerHttpsTest.shouldStartKeycloakWithCustomTlsKeystore`]
 
 The method `getAuthServerUrl()` will also return the HTTPS url.
 
-## Features
+## Keycloak Feature Flags
 
-You can enable and disable features on your Testcontainer:
+You can enable and disable Keycloak feature flags on your Testcontainer:
 
 ```java
 @Container
