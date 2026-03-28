@@ -29,6 +29,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
+import org.testcontainers.images.ImagePullPolicy;
 import org.testcontainers.images.PullPolicy;
 import org.testcontainers.images.RemoteDockerImage;
 import org.testcontainers.utility.DockerImageName;
@@ -125,6 +126,7 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private Duration startupTimeout = DEFAULT_STARTUP_TIMEOUT;
     private boolean customWaitStrategySet = false;
+    private ImagePullPolicy imagePullPolicy = PullPolicy.ageBased(Duration.ofDays(1));
 
     private List<String> providerClassLocations;
     private List<File> providerLibsLocations;
@@ -167,6 +169,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     @Override
     protected void configure() {
+        super.withImagePullPolicy(imagePullPolicy);
+
         List<String> commandParts = new ArrayList<>();
         if (useVerbose) {
             commandParts.add("--verbose");
@@ -315,7 +319,6 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     @Deprecated(since = "4.2.0", forRemoval = true)
     public SELF withNightly() {
         this.setDockerImageName(KEYCLOAK_IMAGE + ":nightly");
-        this.withImagePullPolicy(PullPolicy.ageBased(Duration.ofHours(12)));
         return self();
     }
 
@@ -568,6 +571,12 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public SELF withOptimizedFlag() {
         this.optimizeFlag = true;
         return self().withProductionMode();
+    }
+
+    @Override
+    public SELF withImagePullPolicy(ImagePullPolicy imagePullPolicy) {
+        this.imagePullPolicy = imagePullPolicy;
+        return self();
     }
 
     /**
