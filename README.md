@@ -95,7 +95,7 @@ Use a distinct Keycloak Docker image/version:
 
 ```java
 @Container
-KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26");
+KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4");
 ```
 
 ### Initial admin user credentials
@@ -407,7 +407,7 @@ The recommended approach is `@DynamicPropertySource`, which injects the containe
 class MyTest {
 
     @Container
-    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26")
+    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
         .withRealmImportFile("/test-realm.json");
 
     @DynamicPropertySource
@@ -428,7 +428,7 @@ Implement `QuarkusTestResourceLifecycleManager` to start the container and injec
 public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager {
 
     private static final KeycloakContainer keycloak =
-        new KeycloakContainer("quay.io/keycloak/keycloak:26")
+        new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
             .withRealmImportFile("/test-realm.json");
 
     @Override

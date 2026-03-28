@@ -73,7 +73,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ResourceServerIntegrationTest {
 
     @Container
-    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26")
+    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
         .withRealmImportFile("/test-realm.json");
 
     @DynamicPropertySource
@@ -146,7 +146,7 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(initializers = ResourceServerTest.Initializer.class)
 class ResourceServerTest {
 
-    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26")
+    static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
         .withRealmImportFile("/test-realm.json");
 
     static {
@@ -184,7 +184,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 abstract class AbstractKeycloakIntegrationTest {
 
     @Container
-    static final KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26")
+    static final KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
         .withRealmImportFile("/test-realm.json");
 
     @DynamicPropertySource
@@ -270,7 +270,7 @@ If your production configuration enforces HTTPS, enable TLS on the test containe
 
 ```java
 @Container
-static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26")
+static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
     .useTls()
     .withRealmImportFile("/test-realm.json");
 

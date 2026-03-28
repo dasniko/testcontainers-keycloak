@@ -42,7 +42,7 @@ import java.util.Map;
 public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager {
 
     private static final KeycloakContainer keycloak =
-        new KeycloakContainer("quay.io/keycloak/keycloak:26")
+        new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
             .withRealmImportFile("/test-realm.json");
 
     @Override
@@ -111,7 +111,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
 
     // Static field ensures only one container per JVM
     private static final KeycloakContainer keycloak =
-        new KeycloakContainer("quay.io/keycloak/keycloak:26")
+        new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
             .withRealmImportFile("/test-realm.json");
 
     @Override
@@ -150,7 +150,7 @@ Sometimes test code itself needs the container URL (e.g., for token acquisition)
 public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager {
 
     private static final KeycloakContainer keycloak =
-        new KeycloakContainer("quay.io/keycloak/keycloak:26")
+        new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
             .withRealmImportFile("/test-realm.json");
 
     @Override
@@ -308,7 +308,7 @@ Enable TLS on the container and trust the built-in self-signed certificate in Qu
 
 ```java
 private static final KeycloakContainer keycloak =
-    new KeycloakContainer("quay.io/keycloak/keycloak:26")
+    new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
         .useTls()
         .withRealmImportFile("/test-realm.json");
 
