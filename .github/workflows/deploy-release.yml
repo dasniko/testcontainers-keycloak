@@ -1,6 +1,7 @@
 name: Deploy Release to Maven Central
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "v*"
@@ -27,10 +28,11 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          trust_level: 5
       - name: Set version from tag
         run: ./mvnw versions:set -DnewVersion=${GITHUB_REF_NAME#v} -DgenerateBackupPoms=false
       - name: Deploy to Maven Central
-        run: mvn deploy -Prelease -DskipTests
+        run: ./mvnw deploy -Prelease -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
