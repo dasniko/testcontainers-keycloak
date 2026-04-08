@@ -171,6 +171,9 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     protected void configure() {
         super.withImagePullPolicy(imagePullPolicy);
 
+        withEnv("KC_SHUTDOWN_DELAY", "0s");
+        withEnv("KC_SHUTDOWN_TIMEOUT", "100ms");
+
         List<String> commandParts = new ArrayList<>();
         if (useVerbose) {
             commandParts.add("--verbose");
