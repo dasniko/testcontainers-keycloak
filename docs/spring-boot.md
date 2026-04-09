@@ -79,7 +79,7 @@ class ResourceServerIntegrationTest {
     @DynamicPropertySource
     static void keycloakProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-            () -> keycloak.getAuthServerUrl() + "/realms/test");
+            () -> keycloak.getIssuerUrl("test"));
     }
 
     @Autowired
@@ -122,7 +122,7 @@ For applications acting as an OAuth2 client (e.g., calling a downstream API with
 ```java
 @DynamicPropertySource
 static void keycloakProperties(DynamicPropertyRegistry registry) {
-    String issuerUri = keycloak.getAuthServerUrl() + "/realms/test";
+    String issuerUri = keycloak.getIssuerUrl("test");
     registry.add("spring.security.oauth2.client.provider.keycloak.issuer-uri", () -> issuerUri);
     registry.add("spring.security.oauth2.client.registration.keycloak.client-id", () -> "my-client");
     registry.add("spring.security.oauth2.client.registration.keycloak.client-secret", () -> "my-secret");
@@ -160,7 +160,7 @@ class ResourceServerTest {
         public void initialize(ConfigurableApplicationContext ctx) {
             TestPropertyValues.of(
                 "spring.security.oauth2.resourceserver.jwt.issuer-uri=" +
-                    keycloak.getAuthServerUrl() + "/realms/test"
+                    keycloak.getIssuerUrl("test")
             ).applyTo(ctx.getEnvironment());
         }
     }
@@ -190,7 +190,7 @@ abstract class AbstractKeycloakIntegrationTest {
     @DynamicPropertySource
     static void keycloakProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-            () -> keycloak.getAuthServerUrl() + "/realms/test");
+            () -> keycloak.getIssuerUrl("test"));
     }
 }
 ```
@@ -241,8 +241,7 @@ import java.nio.charset.StandardCharsets;
 
 private String obtainAccessToken(String realm, String clientId, String clientSecret)
         throws Exception {
-    String tokenUrl = keycloak.getAuthServerUrl()
-        + "/realms/" + realm + "/protocol/openid-connect/token";
+    String tokenUrl = keycloak.getTokenEndpoint(realm);
     String body = "grant_type=client_credentials"
         + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
         + "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
@@ -276,9 +275,9 @@ static KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keyc
 
 @DynamicPropertySource
 static void keycloakProperties(DynamicPropertyRegistry registry) {
-    // getAuthServerUrl() returns an HTTPS URL when TLS is enabled
+    // getIssuerUrl() returns an HTTPS URL when TLS is enabled
     registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-        () -> keycloak.getAuthServerUrl() + "/realms/test");
+        () -> keycloak.getIssuerUrl("test"));
 
     // Trust the built-in self-signed certificate
     registry.add("spring.ssl.bundle.jks.keycloak.truststore.location",
