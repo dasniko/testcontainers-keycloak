@@ -55,7 +55,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
 
@@ -134,6 +137,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private boolean bootstrapAdmin = true;
     private boolean optimizeFlag = false;
+
+    private final Map<String, String> openIdConfigCache = new ConcurrentHashMap<>();
 
     /**
      * Create a KeycloakContainer with the default image and version tag
@@ -679,6 +684,49 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public String getKeycloakDefaultVersion() {
         RemoteDockerImage image = this.getImage();
         return this.getDockerImageName().endsWith(":nightly") ? "999.0.0-SNAPSHOT" : KEYCLOAK_VERSION;
+    }
+
+    public String getOpenIdConfigurationUrl(String realmName) {
+        return String.format("%s/realms/%s/.well-known/openid-configuration", getAuthServerUrl(), realmName);
+    }
+
+    public String getIssuerUrl(String realmName) {
+        return getOpenIdConfigValue(realmName, "issuer");
+    }
+
+    public String getTokenEndpoint(String realmName) {
+        return getOpenIdConfigValue(realmName, "token_endpoint");
+    }
+
+    public String getJwksUri(String realmName) {
+        return getOpenIdConfigValue(realmName, "jwks_uri");
+    }
+
+    public String getUserInfoEndpoint(String realmName) {
+        return getOpenIdConfigValue(realmName, "userinfo_endpoint");
+    }
+
+    private String getOpenIdConfigValue(String realmName, String fieldName) {
+        String openIdConfigUrl = getOpenIdConfigurationUrl(realmName);
+        String body = openIdConfigCache.computeIfAbsent(realmName, k -> {
+            try {
+                SimpleHttp simpleHttp = SimpleHttp.doGet(openIdConfigUrl);
+                if (useTls) {
+                    SSLContext sslContext = buildSslContext();
+                    if (sslContext != null) {
+                        simpleHttp.sslContext(sslContext);
+                    }
+                }
+                return simpleHttp.asResponse().getBody();
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to fetch OpenID configuration from " + openIdConfigUrl, e);
+            }
+        });
+        Matcher matcher = Pattern.compile("\"" + fieldName + "\"\\s*:\\s*\"([^\"]+)\"").matcher(body);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        throw new IllegalStateException("No '" + fieldName + "' field found in OpenID configuration response from " + openIdConfigUrl);
     }
 
     private boolean isNotBlank(String s) {
