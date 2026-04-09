@@ -27,6 +27,18 @@ Open an issue to discuss first — ideas may already be planned or explicitly ru
 - README updated for any user-facing change
 - One concern per PR
 
+## Developer Certificate of Origin (DCO)
+
+All commits must be signed off to certify that you wrote the code and have the right to contribute it.
+Add a `Signed-off-by` trailer to every commit:
+
+```
+git commit --signoff -m "your commit message"
+```
+
+This adds a line like `Signed-off-by: Your Name <your@email.com>` to the commit, indicating your agreement with the [Developer Certificate of Origin](https://developercertificate.org/).
+Pull requests containing unsigned commits will not be merged.
+
 ## Commit messages
 
 Use the imperative mood and explain the *why* in the body, not just the *what*.
