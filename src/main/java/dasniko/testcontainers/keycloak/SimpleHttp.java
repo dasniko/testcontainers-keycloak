@@ -22,9 +22,14 @@ import lombok.RequiredArgsConstructor;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Minimal HTTP client helper, modelled after Keycloak's {@code org.keycloak.broker.provider.util.SimpleHttp}.
@@ -36,13 +41,23 @@ class SimpleHttp {
     private final String method;
     private final String url;
     private SSLContext sslContext;
+    private final Map<String, String> formParams = new LinkedHashMap<>();
 
     static SimpleHttp doGet(String url) {
         return new SimpleHttp("GET", url);
     }
 
+    static SimpleHttp doPost(String url) {
+        return new SimpleHttp("POST", url);
+    }
+
     SimpleHttp sslContext(SSLContext sslContext) {
         this.sslContext = sslContext;
+        return this;
+    }
+
+    SimpleHttp param(String name, String value) {
+        formParams.put(name, value);
         return this;
     }
 
@@ -51,12 +66,22 @@ class SimpleHttp {
         if (sslContext != null) {
             clientBuilder.sslContext(sslContext);
         }
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .method(method, HttpRequest.BodyPublishers.noBody())
-            .build();
+
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(URI.create(url));
+        if (formParams.isEmpty()) {
+            requestBuilder.method(method, HttpRequest.BodyPublishers.noBody());
+        } else {
+            String encodedBody = formParams.entrySet().stream()
+                .map(e -> URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8)
+                         + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+            requestBuilder
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .method(method, HttpRequest.BodyPublishers.ofString(encodedBody));
+        }
+
         try {
-            HttpResponse<String> response = clientBuilder.build().send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = clientBuilder.build().send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
             return new Response(response.statusCode(), response.body());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
