@@ -28,7 +28,7 @@ jobs:
           - shard: 3
             classes: "dasniko.testcontainers.keycloak.KeycloakContainerHttpsLegacyTest,dasniko.testcontainers.keycloak.KeycloakContainerOptimizedTest"
           - shard: 4
-            classes: "dasniko.testcontainers.keycloak.KeycloakContainerExtensionTest,dasniko.testcontainers.keycloak.KeycloakContainerExtensionReuseTest"
+            classes: "dasniko.testcontainers.keycloak.KeycloakContainerExtensionTest,dasniko.testcontainers.keycloak.KeycloakContainerExtensionReuseTest,dasniko.testcontainers.keycloak.KeycloakContainerEndpointHelpersTest,dasniko.testcontainers.keycloak.KeycloakContainerTokenHelpersTest"
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

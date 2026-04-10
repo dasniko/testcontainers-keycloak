@@ -49,8 +49,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     public Map<String, String> start() {
         keycloak.start();
         return Map.of(
-            "quarkus.oidc.auth-server-url",
-                keycloak.getAuthServerUrl() + "/realms/test",
+            "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test"),
             "quarkus.oidc.client-id", "my-client",
             "quarkus.oidc.credentials.secret", "my-secret"
         );
@@ -118,8 +117,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     public Map<String, String> start() {
         keycloak.start();
         return Map.of(
-            "quarkus.oidc.auth-server-url",
-                keycloak.getAuthServerUrl() + "/realms/test"
+            "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test")
         );
     }
 
@@ -157,8 +155,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     public Map<String, String> start() {
         keycloak.start();
         return Map.of(
-            "quarkus.oidc.auth-server-url",
-                keycloak.getAuthServerUrl() + "/realms/test"
+            "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test")
         );
     }
 
@@ -210,7 +207,26 @@ class TokenAcquisitionTest {
 
 ## Obtaining access tokens in tests
 
-Use the Keycloak Admin Client (transitive dependency) for ROPC-based token acquisition in tests:
+The container provides built-in token helpers that cover the most common OAuth2 grant types with no extra dependencies or boilerplate:
+
+```java
+// ROPC grant — returns the access token string directly
+String token = keycloak.getAccessToken("test", "my-client", "testuser", "testpass");
+
+// ROPC grant for confidential clients (include client secret)
+String token = keycloak.getAccessToken("test", "my-client", "my-secret", "testuser", "testpass");
+
+// Client Credentials grant
+String token = keycloak.getClientCredentialsToken("test", "my-client", "my-secret");
+
+// Full token response (access token, refresh token, expiry, token type)
+TokenResponse response = keycloak.getTokenResponse("test", "my-client", "my-secret", "testuser", "testpass");
+TokenResponse response = keycloak.getClientCredentialsTokenResponse("test", "my-client", "my-secret");
+```
+
+These helpers use only the JDK HTTP client and respect the container's TLS configuration automatically.
+
+If you need more control, the Keycloak Admin Client (a transitive dependency) is also available:
 
 ```java
 import org.keycloak.admin.client.Keycloak;
@@ -228,39 +244,6 @@ private String obtainAccessToken(String realm, String clientId,
 }
 ```
 
-For client credentials grants, use a plain HTTP call (no additional dependencies required):
-
-```java
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-
-private String obtainClientCredentialsToken(String realm, String clientId,
-                                             String clientSecret) throws Exception {
-    String tokenUrl = keycloak.getAuthServerUrl()
-        + "/realms/" + realm + "/protocol/openid-connect/token";
-    String body = "grant_type=client_credentials"
-        + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
-        + "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
-
-    HttpResponse<String> response = HttpClient.newHttpClient().send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(tokenUrl))
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .POST(HttpRequest.BodyPublishers.ofString(body))
-            .build(),
-        HttpResponse.BodyHandlers.ofString());
-
-    String json = response.body();
-    int start = json.indexOf("\"access_token\":\"") + 16;
-    int end = json.indexOf('"', start);
-    return json.substring(start, end);
-}
-```
-
 ## Multi-tenant OIDC configuration
 
 When your Quarkus application uses multiple OIDC tenants (`quarkus.oidc.tenants.*`), add each tenant's properties in the `start()` return map:
@@ -269,13 +252,12 @@ When your Quarkus application uses multiple OIDC tenants (`quarkus.oidc.tenants.
 @Override
 public Map<String, String> start() {
     keycloak.start();
-    String base = keycloak.getAuthServerUrl();
     return Map.of(
         // Default tenant
-        "quarkus.oidc.auth-server-url",       base + "/realms/default",
+        "quarkus.oidc.auth-server-url",       keycloak.getIssuerUrl("default"),
         "quarkus.oidc.client-id",             "default-client",
         // Named tenant
-        "quarkus.oidc.tenants.partner.auth-server-url",  base + "/realms/partner",
+        "quarkus.oidc.tenants.partner.auth-server-url",  keycloak.getIssuerUrl("partner"),
         "quarkus.oidc.tenants.partner.client-id",        "partner-client"
     );
 }
@@ -289,12 +271,11 @@ For applications using `quarkus-oidc-client` to call downstream services:
 @Override
 public Map<String, String> start() {
     keycloak.start();
-    String base = keycloak.getAuthServerUrl() + "/realms/test";
     return Map.of(
         // Resource server side
-        "quarkus.oidc.auth-server-url",                        base,
+        "quarkus.oidc.auth-server-url",                        keycloak.getIssuerUrl("test"),
         // OIDC client side (outgoing token requests)
-        "quarkus.oidc-client.auth-server-url",                 base,
+        "quarkus.oidc-client.auth-server-url",                 keycloak.getIssuerUrl("test"),
         "quarkus.oidc-client.client-id",                       "service-client",
         "quarkus.oidc-client.credentials.secret",              "service-secret",
         "quarkus.oidc-client.grant.type",                      "client"
@@ -315,10 +296,9 @@ private static final KeycloakContainer keycloak =
 @Override
 public Map<String, String> start() {
     keycloak.start();
-    // getAuthServerUrl() returns HTTPS when TLS is enabled
+    // getIssuerUrl() returns an HTTPS URL when TLS is enabled
     return Map.of(
-        "quarkus.oidc.auth-server-url",
-            keycloak.getAuthServerUrl() + "/realms/test",
+        "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test"),
         "quarkus.tls.trust-all", "true"   // only for tests — never in production
     );
 }

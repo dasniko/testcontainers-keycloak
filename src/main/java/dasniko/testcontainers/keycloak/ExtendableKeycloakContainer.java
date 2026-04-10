@@ -54,8 +54,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
 
@@ -134,6 +138,8 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     private boolean bootstrapAdmin = true;
     private boolean optimizeFlag = false;
+
+    private final Map<String, String> openIdConfigCache = new ConcurrentHashMap<>();
 
     /**
      * Create a KeycloakContainer with the default image and version tag
@@ -679,6 +685,114 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
     public String getKeycloakDefaultVersion() {
         RemoteDockerImage image = this.getImage();
         return this.getDockerImageName().endsWith(":nightly") ? "999.0.0-SNAPSHOT" : KEYCLOAK_VERSION;
+    }
+
+    public String getOpenIdConfigurationUrl(String realmName) {
+        return String.format("%s/realms/%s/.well-known/openid-configuration", getAuthServerUrl(), realmName);
+    }
+
+    public String getIssuerUrl(String realmName) {
+        return getOpenIdConfigValue(realmName, "issuer");
+    }
+
+    public String getTokenEndpoint(String realmName) {
+        return getOpenIdConfigValue(realmName, "token_endpoint");
+    }
+
+    public String getJwksUri(String realmName) {
+        return getOpenIdConfigValue(realmName, "jwks_uri");
+    }
+
+    public String getUserInfoEndpoint(String realmName) {
+        return getOpenIdConfigValue(realmName, "userinfo_endpoint");
+    }
+
+    public String getAccessToken(String realmName, String clientId, String username, String password) {
+        return getAccessToken(realmName, clientId, null, username, password);
+    }
+
+    public String getAccessToken(String realmName, String clientId, String clientSecret, String username, String password) {
+        return getTokenResponse(realmName, clientId, clientSecret, username, password).getAccessToken();
+    }
+
+    public String getClientCredentialsToken(String realmName, String clientId, String clientSecret) {
+        return getClientCredentialsTokenResponse(realmName, clientId, clientSecret).getAccessToken();
+    }
+
+    public TokenResponse getTokenResponse(String realmName, String clientId, String username, String password) {
+        return getTokenResponse(realmName, clientId, null, username, password);
+    }
+
+    public TokenResponse getTokenResponse(String realmName, String clientId, String clientSecret, String username, String password) {
+        try {
+            SimpleHttp request = withTls(SimpleHttp.doPost(getTokenEndpoint(realmName))
+                .param("grant_type", "password")
+                .param("client_id", clientId)
+                .param("username", username)
+                .param("password", password));
+            if (isNotBlank(clientSecret)) {
+                request.param("client_secret", clientSecret);
+            }
+            return parseTokenResponse(request.asResponse().getBody());
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to obtain access token for realm " + realmName, e);
+        }
+    }
+
+    public TokenResponse getClientCredentialsTokenResponse(String realmName, String clientId, String clientSecret) {
+        try {
+            SimpleHttp.Response response = withTls(SimpleHttp.doPost(getTokenEndpoint(realmName))
+                .param("grant_type", "client_credentials")
+                .param("client_id", clientId)
+                .param("client_secret", clientSecret))
+                .asResponse();
+            return parseTokenResponse(response.getBody());
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to obtain client credentials token for realm " + realmName, e);
+        }
+    }
+
+    private TokenResponse parseTokenResponse(String body) {
+        return new TokenResponse(
+            parseJsonStringField(body, "access_token").orElseThrow(() -> new IllegalStateException("No access_token in token response")),
+            parseJsonStringField(body, "id_token").orElse(null),
+            parseJsonStringField(body, "refresh_token").orElse(null),
+            parseJsonIntField(body, "expires_in").orElse(0),
+            parseJsonStringField(body, "token_type").orElse("Bearer")
+        );
+    }
+
+    private String getOpenIdConfigValue(String realmName, String fieldName) {
+        String openIdConfigUrl = getOpenIdConfigurationUrl(realmName);
+        String body = openIdConfigCache.computeIfAbsent(realmName, k -> {
+            try {
+                return withTls(SimpleHttp.doGet(openIdConfigUrl)).asResponse().getBody();
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to fetch OpenID configuration from " + openIdConfigUrl, e);
+            }
+        });
+        return parseJsonStringField(body, fieldName)
+            .orElseThrow(() -> new IllegalStateException("No '" + fieldName + "' field found in OpenID configuration response from " + openIdConfigUrl));
+    }
+
+    private SimpleHttp withTls(SimpleHttp simpleHttp) {
+        if (useTls) {
+            SSLContext sslContext = buildSslContext();
+            if (sslContext != null) {
+                simpleHttp.sslContext(sslContext);
+            }
+        }
+        return simpleHttp;
+    }
+
+    private Optional<String> parseJsonStringField(String json, String fieldName) {
+        Matcher m = Pattern.compile("\"" + fieldName + "\"\\s*:\\s*\"([^\"]+)\"").matcher(json);
+        return m.find() ? Optional.of(m.group(1)) : Optional.empty();
+    }
+
+    private Optional<Integer> parseJsonIntField(String json, String fieldName) {
+        Matcher m = Pattern.compile("\"" + fieldName + "\"\\s*:\\s*(\\d+)").matcher(json);
+        return m.find() ? Optional.of(Integer.parseInt(m.group(1))) : Optional.empty();
     }
 
     private boolean isNotBlank(String s) {
