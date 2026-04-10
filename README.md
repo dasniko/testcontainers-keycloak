@@ -52,6 +52,7 @@ testImplementation("com.github.dasniko:testcontainers-keycloak:VERSION")
   - [Realm Import](#realm-import)
   - [Getting an admin client and other information](#getting-an-admin-client-and-other-information-from-the-testcontainer)
   - [OIDC Endpoint URL Helpers](#oidc-endpoint-url-helpers)
+  - [Token Acquisition Helpers](#token-acquisition-helpers)
   - [Context Path](#context-path)
   - [Management Port](#management-port)
   - [Memory Settings](#memory-settings)
@@ -204,6 +205,46 @@ static void keycloakProperties(DynamicPropertyRegistry registry) {
         () -> keycloak.getIssuerUrl("my-realm"));
 }
 ```
+
+### Token Acquisition Helpers
+
+Instead of writing boilerplate HTTP calls or reaching for the Keycloak Admin Client just to obtain a token, you can use the built-in token helpers directly on the container:
+
+**Resource Owner Password Credentials (ROPC) grant:**
+
+```java
+// Returns the access token string
+String token = keycloak.getAccessToken("my-realm", "my-client", "username", "password");
+
+// For confidential clients — include the client secret
+String token = keycloak.getAccessToken("my-realm", "my-client", "client-secret", "username", "password");
+
+// Returns the full token response (access token, refresh token, expiry, token type)
+TokenResponse response = keycloak.getTokenResponse("my-realm", "my-client", "username", "password");
+TokenResponse response = keycloak.getTokenResponse("my-realm", "my-client", "client-secret", "username", "password");
+```
+
+**Client Credentials grant:**
+
+```java
+// Returns the access token string
+String token = keycloak.getClientCredentialsToken("my-realm", "my-client", "client-secret");
+
+// Returns the full token response
+TokenResponse response = keycloak.getClientCredentialsTokenResponse("my-realm", "my-client", "client-secret");
+```
+
+The `TokenResponse` record exposes:
+
+| Field | Description |
+|---|---|
+| `getAccessToken()` | The JWT access token string |
+| `getIdToken()` | The ID token (`null` for client credentials grant) |
+| `getRefreshToken()` | The refresh token (`null` for client credentials grant) |
+| `getExpiresIn()` | Access token lifetime in seconds |
+| `getTokenType()` | Token type (typically `Bearer`) |
+
+These helpers use only the JDK HTTP client — no extra dependencies — and reuse the TLS configuration of the container when HTTPS is enabled.
 
 ### Context Path
 
