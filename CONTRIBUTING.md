@@ -41,7 +41,7 @@ Pull requests containing unsigned commits will not be merged.
 
 ## Use of AI / generative tools
 
-Using AI coding assistants is fine, but comes with two requirements:
+Using AI coding assistants is fine, but comes with some requirements:
 
 1. **Disclose it in the PR** — mention which tool(s) you used in the PR description.
 2. **Own the result** — you must understand every change well enough to explain and maintain it yourself. AI-generated code that you cannot reason about will not be merged, regardless of whether it passes tests.
