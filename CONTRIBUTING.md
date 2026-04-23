@@ -39,6 +39,14 @@ git commit --signoff -m "your commit message"
 This adds a line like `Signed-off-by: Your Name <your@email.com>` to the commit, indicating your agreement with the [Developer Certificate of Origin](https://developercertificate.org/).
 Pull requests containing unsigned commits will not be merged.
 
+## Use of AI / generative tools
+
+Using AI coding assistants is fine, but comes with two requirements:
+
+1. **Disclose it in the PR** — mention which tool(s) you used in the PR description.
+2. **Own the result** — you must understand every change well enough to explain and maintain it yourself. AI-generated code that you cannot reason about will not be merged, regardless of whether it passes tests.
+3. **License compliance** — you are responsible for ensuring that AI-generated code does not introduce license-incompatible content. This project is licensed under the Apache License 2.0; all contributions must be compatible.
+
 ## Commit messages
 
 Use the imperative mood and explain the *why* in the body, not just the *what*.
