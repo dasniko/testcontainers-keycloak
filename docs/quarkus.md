@@ -49,8 +49,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     public Map<String, String> start() {
         keycloak.start();
         return Map.of(
-            "quarkus.oidc.auth-server-url",
-                keycloak.getAuthServerUrl() + "/realms/test",
+            "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test"),
             "quarkus.oidc.client-id", "my-client",
             "quarkus.oidc.credentials.secret", "my-secret"
         );
@@ -118,8 +117,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     public Map<String, String> start() {
         keycloak.start();
         return Map.of(
-            "quarkus.oidc.auth-server-url",
-                keycloak.getAuthServerUrl() + "/realms/test"
+            "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test")
         );
     }
 
@@ -157,8 +155,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     public Map<String, String> start() {
         keycloak.start();
         return Map.of(
-            "quarkus.oidc.auth-server-url",
-                keycloak.getAuthServerUrl() + "/realms/test"
+            "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test")
         );
     }
 
@@ -240,8 +237,7 @@ import java.nio.charset.StandardCharsets;
 
 private String obtainClientCredentialsToken(String realm, String clientId,
                                              String clientSecret) throws Exception {
-    String tokenUrl = keycloak.getAuthServerUrl()
-        + "/realms/" + realm + "/protocol/openid-connect/token";
+    String tokenUrl = keycloak.getTokenEndpoint(realm);
     String body = "grant_type=client_credentials"
         + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
         + "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
@@ -269,13 +265,12 @@ When your Quarkus application uses multiple OIDC tenants (`quarkus.oidc.tenants.
 @Override
 public Map<String, String> start() {
     keycloak.start();
-    String base = keycloak.getAuthServerUrl();
     return Map.of(
         // Default tenant
-        "quarkus.oidc.auth-server-url",       base + "/realms/default",
+        "quarkus.oidc.auth-server-url",       keycloak.getIssuerUrl("default"),
         "quarkus.oidc.client-id",             "default-client",
         // Named tenant
-        "quarkus.oidc.tenants.partner.auth-server-url",  base + "/realms/partner",
+        "quarkus.oidc.tenants.partner.auth-server-url",  keycloak.getIssuerUrl("partner"),
         "quarkus.oidc.tenants.partner.client-id",        "partner-client"
     );
 }
@@ -289,12 +284,11 @@ For applications using `quarkus-oidc-client` to call downstream services:
 @Override
 public Map<String, String> start() {
     keycloak.start();
-    String base = keycloak.getAuthServerUrl() + "/realms/test";
     return Map.of(
         // Resource server side
-        "quarkus.oidc.auth-server-url",                        base,
+        "quarkus.oidc.auth-server-url",                        keycloak.getIssuerUrl("test"),
         // OIDC client side (outgoing token requests)
-        "quarkus.oidc-client.auth-server-url",                 base,
+        "quarkus.oidc-client.auth-server-url",                 keycloak.getIssuerUrl("test"),
         "quarkus.oidc-client.client-id",                       "service-client",
         "quarkus.oidc-client.credentials.secret",              "service-secret",
         "quarkus.oidc-client.grant.type",                      "client"
@@ -315,10 +309,9 @@ private static final KeycloakContainer keycloak =
 @Override
 public Map<String, String> start() {
     keycloak.start();
-    // getAuthServerUrl() returns HTTPS when TLS is enabled
+    // getIssuerUrl() returns an HTTPS URL when TLS is enabled
     return Map.of(
-        "quarkus.oidc.auth-server-url",
-            keycloak.getAuthServerUrl() + "/realms/test",
+        "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test"),
         "quarkus.tls.trust-all", "true"   // only for tests — never in production
     );
 }

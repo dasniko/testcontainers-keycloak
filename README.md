@@ -51,6 +51,7 @@ testImplementation("com.github.dasniko:testcontainers-keycloak:VERSION")
   - [Initial admin user credentials](#initial-admin-user-credentials)
   - [Realm Import](#realm-import)
   - [Getting an admin client and other information](#getting-an-admin-client-and-other-information-from-the-testcontainer)
+  - [OIDC Endpoint URL Helpers](#oidc-endpoint-url-helpers)
   - [Context Path](#context-path)
   - [Management Port](#management-port)
   - [Memory Settings](#memory-settings)
@@ -178,6 +179,30 @@ Keycloak keycloakAdminClient = KeycloakBuilder.builder()
     .username(keycloak.getAdminUsername())
     .password(keycloak.getAdminPassword())
     .build();
+```
+
+### OIDC Endpoint URL Helpers
+
+Instead of manually concatenating URLs, you can use the built-in helpers to retrieve the standard OIDC endpoint URLs for a given realm directly from the container:
+
+```java
+String openIdConfigUrl = keycloak.getOpenIdConfigurationUrl("my-realm");
+String issuerUrl       = keycloak.getIssuerUrl("my-realm");
+String tokenEndpoint   = keycloak.getTokenEndpoint("my-realm");
+String jwksUri         = keycloak.getJwksUri("my-realm");
+String userInfoUrl     = keycloak.getUserInfoEndpoint("my-realm");
+```
+
+The values are fetched from the OpenID Connect discovery document (`/.well-known/openid-configuration`) and cached per realm, so repeated calls do not result in additional HTTP requests.
+
+This is particularly handy when configuring your application under test, for example with Spring Boot's `@DynamicPropertySource`:
+
+```java
+@DynamicPropertySource
+static void keycloakProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
+        () -> keycloak.getIssuerUrl("my-realm"));
+}
 ```
 
 ### Context Path
@@ -414,7 +439,7 @@ class MyTest {
     @DynamicPropertySource
     static void keycloakProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-            () -> keycloak.getAuthServerUrl() + "/realms/test");
+            () -> keycloak.getIssuerUrl("test"));
     }
 }
 ```
@@ -436,7 +461,7 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     public Map<String, String> start() {
         keycloak.start();
         return Map.of(
-            "quarkus.oidc.auth-server-url", keycloak.getAuthServerUrl() + "/realms/test",
+            "quarkus.oidc.auth-server-url", keycloak.getIssuerUrl("test"),
             "quarkus.oidc.client-id", "my-client"
         );
     }
