@@ -212,7 +212,26 @@ class MySecondTest extends AbstractKeycloakIntegrationTest {
 
 ## Obtaining access tokens in tests
 
-Use the Keycloak Admin Client (a transitive dependency) or a plain HTTP call to obtain tokens for your test requests. Direct token acquisition with the Resource Owner Password Credentials (ROPC) grant is useful in tests:
+The container provides built-in token helpers that cover the most common OAuth2 grant types with no extra dependencies or boilerplate:
+
+```java
+// ROPC grant — returns the access token string directly
+String token = keycloak.getAccessToken("test", "my-client", "testuser", "testpass");
+
+// ROPC grant for confidential clients (include client secret)
+String token = keycloak.getAccessToken("test", "my-client", "my-secret", "testuser", "testpass");
+
+// Client Credentials grant
+String token = keycloak.getClientCredentialsToken("test", "my-client", "my-secret");
+
+// Full token response (access token, refresh token, expiry, token type)
+TokenResponse response = keycloak.getTokenResponse("test", "my-client", "my-secret", "testuser", "testpass");
+TokenResponse response = keycloak.getClientCredentialsTokenResponse("test", "my-client", "my-secret");
+```
+
+These helpers use only the JDK HTTP client and respect the container's TLS configuration automatically.
+
+If you need more control, the Keycloak Admin Client (a transitive dependency) is also available:
 
 ```java
 import org.keycloak.admin.client.Keycloak;
@@ -226,40 +245,6 @@ private String obtainAccessToken(String realm, String clientId, String username,
             clientId)) {
         return client.tokenManager().getAccessTokenString();
     }
-}
-```
-
-Or, using the plain Java HTTP client (no extra dependencies):
-
-```java
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
-private String obtainAccessToken(String realm, String clientId, String clientSecret)
-        throws Exception {
-    String tokenUrl = keycloak.getTokenEndpoint(realm);
-    String body = "grant_type=client_credentials"
-        + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
-        + "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
-
-    HttpResponse<String> response = HttpClient.newHttpClient().send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(tokenUrl))
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .POST(HttpRequest.BodyPublishers.ofString(body))
-            .build(),
-        HttpResponse.BodyHandlers.ofString());
-
-    // Parse "access_token" from the JSON response
-    // (use Jackson/Gson if already on classpath, or a simple regex for test code)
-    String json = response.body();
-    int start = json.indexOf("\"access_token\":\"") + 16;
-    int end = json.indexOf('"', start);
-    return json.substring(start, end);
 }
 ```
 
