@@ -74,7 +74,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.46</lombok.version>
         <rest-assured.version>6.0.0</rest-assured.version>
-        <shrinkwrap.version>2.0.0-beta-2</shrinkwrap.version>
+        <shrinkwrap.version>2.0.0-beta-3</shrinkwrap.version>
         <shrinkwrap-resolver.version>3.3.5</shrinkwrap-resolver.version>
         <slf4j.version>2.0.18</slf4j.version>
         <testcontainers.version>2.0.4</testcontainers.version>
