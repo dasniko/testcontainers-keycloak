@@ -64,6 +64,8 @@
     </repositories>
 
     <properties>
+        <awaitility.version>4.3.0</awaitility.version>
+        <datafaker.version>2.7.0</datafaker.version>
         <jackson.version>2.22.1</jackson.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <junit-jupiter.version>6.1.1</junit-jupiter.version>
@@ -189,7 +191,7 @@
         <dependency>
             <groupId>net.datafaker</groupId>
             <artifactId>datafaker</artifactId>
-            <version>2.7.0</version>
+            <version>${datafaker.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -201,7 +203,7 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>4.3.0</version>
+            <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
