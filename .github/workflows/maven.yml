@@ -38,10 +38,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
+      - name: Determine Keycloak version
+        id: kc-version
+        run: |
+          KEYCLOAK_VERSION=$(grep -oPm1 "(?<=<keycloak.version>)[^<]+" pom.xml)
+          if [ "$KEYCLOAK_VERSION" = "999.0.0-SNAPSHOT" ]; then
+            KEYCLOAK_VERSION=nightly
+          fi
+          echo "version=$KEYCLOAK_VERSION" >> "$GITHUB_OUTPUT"
       - name: Run tests (Shard ${{ matrix.shard }})
         run: |
           mvn test -Dtest="${{ matrix.classes }}" \
-                   -Dsurefire.failIfNoSpecifiedTests=false
+                   -Dsurefire.failIfNoSpecifiedTests=false \
+                   -Dkc.version=${{ steps.kc-version.outputs.version }}
 
   build:
     runs-on: ubuntu-latest
