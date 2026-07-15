@@ -68,7 +68,7 @@
         <datafaker.version>2.7.0</datafaker.version>
         <jackson.version>2.22.1</jackson.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
-        <junit-jupiter.version>6.1.1</junit-jupiter.version>
+        <junit-jupiter.version>6.1.2</junit-jupiter.version>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
         <keycloak-admin-client.version>999.0.0-SNAPSHOT</keycloak-admin-client.version>
         <logback.version>1.5.37</logback.version>
