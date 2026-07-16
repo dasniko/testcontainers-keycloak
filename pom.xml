@@ -70,7 +70,7 @@
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <junit-jupiter.version>6.1.1</junit-jupiter.version>
         <keycloak.version>26.7.0</keycloak.version>
-        <keycloak-admin-client.version>26.0.10</keycloak-admin-client.version>
+        <keycloak-admin-client.version>26.0.11</keycloak-admin-client.version>
         <logback.version>1.5.37</logback.version>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
