@@ -695,6 +695,10 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
         return getOpenIdConfigValue(realmName, "issuer");
     }
 
+    public String getAuthorizationEndpoint(String realmName) {
+        return getOpenIdConfigValue(realmName, "authorization_endpoint");
+    }
+
     public String getTokenEndpoint(String realmName) {
         return getOpenIdConfigValue(realmName, "token_endpoint");
     }
@@ -705,6 +709,10 @@ public abstract class ExtendableKeycloakContainer<SELF extends ExtendableKeycloa
 
     public String getUserInfoEndpoint(String realmName) {
         return getOpenIdConfigValue(realmName, "userinfo_endpoint");
+    }
+
+    public String getEndSessionEndpoint(String realmName) {
+        return getOpenIdConfigValue(realmName, "end_session_endpoint");
     }
 
     public String getAccessToken(String realmName, String clientId, String username, String password) {
