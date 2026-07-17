@@ -43,6 +43,13 @@ public class KeycloakContainerEndpointHelpersTest {
     }
 
     @Test
+    void shouldReturnAuthorizationEndpoint() {
+        String tokenEndpoint = KEYCLOAK.getAuthorizationEndpoint("master");
+        assertThat(tokenEndpoint, startsWith(KEYCLOAK.getAuthServerUrl()));
+        assertThat(tokenEndpoint, endsWith("/realms/master/protocol/openid-connect/auth"));
+    }
+
+    @Test
     void shouldReturnTokenEndpoint() {
         String tokenEndpoint = KEYCLOAK.getTokenEndpoint("master");
         assertThat(tokenEndpoint, startsWith(KEYCLOAK.getAuthServerUrl()));
@@ -65,10 +72,19 @@ public class KeycloakContainerEndpointHelpersTest {
     }
 
     @Test
+    void shouldReturnEndSessionEndpoint() {
+        String tokenEndpoint = KEYCLOAK.getEndSessionEndpoint("master");
+        assertThat(tokenEndpoint, startsWith(KEYCLOAK.getAuthServerUrl()));
+        assertThat(tokenEndpoint, endsWith("/realms/master/protocol/openid-connect/logout"));
+    }
+
+    @Test
     void shouldReturnConsistentValuesOnRepeatedCalls() {
         assertThat(KEYCLOAK.getIssuerUrl("master"), equalTo(KEYCLOAK.getIssuerUrl("master")));
+        assertThat(KEYCLOAK.getAuthorizationEndpoint("master"), equalTo(KEYCLOAK.getAuthorizationEndpoint("master")));
         assertThat(KEYCLOAK.getTokenEndpoint("master"), equalTo(KEYCLOAK.getTokenEndpoint("master")));
         assertThat(KEYCLOAK.getJwksUri("master"), equalTo(KEYCLOAK.getJwksUri("master")));
         assertThat(KEYCLOAK.getUserInfoEndpoint("master"), equalTo(KEYCLOAK.getUserInfoEndpoint("master")));
+        assertThat(KEYCLOAK.getEndSessionEndpoint("master"), equalTo(KEYCLOAK.getEndSessionEndpoint("master")));
     }
 }

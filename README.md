@@ -187,11 +187,13 @@ Keycloak keycloakAdminClient = KeycloakBuilder.builder()
 Instead of manually concatenating URLs, you can use the built-in helpers to retrieve the standard OIDC endpoint URLs for a given realm directly from the container:
 
 ```java
-String openIdConfigUrl = keycloak.getOpenIdConfigurationUrl("my-realm");
-String issuerUrl       = keycloak.getIssuerUrl("my-realm");
-String tokenEndpoint   = keycloak.getTokenEndpoint("my-realm");
-String jwksUri         = keycloak.getJwksUri("my-realm");
-String userInfoUrl     = keycloak.getUserInfoEndpoint("my-realm");
+String openIdConfigUrl   = keycloak.getOpenIdConfigurationUrl("my-realm");
+String issuerUrl         = keycloak.getIssuerUrl("my-realm");
+String authorizationUrl  = keycloak.getAuthorizationEndpoint("my-realm");
+String tokenEndpoint     = keycloak.getTokenEndpoint("my-realm");
+String jwksUri           = keycloak.getJwksUri("my-realm");
+String userInfoUrl       = keycloak.getUserInfoEndpoint("my-realm");
+String endSessionUrl     = keycloak.getEndSessionEndpoint("my-realm");
 ```
 
 The values are fetched from the OpenID Connect discovery document (`/.well-known/openid-configuration`) and cached per realm, so repeated calls do not result in additional HTTP requests.
