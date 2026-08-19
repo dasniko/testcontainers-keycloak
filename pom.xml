@@ -66,7 +66,7 @@
     <properties>
         <awaitility.version>4.3.0</awaitility.version>
         <datafaker.version>2.7.0</datafaker.version>
-        <jackson.version>2.22.1</jackson.version>
+        <jackson.version>2.22.2</jackson.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <junit-jupiter.version>6.1.2</junit-jupiter.version>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
