@@ -55,11 +55,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
-          server-id: central
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
       - name: Deploy snapshot to Maven Central
-        run: mvn -B clean deploy -DskipTests=true
+        run: ./mvnw -B -s .github/maven-settings.xml clean deploy -DskipTests=true
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}

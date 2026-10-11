@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+	<servers>
+		<server>
+			<id>central</id>
+			<username>${env.MAVEN_USERNAME}</username>
+			<password>${env.MAVEN_PASSWORD}</password>
+			<!-- Maven >= 3.10 binds credentials to repository origins; the Central Portal repository is only known to the
+				central-publishing plugin, not at session start, so its origin has to be declared explicitly. -->
+			<repositoryOrigins>
+				<repositoryOrigin>https://central.sonatype.com</repositoryOrigin>
+			</repositoryOrigins>
+		</server>
+	</servers>
+</settings>

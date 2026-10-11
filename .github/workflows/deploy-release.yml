@@ -20,9 +20,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
-          server-id: central
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v7
         with:
@@ -32,7 +29,7 @@ jobs:
       - name: Set version from tag
         run: ./mvnw versions:set -DnewVersion=${GITHUB_REF_NAME#v} -DgenerateBackupPoms=false
       - name: Deploy to Maven Central
-        run: ./mvnw deploy -Prelease -DskipTests
+        run: ./mvnw -s .github/maven-settings.xml deploy -Prelease -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
