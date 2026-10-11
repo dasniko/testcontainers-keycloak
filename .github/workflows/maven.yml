@@ -48,9 +48,9 @@ jobs:
           echo "version=$KEYCLOAK_VERSION" >> "$GITHUB_OUTPUT"
       - name: Run tests (Shard ${{ matrix.shard }})
         run: |
-          mvn test -Dtest="${{ matrix.classes }}" \
-                   -Dsurefire.failIfNoSpecifiedTests=false \
-                   -Dkc.version=${{ steps.kc-version.outputs.version }}
+          ./mvnw test -Dtest="${{ matrix.classes }}" \
+                     -Dsurefire.failIfNoSpecifiedTests=false \
+                     -Dkc.version=${{ steps.kc-version.outputs.version }}
 
   build:
     runs-on: ubuntu-latest
@@ -65,4 +65,4 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Maven build
-        run: mvn -B package -DskipTests
+        run: ./mvnw -B package -DskipTests

@@ -39,9 +39,9 @@ jobs:
           echo "version=$KEYCLOAK_VERSION" >> "$GITHUB_OUTPUT"
       - name: Run tests (Shard ${{ matrix.shard }})
         run: |
-          mvn test -Dtest="${{ matrix.classes }}" \
-                   -Dsurefire.failIfNoSpecifiedTests=false \
-                   -Dkc.version=${{ steps.kc-version.outputs.version }}
+          ./mvnw test -Dtest="${{ matrix.classes }}" \
+                     -Dsurefire.failIfNoSpecifiedTests=false \
+                     -Dkc.version=${{ steps.kc-version.outputs.version }}
 
   deploy-snapshot:
     runs-on: ubuntu-latest
