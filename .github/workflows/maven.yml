@@ -5,6 +5,8 @@ name: CI build
 
 on:
   push:
+    branches:
+      - main
     paths-ignore:
       - '.github/**'
       - 'README.md'
